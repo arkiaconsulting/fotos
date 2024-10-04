@@ -11,6 +11,9 @@ internal static class EndpointExtension
         endpoints.MapPost("api/albums", ([FromBody] CreateAlbum folder) => Results.Ok())
             .AddEndpointFilter<ValidationEndpointFilter>();
 
+        endpoints.MapPost("api/albums/{albumId:guid}", (Guid albumId, IFormFile photo) => Results.Accepted())
+            .DisableAntiforgery();
+
         return endpoints;
     }
 }

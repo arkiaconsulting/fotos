@@ -58,4 +58,17 @@ internal static class FotoClient
 
         return await client.PostAsync(new Uri("api/albums", UriKind.Relative), content);
     }
+
+    public static async Task<HttpResponseMessage> AddPhoto(this HttpClient client, Guid albumId, byte[] photo)
+    {
+        await using var ms = new MemoryStream(photo);
+
+        using var streamContent = new StreamContent(ms);
+        using var content = new MultipartFormDataContent()
+        {
+            { streamContent, "photo", "photo.jpg" }
+        };
+
+        return await client.PostAsync(new Uri($"api/albums/{albumId}", UriKind.Relative), content);
+    }
 }

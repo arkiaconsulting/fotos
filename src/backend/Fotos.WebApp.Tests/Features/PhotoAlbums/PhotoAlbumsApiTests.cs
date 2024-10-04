@@ -32,4 +32,14 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
         response.Should().Be400BadRequest();
         response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");
     }
+
+    [Theory(DisplayName = "Adding a photo into an album should pass"), AutoData]
+    public async Task Test03(Guid albumId, byte[] photo)
+    {
+        var client = _fotoApi.CreateClient();
+
+        using var response = await client.AddPhoto(albumId, photo);
+
+        response.Should().Be202Accepted();
+    }
 }
