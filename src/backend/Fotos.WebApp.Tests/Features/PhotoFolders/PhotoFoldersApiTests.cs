@@ -11,7 +11,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
 
     public PhotoFoldersApiTests(FotoApi fotoApi) => _fotoApi = fotoApi;
 
-    [Theory(DisplayName = "Creating a new folder at root with a valid name should pass"), AutoData]
+    [Theory(DisplayName = "Creating a new folder with a valid name should pass"), AutoData]
     public async Task Test01(Guid parentFolderId, string folderName)
     {
         var client = _fotoApi.CreateClient();
@@ -21,7 +21,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
         response.Should().Be200Ok();
     }
 
-    [Theory(DisplayName = "Creating a new folder at root with an invalid payload should fail"), ClassData(typeof(CreateFolderWrongTheoryData))]
+    [Theory(DisplayName = "Creating a new folder with an invalid payload should fail"), ClassData(typeof(CreateFolderWrongTheoryData))]
     public async Task Test02(string body)
     {
         var client = _fotoApi.CreateClient();
