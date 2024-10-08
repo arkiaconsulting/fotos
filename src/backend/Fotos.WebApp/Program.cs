@@ -22,7 +22,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(options => options.RouteTemplate = "{documentName}/openapi.json");
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/fotos/openapi.json", "toto"));
 }
 
 app.UseHttpsRedirection();
