@@ -4,8 +4,12 @@
 
 @inject ListFolders ListFolders
 @inject GetRootFolderId GetRootFolderId
+@inject CreateFolder CreateFolder
 
 <PageTitle>Home</PageTitle>
+
+<InputText @bind-Value="_newFolder" />
+<button class="btn btn-primary" @onclick="CreateNewFolder">Create Folder</button>
 
 <ul>
     @foreach(var folder in _folders)
@@ -16,10 +20,24 @@
 
 @code {
     private IEnumerable<Folder> _folders = [];
+    private Guid _folderId = Guid.Empty;
+    private string _newFolder = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        var rootFolderId = await GetRootFolderId();
-        _folders = await ListFolders(rootFolderId);
+        _folderId = await GetRootFolderId();
+        await RefreshFolders();
+    }
+
+    private async Task CreateNewFolder()
+    {
+        await CreateFolder(_folderId, _newFolder);
+
+        await RefreshFolders();
+    }
+
+    private async Task RefreshFolders()
+    {
+        _folders = await ListFolders(_folderId);
     }
 }

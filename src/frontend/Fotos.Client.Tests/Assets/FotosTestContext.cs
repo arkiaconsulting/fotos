@@ -16,13 +16,19 @@ public sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
+        Services.AddSingleton<GetRootFolderId>(sp => () => Task.FromResult(RootFolderId));
         Services.AddSingleton<List<Folder>>();
-        Services.AddSingleton<ListFolders>(sp =>
+        Services.AddTransient<ListFolders>(sp =>
         {
             var folders = sp.GetRequiredService<List<Folder>>();
 
-            return (Guid guid) => Task.FromResult<IReadOnlyCollection<Folder>>(folders.Where(f => f.ParentId == guid).ToList());
+            return (Guid guid) => Task.FromResult<IReadOnlyCollection<Folder>>(folders.Where(f => f.ParentFolderId == guid).ToList());
         });
-        Services.AddSingleton<GetRootFolderId>(sp => () => Task.FromResult(RootFolderId));
+        Services.AddTransient<CreateFolder>(sp =>
+        {
+            var folders = sp.GetRequiredService<List<Folder>>();
+
+            return (Guid parentId, string name) => Task.Run(() => folders.Add(new Folder { ParentFolderId = parentId, Name = name }));
+        });
     }
 }

@@ -12,4 +12,15 @@ internal sealed class FotosApiClient
 
         return folders!;
     }
+
+    public async Task CreateFolder(Guid parentFolderId, string name)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/folders", new
+        {
+            parentFolderId,
+            name
+        });
+
+        response.EnsureSuccessStatusCode();
+    }
 }

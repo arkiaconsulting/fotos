@@ -13,6 +13,13 @@ internal static class ConfigurationExtensions
             return async (Guid guid) => await client.GetFolders(guid);
         });
 
+        services.AddScoped<CreateFolder>(sp =>
+        {
+            var client = sp.GetRequiredService<FotosApiClient>();
+
+            return async (Guid parentFolderId, string name) => await client.CreateFolder(parentFolderId, name);
+        });
+
         return services;
     }
 }
