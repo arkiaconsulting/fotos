@@ -3,3 +3,4 @@
 namespace Fotos.WebApp.Features.PhotoFolders;
 
 internal delegate Task StoreNewFolder(Folder folder);
+internal delegate Task<IReadOnlyCollection<Folder>> GetFolders(Guid parentFolderId);

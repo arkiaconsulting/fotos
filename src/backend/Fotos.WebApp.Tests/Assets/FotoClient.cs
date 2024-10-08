@@ -32,6 +32,11 @@ internal static class FotoClient
         return await client.PostAsync(new Uri("api/folders", UriKind.Relative), content);
     }
 
+    public static async Task<HttpResponseMessage> ListPhotoFolders(this HttpClient client, Guid parentFolderId)
+    {
+        return await client.GetAsync(new Uri($"api/folders/{parentFolderId}", UriKind.Relative));
+    }
+
     public static async Task<HttpResponseMessage> CreatePhotoAlbum(this HttpClient client, Guid folderId, string name)
     {
         var body = $$"""

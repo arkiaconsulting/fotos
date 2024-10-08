@@ -23,6 +23,16 @@ internal static class EndpointExtension
             .WithSummary("Create a new folder in an existing folder")
             .WithOpenApi();
 
+        endpoints.MapGet("api/folders/{parentFolderId}", async (Guid parentFolderId, [FromServices] GetFolders getFolders) =>
+        {
+            var folders = await getFolders(parentFolderId);
+
+            return Results.Ok(folders);
+        })
+            .WithTags("Folders")
+            .WithSummary("List child folders")
+            .WithOpenApi();
+
         return endpoints;
     }
 }

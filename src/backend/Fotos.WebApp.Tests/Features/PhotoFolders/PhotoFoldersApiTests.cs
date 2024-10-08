@@ -1,16 +1,13 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
 using Fotos.WebApp.Tests.Assets;
-using Fotos.WebApp.Types;
-using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http.Json;
 
 namespace Fotos.WebApp.Tests.Features.PhotoFolders;
 
 [Trait("Category", "Unit")]
 public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
 {
-    private List<Folder> Folders => _fotoApi.Services.GetRequiredService<List<Folder>>();
-
     private readonly FotoApi _fotoApi;
 
     public PhotoFoldersApiTests(FotoApi fotoApi) => _fotoApi = fotoApi;
@@ -36,13 +33,27 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
         response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");
     }
 
-    [Theory(DisplayName = "Creating a new folder should store it for future use"), AutoData]
-    public async Task Test03(Guid parentFolderId, string folderName)
+    [Theory(DisplayName = "Listing folders at root when no child folders should return empty list"), AutoData]
+    public async Task Test03(Guid rootFolderId)
     {
         var client = _fotoApi.CreateClient();
 
-        using var response = await client.CreatePhotoFolder(parentFolderId, folderName);
+        using var response = await client.ListPhotoFolders(rootFolderId);
 
-        Folders.Should().ContainSingle();
+        var actual = await response.Content.ReadFromJsonAsync<List<object>>();
+        actual.Should().BeEmpty();
+    }
+
+    [Theory(DisplayName = "Listing folders at root when having child folders should not return other root child folders"), AutoData]
+    public async Task Test04(Guid rootFolderId, Guid anotherFolderId, string folderName)
+    {
+        var client = _fotoApi.CreateClient();
+        _ = await client.CreatePhotoFolder(rootFolderId, folderName);
+        _ = await client.CreatePhotoFolder(anotherFolderId, folderName);
+
+        using var response = await client.ListPhotoFolders(rootFolderId);
+
+        var actual = await response.Content.ReadFromJsonAsync<List<object>>();
+        actual.Should().ContainSingle();
     }
 }

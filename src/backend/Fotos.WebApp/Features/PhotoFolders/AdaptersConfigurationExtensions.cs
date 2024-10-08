@@ -14,6 +14,13 @@ internal static class AdaptersConfigurationExtensions
                 store.Add(folder);
 
                 return Task.CompletedTask;
+            })
+            .AddScoped<GetFolders>(sp => parentFolderId =>
+            {
+                var store = sp.GetRequiredService<List<Folder>>();
+                var folders = store.Where(x => x.ParentId == parentFolderId).ToList();
+
+                return Task.FromResult<IReadOnlyCollection<Folder>>(folders);
             });
 
         return services;
