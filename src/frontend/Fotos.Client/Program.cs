@@ -1,10 +1,15 @@
 using Fotos.Client.Components;
+using Fotos.Client.Features.PhotoFolders;
+using Fotos.Client.Features.Profile;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddProfileFeature(builder.Configuration);
+builder.Services.AddFotosApi();
 
 var app = builder.Build();
 
