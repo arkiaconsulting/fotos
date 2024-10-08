@@ -14,6 +14,9 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 builder.Services.AddProblemDetails();
 
+// Adapters
+builder.Services.AddPhotoFoldersAdapters();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Fotos.WebApp.Framework;
+using Fotos.WebApp.Types;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fotos.WebApp.Features.PhotoFolders;
@@ -8,7 +9,15 @@ internal static class EndpointExtension
 {
     public static IEndpointRouteBuilder MapPhotoFolderEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("api/folders", ([FromBody] CreateFolder folder) => Results.Ok())
+        endpoints.MapPost("api/folders", async ([FromBody] CreateFolder folder, [FromServices] StoreNewFolder storeNewFolder) =>
+        {
+            var folderName = Name.Create(folder.Name);
+            var newFolder = new Folder(folder.ParentFolderId, folderName);
+
+            await storeNewFolder(newFolder);
+
+            return Results.Ok();
+        })
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Folders")
             .WithSummary("Create a new folder in an existing folder")

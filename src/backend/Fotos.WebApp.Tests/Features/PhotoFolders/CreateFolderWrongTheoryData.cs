@@ -60,5 +60,11 @@ internal sealed class CreateFolderWrongTheoryData : TheoryData<string>
     "name":"my folder"
 }
 """);
+        Add($$"""
+{
+    "parentFolderId":"00000000-0000-0000-0000-000000000000",
+    "name":"my folder"
+}
+""");
     }
 }
