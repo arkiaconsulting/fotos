@@ -14,7 +14,7 @@
 <ul>
     @foreach(var folder in _folders)
     {
-        <li>@folder.Name</li>
+        <li>@folder.Name<button class="btn btn-primary" @onclick="() => GotToFolder(folder.Id)">Go</button></li>
     }
 </ul>
 
@@ -29,6 +29,11 @@
         await RefreshFolders();
     }
 
+    private async Task RefreshFolders()
+    {
+        _folders = await ListFolders(_folderId);
+    }
+
     private async Task CreateNewFolder()
     {
         await CreateFolder(_folderId, _newFolder);
@@ -36,8 +41,10 @@
         await RefreshFolders();
     }
 
-    private async Task RefreshFolders()
+    private async Task GotToFolder(Guid folderId)
     {
-        _folders = await ListFolders(_folderId);
+        _folderId = folderId;
+
+        await RefreshFolders();
     }
 }

@@ -8,59 +8,59 @@ internal sealed class CreateFolderWrongTheoryData : TheoryData<string>
         Add(null!);
         Add(string.Empty);
         Add(" ");
-        Add($$"""
+        Add("""
 {
     "parentFolderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name":""
 }
 """);
-        Add($$"""
+        Add("""
 {
     "parentFolderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name":" "
 }
 """);
-        Add($$"""
+        Add("""
 {
     "parentFolderId":"",
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "parentFolderId":" ",
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "parentFolderId":"not a guid",
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "parentFolderId":"not a guid"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "parentFolderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name": null
 }
 """);
-        Add($$"""
+        Add("""
 {
     "parentFolderId": null,
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "parentFolderId":"00000000-0000-0000-0000-000000000000",
     "name":"my folder"

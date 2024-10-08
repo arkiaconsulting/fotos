@@ -19,7 +19,7 @@ public sealed class UnitTest1 : IDisposable
         _testContext.Folders.Add(new Folder { ParentFolderId = _testContext.RootFolderId, Name = folderName });
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find("ul").MarkupMatches($"<ul><li>{folderName}</li></ul>");
+        home.Find("ul").MarkupMatches($"<ul><li diff:ignoreChildren>{folderName}</li></ul>");
     }
 
     [Theory(DisplayName = "Adding a folder at root should add it to the folders list"), AutoData]
@@ -31,8 +31,19 @@ public sealed class UnitTest1 : IDisposable
 
         home.Find("button").Click();
 
-        home.WaitForState(() => true, TimeSpan.FromSeconds(1));
-        home.FindAll($"ul li:contains('{folderName}')").Should().NotBeEmpty();
+        home.WaitForAssertion(() => home.FindAll($"ul li:contains('{folderName}')").MarkupMatches("<li diff:ignoreChildren>{folderName}</li>"));
+    }
+
+    [Theory(DisplayName = "Clicking on a newly created folder should display its child folders (none in this case)"), AutoData]
+    public void Test03(string folderName)
+    {
+        _testContext.Folders.Add(new Folder { ParentFolderId = _testContext.RootFolderId, Name = folderName });
+
+        var home = _testContext.RenderComponent<Home>();
+
+        home.Find($"ul li:contains('{folderName}') button").Click();
+
+        home.WaitForAssertion(() => home.Find("ul").ChildElementCount.Should().Be(0));
     }
 
     #region IDisposable

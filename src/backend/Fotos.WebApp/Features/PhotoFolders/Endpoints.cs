@@ -12,7 +12,7 @@ internal static class EndpointExtension
         endpoints.MapPost("api/folders", async ([FromBody] CreateFolder folder, [FromServices] StoreNewFolder storeNewFolder) =>
         {
             var folderName = Name.Create(folder.Name);
-            var newFolder = new Folder(folder.ParentFolderId, folderName);
+            var newFolder = new Folder(Guid.NewGuid(), folder.ParentFolderId, folderName);
 
             await storeNewFolder(newFolder);
 
@@ -31,6 +31,7 @@ internal static class EndpointExtension
         })
             .WithTags("Folders")
             .WithSummary("List child folders")
+            .Produces<IEnumerable<Folder>>(StatusCodes.Status200OK)
             .WithOpenApi();
 
         return endpoints;

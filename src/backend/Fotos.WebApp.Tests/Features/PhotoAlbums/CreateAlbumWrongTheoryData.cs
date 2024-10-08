@@ -8,53 +8,53 @@ internal sealed class CreateAlbumWrongTheoryData : TheoryData<string>
         Add(null!);
         Add(string.Empty);
         Add(" ");
-        Add($$"""
+        Add("""
 {
     "folderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name":""
 }
 """);
-        Add($$"""
+        Add("""
 {
     "folderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name":" "
 }
 """);
-        Add($$"""
+        Add("""
 {
     "folderId":"",
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "folderId":" ",
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "folderId":"not a guid",
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "folderId":"not a guid"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "name":"my folder"
 }
 """);
-        Add($$"""
+        Add("""
 {
     "folderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name": null
 }
 """);
-        Add($$"""
+        Add("""
 {
     "folderId": null,
     "name":"my folder"

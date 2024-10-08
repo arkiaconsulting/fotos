@@ -16,7 +16,7 @@ public sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
-        Services.AddSingleton<GetRootFolderId>(sp => () => Task.FromResult(RootFolderId));
+        Services.AddSingleton<GetRootFolderId>(_ => () => Task.FromResult(RootFolderId));
         Services.AddSingleton<List<Folder>>();
         Services.AddTransient<ListFolders>(sp =>
         {
