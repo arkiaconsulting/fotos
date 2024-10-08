@@ -1,0 +1,24 @@
+﻿@page "/"
+@using Fotos.Client.Features.PhotoFolders
+
+@inject ListFolders ListFolders
+@inject GetRootFolderId GetRootFolderId
+
+<PageTitle>Home</PageTitle>
+
+<ul>
+    @foreach(var folder in _folders)
+    {
+        <li>@folder.Name</li>
+    }
+</ul>
+
+@code {
+    private IEnumerable<Folder> _folders = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var rootFolderId = await GetRootFolderId();
+        _folders = await ListFolders(rootFolderId);
+    }
+}
