@@ -16,11 +16,12 @@ internal static class EndpointExtension
 
             await storeNewFolder(newFolder);
 
-            return Results.Ok();
+            return Results.NoContent();
         })
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Folders")
             .WithSummary("Create a new folder in an existing folder")
+            .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
@@ -46,12 +47,31 @@ internal static class EndpointExtension
             }
             catch (InvalidOperationException)
             {
-                return Results.Problem(title: "The given folder does not exist", statusCode: StatusCodes.Status400BadRequest);
+                return Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "The given folder does not exist");
             }
         })
             .WithTags("Folders")
             .WithSummary("Get an existing folder")
-            .Produces<IEnumerable<Folder>>(StatusCodes.Status200OK)
+            .Produces<Folder>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
+        endpoints.MapDelete("api/folders/{folderId}", async (Guid folderId, [FromServices] RemoveFolder removeFolder) =>
+        {
+            try
+            {
+                await removeFolder(folderId);
+
+                return Results.NoContent();
+            }
+            catch (InvalidOperationException)
+            {
+                return Results.NoContent();
+            }
+        })
+            .WithTags("Folders")
+            .WithSummary("Remove an existing folder")
+            .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 

@@ -15,7 +15,7 @@ internal sealed class FotosApiClient
 
     public async Task CreateFolder(Guid parentId, string name)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/folders", new
+        using var response = await _httpClient.PostAsJsonAsync("api/folders", new
         {
             parentId,
             name
@@ -29,5 +29,12 @@ internal sealed class FotosApiClient
         var folder = await _httpClient.GetFromJsonAsync<Folder>($"api/folders/{folderId}");
 
         return folder!;
+    }
+
+    public async Task RemoveFolder(Guid folderId)
+    {
+        using var response = await _httpClient.DeleteAsync(new Uri($"api/folders/{folderId}", UriKind.Relative));
+
+        response.EnsureSuccessStatusCode();
     }
 }

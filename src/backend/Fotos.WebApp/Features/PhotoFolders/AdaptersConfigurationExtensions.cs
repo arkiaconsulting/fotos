@@ -30,6 +30,14 @@ internal static class AdaptersConfigurationExtensions
                 var store = sp.GetRequiredService<List<Folder>>();
 
                 return Task.FromResult(store.First(x => x.Id == folderId));
+            })
+            .AddScoped<RemoveFolder>(sp => folderId =>
+            {
+                var store = sp.GetRequiredService<List<Folder>>();
+                var folder = store.First(x => x.Id == folderId);
+                store.Remove(folder);
+
+                return Task.CompletedTask;
             });
 
         return services;

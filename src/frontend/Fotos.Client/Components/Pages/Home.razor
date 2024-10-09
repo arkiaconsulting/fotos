@@ -1,9 +1,11 @@
 ﻿@page "/"
 @using Fotos.Client.Features.PhotoFolders
+@using System.Collections.ObjectModel
 
 @inject ListFolders ListFolders
 @inject CreateFolder CreateFolder
 @inject GetFolder GetFolder
+@inject RemoveFolder RemoveFolder
 
 <PageTitle>Home</PageTitle>
 @if (!_loaded)
@@ -23,13 +25,15 @@ else
     <ul>
         @foreach (var folder in _folders)
         {
-            <li>@folder.Name<button class="btn btn-primary" @onclick="() => GotToFolder(folder)">Go</button></li>
+            <li>@folder.Name
+                <button id="go" class="btn btn-primary" @onclick="() => GotToFolder(folder)">Go</button>
+                <button id="remove" class="btn btn-primary" @onclick="() => RemoveThisFolder(folder)">X</button></li>
         }
     </ul>
 }
 
 @code {
-    private IEnumerable<Folder> _folders = [];
+    private List<Folder> _folders = [];
     private Folder _currentFolder = new();
     private string _newFolder = string.Empty;
     private bool _loaded = false;
@@ -54,7 +58,7 @@ else
 
     private async Task RefreshFolders()
     {
-        _folders = await ListFolders(_currentFolder.Id);
+        _folders = (await ListFolders(_currentFolder.Id)).ToList();
     }
 
     private async Task CreateNewFolder()
@@ -77,5 +81,12 @@ else
         _currentFolder = await GetFolder(_currentFolder.ParentId);
 
         await RefreshFolders();
+    }
+
+    private async Task RemoveThisFolder(Folder folder)
+    {
+        await RemoveFolder(folder.Id);
+
+        _folders.Remove(folder);
     }
 }

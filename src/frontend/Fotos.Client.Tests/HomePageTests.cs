@@ -41,7 +41,7 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find($"ul li:contains('{folderName}') button").Click();
+        home.Find($"ul li:contains('{folderName}') #go").Click();
 
         home.WaitForAssertion(() => home.Find("ul").ChildElementCount.Should().Be(0));
     }
@@ -52,7 +52,7 @@ public sealed class HomePageTests : IDisposable
         _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
 
         var home = _testContext.RenderComponent<Home>();
-        home.Find($"ul li:contains('{folderName}') button").Click();
+        home.Find($"ul li:contains('{folderName}') #go").Click();
 
         home.Find("#up").Click();
         home.WaitForState(() => true, TimeSpan.FromSeconds(1));
@@ -75,7 +75,7 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find($"ul li:contains('{folderName}') button").Click();
+        home.Find($"ul li:contains('{folderName}') #go").Click();
 
         home.Find("#up").GetAttribute("disabled").Should().BeNull();
     }
@@ -86,6 +86,18 @@ public sealed class HomePageTests : IDisposable
         var home = _testContext.RenderComponent<Home>();
 
         home.Find("#current-folder-name").TextContent.MarkupMatches("Root");
+    }
+
+    [Theory(DisplayName = "Deleting a folder should remove it from list"), AutoData]
+    public void Test08(string folderName)
+    {
+        _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+
+        var home = _testContext.RenderComponent<Home>();
+
+        home.Find($"ul li:contains('{folderName}') #remove").Click();
+
+        home.WaitForAssertion(() => home.Find("ul").MarkupMatches($"<ul></ul>"));
     }
 
     #region IDisposable

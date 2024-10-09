@@ -19,7 +19,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
 
         using var response = await client.CreatePhotoFolder(parentFolderId, folderName);
 
-        response.Should().Be200Ok();
+        response.Should().Be204NoContent();
     }
 
     [Theory(DisplayName = "Creating a new folder with an invalid payload should fail"), ClassData(typeof(CreateFolderWrongTheoryData))]
@@ -66,5 +66,28 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
 
         response.Should().Be400BadRequest();
         response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");
+    }
+
+    [Theory(DisplayName = "Removing a folder that does not exist should pass"), AutoData]
+    public async Task Test06(Guid nonExistingFolderId)
+    {
+        var client = _fotoApi.CreateClient();
+
+        using var response = await client.RemoveFolder(nonExistingFolderId);
+
+        response.Should().Be204NoContent();
+    }
+
+    [Theory(DisplayName = "Removing a folder that exists should pass"), AutoData]
+    public async Task Test07(Guid folderId, string folderName)
+    {
+        var client = _fotoApi.CreateClient();
+        using var _ = await client.CreatePhotoFolder(folderId, folderName);
+
+        using var response1 = await client.RemoveFolder(folderId);
+
+        response1.Should().Be204NoContent();
+        using var response2 = await client.GetFolder(folderId);
+        response2.Should().Be400BadRequest();
     }
 }

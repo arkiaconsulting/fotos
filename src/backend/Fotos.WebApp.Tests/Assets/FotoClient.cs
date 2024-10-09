@@ -42,6 +42,11 @@ internal static class FotoClient
         return await client.GetAsync(new Uri($"api/folders/{folderId}", UriKind.Relative));
     }
 
+    public static async Task<HttpResponseMessage> RemoveFolder(this HttpClient client, Guid folderId)
+    {
+        return await client.DeleteAsync(new Uri($"api/folders/{folderId}", UriKind.Relative));
+    }
+
     public static async Task<HttpResponseMessage> CreatePhotoAlbum(this HttpClient client, Guid folderId, string name)
     {
         var body = $$"""
