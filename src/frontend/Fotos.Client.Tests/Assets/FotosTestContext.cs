@@ -1,5 +1,4 @@
 ﻿using Fotos.Client.Features.PhotoFolders;
-using Fotos.Client.Features.Profile;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Fotos.Client.Tests.Assets;
@@ -16,19 +15,27 @@ public sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
-        Services.AddSingleton<GetRootFolderId>(_ => () => Task.FromResult(RootFolderId));
-        Services.AddSingleton<List<Folder>>();
+        Services.AddSingleton<List<Folder>>(_ =>
+        {
+            return [new Folder(RootFolderId, Guid.Empty, "Root")];
+        });
         Services.AddTransient<ListFolders>(sp =>
         {
             var folders = sp.GetRequiredService<List<Folder>>();
 
-            return (Guid guid) => Task.FromResult<IReadOnlyCollection<Folder>>(folders.Where(f => f.ParentFolderId == guid).ToList());
+            return (Guid guid) => Task.FromResult<IReadOnlyCollection<Folder>>(folders.Where(f => f.ParentId == guid).ToList());
         });
         Services.AddTransient<CreateFolder>(sp =>
         {
             var folders = sp.GetRequiredService<List<Folder>>();
 
-            return (Guid parentId, string name) => Task.Run(() => folders.Add(new Folder { ParentFolderId = parentId, Name = name }));
+            return (Guid parentId, string name) => Task.Run(() => folders.Add(new Folder(Guid.NewGuid(), parentId, name)));
+        });
+        Services.AddTransient<GetFolder>(sp =>
+        {
+            var folders = sp.GetRequiredService<List<Folder>>();
+
+            return (Guid folderId) => Task.Run(() => folders.Single(f => f.Id == folderId));
         });
     }
 }

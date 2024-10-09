@@ -56,4 +56,15 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
         var actual = await response.Content.ReadFromJsonAsync<List<object>>();
         actual.Should().ContainSingle();
     }
+
+    [Theory(DisplayName = "Getting a folder that does not exist should fail"), AutoData]
+    public async Task Test05(Guid nonExistingFolderId)
+    {
+        var client = _fotoApi.CreateClient();
+
+        using var response = await client.GetFolder(nonExistingFolderId);
+
+        response.Should().Be400BadRequest();
+        response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");
+    }
 }

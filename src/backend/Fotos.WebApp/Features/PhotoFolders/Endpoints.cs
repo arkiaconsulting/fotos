@@ -12,7 +12,7 @@ internal static class EndpointExtension
         endpoints.MapPost("api/folders", async ([FromBody] CreateFolder folder, [FromServices] StoreNewFolder storeNewFolder) =>
         {
             var folderName = Name.Create(folder.Name);
-            var newFolder = new Folder(Guid.NewGuid(), folder.ParentFolderId, folderName);
+            var newFolder = new Folder(Guid.NewGuid(), folder.ParentId, folderName);
 
             await storeNewFolder(newFolder);
 
@@ -21,17 +21,38 @@ internal static class EndpointExtension
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Folders")
             .WithSummary("Create a new folder in an existing folder")
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapGet("api/folders/{parentFolderId}", async (Guid parentFolderId, [FromServices] GetFolders getFolders) =>
+        endpoints.MapGet("api/folders/{folderId}/children", async (Guid folderId, [FromServices] GetFolders getFolders) =>
         {
-            var folders = await getFolders(parentFolderId);
+            var folders = await getFolders(folderId);
 
             return Results.Ok(folders);
         })
             .WithTags("Folders")
             .WithSummary("List child folders")
             .Produces<IEnumerable<Folder>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
+        endpoints.MapGet("api/folders/{folderId}", async (Guid folderId, [FromServices] GetFolder getFolder) =>
+        {
+            try
+            {
+                var folder = await getFolder(folderId);
+
+                return Results.Ok(folder);
+            }
+            catch (InvalidOperationException)
+            {
+                return Results.Problem(title: "The given folder does not exist", statusCode: StatusCodes.Status400BadRequest);
+            }
+        })
+            .WithTags("Folders")
+            .WithSummary("Get an existing folder")
+            .Produces<IEnumerable<Folder>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
         return endpoints;
@@ -41,16 +62,16 @@ internal static class EndpointExtension
 /// <summary>
 /// Create a new folder.
 /// </summary>
-/// <param name="ParentFolderId">The ID of the parent folder</param>
+/// <param name="ParentId">The ID of the parent folder</param>
 /// <param name="Name" example="Travels">The name of the folder to create</param>
-internal readonly record struct CreateFolder(Guid ParentFolderId, string Name)
+internal readonly record struct CreateFolder(Guid ParentId, string Name)
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
     internal sealed class Validator : AbstractValidator<CreateFolder>
     {
         public Validator()
         {
-            RuleFor(x => x.ParentFolderId).NotEmpty();
+            RuleFor(x => x.ParentId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty();
         }
     }

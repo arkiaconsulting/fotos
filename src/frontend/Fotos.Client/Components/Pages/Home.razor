@@ -1,49 +1,80 @@
 ﻿@page "/"
 @using Fotos.Client.Features.PhotoFolders
-@using Fotos.Client.Features.Profile
 
 @inject ListFolders ListFolders
-@inject GetRootFolderId GetRootFolderId
 @inject CreateFolder CreateFolder
+@inject GetFolder GetFolder
 
 <PageTitle>Home</PageTitle>
-
-<InputText @bind-Value="_newFolder" />
-<button class="btn btn-primary" @onclick="CreateNewFolder">Create Folder</button>
-
-<ul>
-    @foreach(var folder in _folders)
-    {
-        <li>@folder.Name<button class="btn btn-primary" @onclick="() => GotToFolder(folder.Id)">Go</button></li>
-    }
-</ul>
+@if (!_loaded)
+{
+    <p id="loader">Loading...</p>
+}
+else
+{
+    <p id="current-folder-name">@_currentFolder.Name</p>
+    <p>
+        <InputText @bind-Value="_newFolder" />
+        <button class="btn btn-primary" @onclick="CreateNewFolder">Create Folder</button>
+    </p>
+    <p>
+        <button id="up" class="btn btn-primary" @onclick="GotToParentFolder" disabled="@(_currentFolder.ParentId == Guid.Empty)">Go to parent</button>
+    </p>
+    <ul>
+        @foreach (var folder in _folders)
+        {
+            <li>@folder.Name<button class="btn btn-primary" @onclick="() => GotToFolder(folder)">Go</button></li>
+        }
+    </ul>
+}
 
 @code {
     private IEnumerable<Folder> _folders = [];
-    private Guid _folderId = Guid.Empty;
+    private Folder _currentFolder = new();
     private string _newFolder = string.Empty;
+    private bool _loaded = false;
 
     protected override async Task OnInitializedAsync()
     {
-        _folderId = await GetRootFolderId();
-        await RefreshFolders();
+        await Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _currentFolder = (await ListFolders(Guid.Empty)).Single();
+
+            await RefreshFolders();
+
+            _loaded = true;
+            StateHasChanged();
+        }
     }
 
     private async Task RefreshFolders()
     {
-        _folders = await ListFolders(_folderId);
+        _folders = await ListFolders(_currentFolder.Id);
     }
 
     private async Task CreateNewFolder()
     {
-        await CreateFolder(_folderId, _newFolder);
+        await CreateFolder(_currentFolder.Id, _newFolder);
+
+        await RefreshFolders();
+        _newFolder = string.Empty;
+    }
+
+    private async Task GotToFolder(Folder folder)
+    {
+        _currentFolder = folder;
 
         await RefreshFolders();
     }
 
-    private async Task GotToFolder(Guid folderId)
+    private async Task GotToParentFolder()
     {
-        _folderId = folderId;
+        _currentFolder = await GetFolder(_currentFolder.ParentId);
 
         await RefreshFolders();
     }

@@ -10,37 +10,37 @@ internal sealed class CreateFolderWrongTheoryData : TheoryData<string>
         Add(" ");
         Add("""
 {
-    "parentFolderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
+    "parentId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name":""
 }
 """);
         Add("""
 {
-    "parentFolderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
+    "parentId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name":" "
 }
 """);
         Add("""
 {
-    "parentFolderId":"",
+    "parentId":"",
     "name":"my folder"
 }
 """);
         Add("""
 {
-    "parentFolderId":" ",
+    "parentId":" ",
     "name":"my folder"
 }
 """);
         Add("""
 {
-    "parentFolderId":"not a guid",
+    "parentId":"not a guid",
     "name":"my folder"
 }
 """);
         Add("""
 {
-    "parentFolderId":"not a guid"
+    "parentId":"not a guid"
 }
 """);
         Add("""
@@ -50,19 +50,19 @@ internal sealed class CreateFolderWrongTheoryData : TheoryData<string>
 """);
         Add("""
 {
-    "parentFolderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
+    "parentId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name": null
 }
 """);
         Add("""
 {
-    "parentFolderId": null,
+    "parentId": null,
     "name":"my folder"
 }
 """);
         Add("""
 {
-    "parentFolderId":"00000000-0000-0000-0000-000000000000",
+    "parentId":"00000000-0000-0000-0000-000000000000",
     "name":"my folder"
 }
 """);

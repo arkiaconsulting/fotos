@@ -1,4 +1,5 @@
 ﻿namespace Fotos.Client.Features.PhotoFolders;
 
-internal delegate Task<IReadOnlyCollection<Folder>> ListFolders(Guid parentFolderId);
-internal delegate Task CreateFolder(Guid parentFolderId, string folderName);
+internal delegate Task<IReadOnlyCollection<Folder>> ListFolders(Guid parentId);
+internal delegate Task CreateFolder(Guid parentId, string folderName);
+internal delegate Task<Folder> GetFolder(Guid folderId);

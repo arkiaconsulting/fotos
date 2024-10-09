@@ -1,6 +1,5 @@
 using Fotos.Client.Components;
 using Fotos.Client.Features.PhotoFolders;
-using Fotos.Client.Features.Profile;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddProfileFeature(builder.Configuration);
 builder.Services.AddFotosApi();
 
 var app = builder.Build();
