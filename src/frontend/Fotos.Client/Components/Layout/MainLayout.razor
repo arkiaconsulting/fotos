@@ -1,9 +1,26 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+@inject IHostEnvironment HostEnvironment
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+<CustomErrorBoundary @ref="errorBoundary">
+    <ChildContent>
+        @Body
+    </ChildContent>
+    <ErrorContent>
+        <div class="alert alert-danger" role="alert">
+            <p class="fs-3 fw-bold">😈 A rotten gremlin got us. Sorry!</p>
+            <p>@context.Message</p>
+            @if (HostEnvironment.IsDevelopment())
+            {
+                <p>@context.StackTrace</p>
+            }
+            <button class="btn btn-info" @onclick="_ => errorBoundary?.Recover()">
+                Clear
+            </button>
+        </div>
+    </ErrorContent>
+</CustomErrorBoundary>
+
+@code {
+    private ErrorBoundary? errorBoundary = default!;
+}
