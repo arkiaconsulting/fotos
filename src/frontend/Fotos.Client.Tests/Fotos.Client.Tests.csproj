@@ -18,10 +18,11 @@
 		<PackageReference Include="AutoFixture.Xunit2" />
 		<PackageReference Include="FluentAssertions.Web" />
 		<PackageReference Include="System.Text.RegularExpressions" />
+		<PackageReference Include="System.Text.Json" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Fotos.Client\Fotos.Client.csproj" />
+		<ProjectReference Include="..\Fotos.Client\Fotos.Client.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

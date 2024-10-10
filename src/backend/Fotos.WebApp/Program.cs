@@ -18,6 +18,7 @@ builder.Services.AddProblemDetails();
 
 // Adapters
 builder.Services.AddPhotoFoldersAdapters();
+builder.Services.AddPhotoAlbumAdapters();
 
 var app = builder.Build();
 

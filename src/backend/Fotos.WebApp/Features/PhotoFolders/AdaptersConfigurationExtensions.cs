@@ -7,10 +7,7 @@ internal static class AdaptersConfigurationExtensions
     public static IServiceCollection AddPhotoFoldersAdapters(this IServiceCollection services)
     {
         services
-            .AddSingleton<List<Folder>>(sp =>
-            {
-                return [Folder.Create(Guid.NewGuid(), Guid.Empty, "Root")];
-            })
+            .AddSingleton<List<Folder>>(_ => [Folder.Create(Guid.NewGuid(), Guid.Empty, "Root")])
             .AddScoped<StoreNewFolder>(sp => folder =>
             {
                 var store = sp.GetRequiredService<List<Folder>>();

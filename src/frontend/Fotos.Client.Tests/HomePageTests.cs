@@ -29,7 +29,7 @@ public sealed class HomePageTests : IDisposable
         var newFolderInput = home.Find("input");
         newFolderInput.Change(folderName);
 
-        home.Find("button").Click();
+        home.Find("#create-folder").Click();
 
         home.WaitForAssertion(() => home.FindAll($"ul li:contains('{folderName}')").MarkupMatches("<li diff:ignoreChildren>{folderName}</li>"));
     }
@@ -97,7 +97,19 @@ public sealed class HomePageTests : IDisposable
 
         home.Find($"ul li:contains('{folderName}') #remove").Click();
 
-        home.WaitForAssertion(() => home.Find("ul").MarkupMatches($"<ul></ul>"));
+        home.WaitForAssertion(() => home.Find("ul").MarkupMatches("<ul></ul>"));
+    }
+
+    [Theory(DisplayName = "Creating an empty album in a folder should display it"), AutoData]
+    public void Test09(string albumName)
+    {
+        var home = _testContext.RenderComponent<Home>();
+
+        var newFolderInput = home.Find("#new-album-name");
+        newFolderInput.Change(albumName);
+        home.Find("#create-album").Click();
+
+        home.WaitForAssertion(() => home.Find("#albums ul").MarkupMatches($"<ul><li>{albumName}</li></ul>"));
     }
 
     #region IDisposable

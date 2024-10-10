@@ -6,6 +6,8 @@
 @inject CreateFolder CreateFolder
 @inject GetFolder GetFolder
 @inject RemoveFolder RemoveFolder
+@inject CreateAlbum CreateAlbum
+@inject ListAlbums ListAlbums
 
 <PageTitle>Home</PageTitle>
 @if (!_loaded)
@@ -14,10 +16,11 @@
 }
 else
 {
+    <h1>Folders</h1>
     <p id="current-folder-name">@_currentFolder.Name</p>
     <p>
         <InputText @bind-Value="_newFolder" />
-        <button class="btn btn-primary" @onclick="CreateNewFolder">Create Folder</button>
+        <button id="create-folder" class="btn btn-primary" @onclick="CreateNewFolder">Create Folder</button>
     </p>
     <p>
         <button id="up" class="btn btn-primary" @onclick="GotToParentFolder" disabled="@(_currentFolder.ParentId == Guid.Empty)">Go to parent</button>
@@ -30,12 +33,27 @@ else
                 <button id="remove" class="btn btn-primary" @onclick="() => RemoveThisFolder(folder)">X</button></li>
         }
     </ul>
+    <h1>Albums</h1>
+    <p>
+        <InputText id="new-album-name" @bind-Value="_newAlbumName" />
+        <button id="create-album" class="btn btn-primary" @onclick="CreateNewAlbum">Create Album</button>
+    </p>
+    <div id="albums">
+        <ul>
+            @foreach (var album in _albums)
+            {
+                <li>@album.Name</li>
+            }
+        </ul>
+    </div>
 }
 
 @code {
     private List<Folder> _folders = [];
+    private List<Album> _albums = [];
     private Folder _currentFolder = new();
     private string _newFolder = string.Empty;
+    private string _newAlbumName = string.Empty;
     private bool _loaded = false;
 
     protected override async Task OnInitializedAsync()
@@ -49,23 +67,24 @@ else
         {
             _currentFolder = (await ListFolders(Guid.Empty)).Single();
 
-            await RefreshFolders();
+            await RefreshFoldersAndAlbums();
 
             _loaded = true;
             StateHasChanged();
         }
     }
 
-    private async Task RefreshFolders()
+    private async Task RefreshFoldersAndAlbums()
     {
         _folders = (await ListFolders(_currentFolder.Id)).ToList();
+        _albums = (await ListAlbums(_currentFolder.Id)).ToList();
     }
 
     private async Task CreateNewFolder()
     {
         await CreateFolder(_currentFolder.Id, _newFolder);
 
-        await RefreshFolders();
+        await RefreshFoldersAndAlbums();
         _newFolder = string.Empty;
     }
 
@@ -73,14 +92,14 @@ else
     {
         _currentFolder = folder;
 
-        await RefreshFolders();
+        await RefreshFoldersAndAlbums();
     }
 
     private async Task GotToParentFolder()
     {
         _currentFolder = await GetFolder(_currentFolder.ParentId);
 
-        await RefreshFolders();
+        await RefreshFoldersAndAlbums();
     }
 
     private async Task RemoveThisFolder(Folder folder)
@@ -88,5 +107,12 @@ else
         await RemoveFolder(folder.Id);
 
         _folders.Remove(folder);
+    }
+
+    private async Task CreateNewAlbum()
+    {
+        await CreateAlbum(_currentFolder.Id, _newAlbumName);
+        await RefreshFoldersAndAlbums();
+        _newAlbumName = string.Empty;
     }
 }

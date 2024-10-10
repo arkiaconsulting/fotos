@@ -1,64 +1,27 @@
 ﻿namespace Fotos.WebApp.Tests.Features.PhotoAlbums;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
-internal sealed class CreateAlbumWrongTheoryData : TheoryData<string>
+internal sealed class CreateAlbumWrongTheoryData : TheoryData<string, string, string>
 {
     public CreateAlbumWrongTheoryData()
     {
-        Add(null!);
-        Add(string.Empty);
-        Add(" ");
-        Add("""
+        Add("null body", null!, Guid.NewGuid().ToString());
+        Add("emtpy body", string.Empty, Guid.NewGuid().ToString());
+        Add("whitespace body", " ", Guid.NewGuid().ToString());
+        Add("empty name", """
 {
-    "folderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name":""
 }
-""");
-        Add("""
+""", Guid.NewGuid().ToString());
+        Add("whitespace name", """
 {
-    "folderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name":" "
 }
-""");
-        Add("""
+""", Guid.NewGuid().ToString());
+        Add("null name", """
 {
-    "folderId":"",
-    "name":"my folder"
-}
-""");
-        Add("""
-{
-    "folderId":" ",
-    "name":"my folder"
-}
-""");
-        Add("""
-{
-    "folderId":"not a guid",
-    "name":"my folder"
-}
-""");
-        Add("""
-{
-    "folderId":"not a guid"
-}
-""");
-        Add("""
-{
-    "name":"my folder"
-}
-""");
-        Add("""
-{
-    "folderId":"6c14003f-ea36-4c48-9e15-775ef47c6ccc",
     "name": null
 }
-""");
-        Add("""
-{
-    "folderId": null,
-    "name":"my folder"
-}
-""");
+""", Guid.NewGuid().ToString());
     }
 }

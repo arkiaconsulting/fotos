@@ -15,10 +15,7 @@ public sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
-        Services.AddSingleton<List<Folder>>(_ =>
-        {
-            return [new Folder(RootFolderId, Guid.Empty, "Root")];
-        });
+        Services.AddSingleton<List<Folder>>(_ => [new Folder(RootFolderId, Guid.Empty, "Root")]);
         Services.AddTransient<ListFolders>(sp =>
         {
             var folders = sp.GetRequiredService<List<Folder>>();
@@ -47,6 +44,19 @@ public sealed class FotosTestContext : TestContext
 
                 folders.Remove(folder);
             });
+        });
+        Services.AddSingleton<List<Album>>(_ => []);
+        Services.AddTransient<CreateAlbum>(sp =>
+        {
+            var albums = sp.GetRequiredService<List<Album>>();
+
+            return (Guid folderId, string name) => Task.Run(() => albums.Add(new Album(Guid.NewGuid(), folderId, name)));
+        });
+        Services.AddTransient<ListAlbums>(sp =>
+        {
+            var albums = sp.GetRequiredService<List<Album>>();
+
+            return (Guid folderId) => Task.FromResult<IReadOnlyCollection<Album>>(albums.Where(a => a.FolderId == folderId).ToList());
         });
     }
 }
