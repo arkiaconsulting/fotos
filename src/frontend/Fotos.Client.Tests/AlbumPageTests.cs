@@ -3,6 +3,7 @@ using FluentAssertions;
 using Fotos.Client.Components.Pages;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Tests.Assets;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Fotos.Client.Tests;
 
@@ -31,6 +32,28 @@ public sealed class AlbumPageTests : IDisposable
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
+        cut.WaitForElements("#photos img").Should().HaveCount(1);
+    }
+
+    [Theory(DisplayName = "The album page should allow the uploading of an photo"), AutoData]
+    public void Test03(Guid folderId, Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
+        cut.WaitForElement("#album input[type=file]");
+    }
+
+    [Theory(DisplayName = "The album page should display a photo that was just uploaded"), AutoData]
+    public void Test04(Guid folderId, Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        cut.WaitForElement("#album input[type=file]");
+        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00]));
 
         cut.WaitForElements("#photos img").Should().HaveCount(1);
     }

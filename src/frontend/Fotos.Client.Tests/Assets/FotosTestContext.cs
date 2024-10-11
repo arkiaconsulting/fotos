@@ -73,5 +73,11 @@ public sealed class FotosTestContext : TestContext
 
             return (Guid _, Guid albumId) => Task.FromResult<IReadOnlyCollection<Photo>>(photos.Where(p => p.AlbumId == albumId).ToList());
         });
+        Services.AddTransient<AddPhoto>(sp =>
+        {
+            var photos = sp.GetRequiredService<List<Photo>>();
+
+            return (Guid _, Guid albumId, byte[] buffer) => Task.Run(() => photos.Add(new(Guid.NewGuid(), albumId, new Uri("https://www.google.com/images/branding/googlelogo/1x/googlelogo_light_color_272x92dp.png"))));
+        });
     }
 }
