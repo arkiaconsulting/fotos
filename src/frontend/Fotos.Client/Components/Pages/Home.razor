@@ -8,6 +8,7 @@
 @inject RemoveFolder RemoveFolder
 @inject CreateAlbum CreateAlbum
 @inject ListAlbums ListAlbums
+@inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 @if (!_loaded)
@@ -42,7 +43,9 @@ else
         <ul>
             @foreach (var album in _albums)
             {
-                <li>@album.Name</li>
+                <li>@album.Name
+                    <button id="go-album" class="btn btn-primary" @onclick="() => GoToAlbum(album.Id)">Go</button>
+                </li>
             }
         </ul>
     </div>
@@ -114,5 +117,10 @@ else
         await CreateAlbum(_currentFolder.Id, _newAlbumName);
         await RefreshFoldersAndAlbums();
         _newAlbumName = string.Empty;
+    }
+
+    private void GoToAlbum(Guid albumId)
+    {
+        NavigationManager.NavigateTo($"album/{albumId}");
     }
 }

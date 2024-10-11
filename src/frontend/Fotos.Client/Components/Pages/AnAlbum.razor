@@ -1,0 +1,8 @@
+﻿@page "/album/{_albumId:guid}"
+
+<h3>AnAlbum</h3>
+
+@code {
+    [Parameter]
+    public Guid _albumId { get; set; }
+}

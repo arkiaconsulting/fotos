@@ -3,6 +3,8 @@ using FluentAssertions;
 using Fotos.Client.Components.Pages;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Tests.Assets;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Fotos.Client.Tests;
 
@@ -109,7 +111,21 @@ public sealed class HomePageTests : IDisposable
         newFolderInput.Change(albumName);
         home.Find("#create-album").Click();
 
-        home.WaitForAssertion(() => home.Find("#albums ul").MarkupMatches($"<ul><li>{albumName}</li></ul>"));
+        home.WaitForAssertion(() => home.Find("#albums ul").MarkupMatches($"<ul><li diff:ignoreChildren>{albumName}</li></ul>"));
+    }
+
+    [Theory(DisplayName = "Clicking on an album should navigate to the album page"), AutoData]
+    public void Test10(string albumName)
+    {
+        var home = _testContext.RenderComponent<Home>();
+
+        var newFolderInput = home.Find("#new-album-name");
+        newFolderInput.Change(albumName);
+        home.Find("#create-album").Click();
+
+        home.WaitForAssertion(() => home.Find("#albums ul").MarkupMatches($"<ul><li diff:ignoreChildren>{albumName}</li></ul>"));
+        home.Find($"#albums ul li:contains('{albumName}') button").Click();
+        _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().StartWith("http://localhost/album/");
     }
 
     #region IDisposable
