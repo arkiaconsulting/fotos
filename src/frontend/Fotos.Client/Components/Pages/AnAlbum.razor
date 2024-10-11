@@ -1,8 +1,45 @@
-﻿@page "/album/{_albumId:guid}"
+﻿@page "/album/{FolderId:guid}/{AlbumId:guid}"
+@using Fotos.Client.Features.PhotoFolders
 
-<h3>AnAlbum</h3>
+@inject GetAlbum GetAlbum
+@inject ListPhotos ListPhotos
+
+@if (_loading)
+{
+    <h3>Loading...</h3>
+}
+else
+{
+    <h3 id="album-name">@_album!.Name</h3>
+
+    <div id="photos">
+        @foreach (var photo in _photos)
+        {
+            <img src="@photo.Url" />
+        }
+    </div>
+}
 
 @code {
     [Parameter]
-    public Guid _albumId { get; set; }
+    public Guid AlbumId { get; set; }
+
+    [Parameter]
+    public Guid FolderId { get; set; }
+
+    private bool _loading = true;
+    private Album _album = new();
+    private List<Photo> _photos = [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _album = await GetAlbum(FolderId, AlbumId);
+            _photos = (await ListPhotos(FolderId, AlbumId)).ToList();
+            _loading = false;
+
+            StateHasChanged();
+        }
+    }
 }

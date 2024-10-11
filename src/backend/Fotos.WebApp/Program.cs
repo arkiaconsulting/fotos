@@ -1,6 +1,7 @@
 using FluentValidation;
 using Fotos.WebApp.Features.PhotoAlbums;
 using Fotos.WebApp.Features.PhotoFolders;
+using Fotos.WebApp.Features.Photos;
 using Fotos.WebApp.Types;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services.AddProblemDetails();
 // Adapters
 builder.Services.AddPhotoFoldersAdapters();
 builder.Services.AddPhotoAlbumAdapters();
+builder.Services.AddPhotosAdapters();
 
 var app = builder.Build();
 
@@ -32,6 +34,7 @@ app.UseHttpsRedirection();
 
 app.MapPhotoFolderEndpoints();
 app.MapPhotoAlbumEndpoints();
+app.MapPhotosEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
 

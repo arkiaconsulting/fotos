@@ -45,6 +45,18 @@ internal static class ConfigurationExtensions
 
             return async (Guid folderId, string name) => await client.CreateAlbum(folderId, name);
         });
+        services.AddScoped<GetAlbum>(sp =>
+        {
+            var client = sp.GetRequiredService<FotosApiClient>();
+
+            return async (Guid folderId, Guid albumId) => await client.GetAlbum(folderId, albumId);
+        });
+        services.AddScoped<ListPhotos>(sp =>
+        {
+            var client = sp.GetRequiredService<FotosApiClient>();
+
+            return async (Guid folderId, Guid albumId) => await client.ListPhotos(folderId, albumId);
+        });
 
         return services;
     }

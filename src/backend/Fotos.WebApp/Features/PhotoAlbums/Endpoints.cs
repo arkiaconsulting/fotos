@@ -9,7 +9,7 @@ internal static class EndpointExtension
 {
     public static IEndpointRouteBuilder MapPhotoAlbumEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("api/folders/{folderId}/albums", async ([FromRoute] Guid folderId, [FromBody] CreateAlbum folder, [FromServices] AddAlbum addAlbum) =>
+        endpoints.MapPost("api/folders/{folderId}/albums", async ([FromRoute] Guid folderId, [FromBody] Endpoints folder, [FromServices] AddAlbum addAlbum) =>
         {
             var newAlbum = new Album(Guid.NewGuid(), folderId, Name.Create(folder.Name));
             await addAlbum(newAlbum);
@@ -21,19 +21,6 @@ internal static class EndpointExtension
             .WithTags("Albums")
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
-
-        endpoints.MapPost("api/folders/{folderId}/albums/{albumId:guid}/photos", (Guid folderId, Guid albumId, IFormFile photo) => Results.Accepted())
-            .DisableAntiforgery()
-            .WithSummary("Upload a photo to an existing album")
-            .WithTags("Albums")
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .WithOpenApi(operation =>
-            {
-                // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2212
-                operation.Parameters[0].Description = "The ID of the album to upload the photo to";
-
-                return operation;
-            });
 
         endpoints.MapGet("api/folders/{folderId}/albums", async ([FromRoute] Guid folderId, [FromServices] GetFolderAlbums getFolderAlbums) =>
         {
@@ -48,6 +35,19 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] GetAlbum getAlbum) =>
+        {
+            var album = await getAlbum(folderId, albumId);
+
+            return Results.Ok(album);
+        })
+            .AddEndpointFilter<ValidationEndpointFilter>()
+            .WithSummary("Get a specific album")
+            .WithTags("Albums")
+            .Produces<Album>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
         return endpoints;
     }
 }
@@ -56,10 +56,10 @@ internal static class EndpointExtension
 /// Create a new album.
 /// </summary>
 /// <param name="Name" example="New York 2024">The name of the album to create</param>
-internal readonly record struct CreateAlbum(string Name)
+internal readonly record struct Endpoints(string Name)
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
-    internal sealed class Validator : AbstractValidator<CreateAlbum>
+    internal sealed class Validator : AbstractValidator<Endpoints>
     {
         public Validator() => RuleFor(x => x.Name).NotEmpty();
     }

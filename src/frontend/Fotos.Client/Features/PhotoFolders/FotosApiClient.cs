@@ -54,4 +54,18 @@ internal sealed class FotosApiClient
 
         response.EnsureSuccessStatusCode();
     }
+
+    internal async Task<Album> GetAlbum(Guid folderId, Guid albumId)
+    {
+        var album = await _httpClient.GetFromJsonAsync<Album>($"api/folders/{folderId}/albums/{albumId}");
+
+        return album!;
+    }
+
+    internal async Task<IReadOnlyCollection<Photo>> ListPhotos(Guid folderId, Guid albumId)
+    {
+        var photos = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<Photo>>($"api/folders/{folderId}/albums/{albumId}/photos");
+
+        return photos!;
+    }
 }

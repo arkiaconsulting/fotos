@@ -6,3 +6,5 @@ internal delegate Task<Folder> GetFolder(Guid folderId);
 internal delegate Task RemoveFolder(Guid folderId);
 internal delegate Task CreateAlbum(Guid folderId, string albumName);
 internal delegate Task<IReadOnlyCollection<Album>> ListAlbums(Guid folderId);
+internal delegate Task<Album> GetAlbum(Guid folderId, Guid albumId);
+internal delegate Task<IReadOnlyCollection<Photo>> ListPhotos(Guid folderId, Guid albumId);

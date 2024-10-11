@@ -90,4 +90,14 @@ internal static class FotoClient
     {
         return await client.GetAsync(new Uri($"api/folders/{folderId}/albums", UriKind.Relative));
     }
+
+    public static async Task<HttpResponseMessage> GetAlbum(this HttpClient client, Guid folderId, Guid albumId)
+    {
+        return await client.GetAsync(new Uri($"api/folders/{folderId}/albums/{albumId}", UriKind.Relative));
+    }
+
+    public static async Task<HttpResponseMessage> ListPhotos(this HttpClient client, Guid folderId, Guid albumId)
+    {
+        return await client.GetAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos", UriKind.Relative));
+    }
 }

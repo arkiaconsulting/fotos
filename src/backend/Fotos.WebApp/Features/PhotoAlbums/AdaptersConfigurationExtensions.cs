@@ -25,6 +25,17 @@ internal static class AdaptersConfigurationExtensions
                 store.Add(album);
 
                 return Task.CompletedTask;
+            })
+            .AddScoped<GetAlbum>(sp =>
+            {
+                var store = sp.GetRequiredService<List<Album>>();
+
+                return (Guid folderId, Guid albumId) =>
+                {
+                    var album = store.Single(x => x.FolderId == folderId && x.Id == albumId);
+
+                    return Task.FromResult(album);
+                };
             });
 
         return services;

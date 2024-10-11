@@ -121,6 +121,6 @@ else
 
     private void GoToAlbum(Guid albumId)
     {
-        NavigationManager.NavigateTo($"album/{albumId}");
+        NavigationManager.NavigateTo($"album/{_currentFolder.Id}/{albumId}");
     }
 }

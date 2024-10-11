@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Fotos.WebApp.Tests.Assets;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Fotos.WebApp.Tests.Features.PhotoAlbums;
 
@@ -51,6 +52,33 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
         using var _ = await client.CreatePhotoAlbum(folderId, albumName);
 
         using var response = await client.ListFolderAlbums(folderId);
+
+        response.Should().Be200Ok();
+        var actual = await response.Content.ReadFromJsonAsync<List<object>>();
+        actual.Should().ContainSingle();
+    }
+
+    [Theory(DisplayName = "Getting a single album should pass"), AutoData]
+    public async Task Test05(Guid folderId, string albumName)
+    {
+        var client = _fotoApi.CreateClient();
+        using var _ = await client.CreatePhotoAlbum(folderId, albumName);
+        using var _2 = await client.ListFolderAlbums(folderId);
+        var actual = await _2.Content.ReadFromJsonAsync<List<JsonElement>>();
+        var albumId = actual.Should().ContainSingle().Subject.GetProperty("id").GetGuid();
+
+        using var response = await client.GetAlbum(folderId, albumId);
+
+        response.Should().Be200Ok();
+    }
+
+    [Theory(DisplayName = "Listing the photos of an album should pass"), AutoData]
+    public async Task Test06(Guid folderId, Guid albumId, byte[] photo)
+    {
+        var client = _fotoApi.CreateClient();
+        using var _ = await client.AddPhoto(folderId, albumId, photo);
+
+        using var response = await client.ListPhotos(folderId, albumId);
 
         response.Should().Be200Ok();
         var actual = await response.Content.ReadFromJsonAsync<List<object>>();
