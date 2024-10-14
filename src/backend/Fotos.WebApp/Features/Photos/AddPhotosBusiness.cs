@@ -20,11 +20,11 @@ internal sealed class AddPhotosBusiness
 
     public async Task Process(Guid folderId, Guid albumId, Stream photo)
     {
-        var photoId = Guid.NewGuid();
+        var photoId = new PhotoId(folderId, albumId, Guid.NewGuid());
 
         await _addPhotoToMainStorage(photoId, photo);
 
-        var photoData = new PhotoEntity(folderId, albumId, photoId, new Uri("https://example.com/photo.jpg"));
+        var photoData = new PhotoEntity(photoId, new Uri("https://example.com/photo.jpg"));
 
         await _storePhotoData(photoData);
 

@@ -12,14 +12,25 @@ public sealed class OnNewPhotoUploadedHandlerTests : IClassFixture<FotoContext>
     public OnNewPhotoUploadedHandlerTests(FotoContext fotoContext) => _fotoContext = fotoContext;
 
     [Theory(DisplayName = "When a new photo has been uploaded, its EXIF metadata should be stored"), AutoData]
-    public async Task Test01(Guid folderId, Guid albumId, Guid photoId, byte[] photoBytes, Uri photoUri)
+    internal async Task Test01(PhotoId photoId, byte[] photoBytes, Uri photoUri)
     {
-        _fotoContext.Photos.Add(new PhotoEntity(folderId, albumId, photoId, photoUri));
-        _fotoContext.MainStorage.Add((photoId, photoBytes));
+        _fotoContext.Photos.Add(new PhotoEntity(photoId, photoUri));
+        _fotoContext.MainStorage.Add((photoId.Id, photoBytes));
 
-        await _fotoContext.ExifMetadataExtractor.Handle(new(folderId, albumId, photoId));
+        await _fotoContext.ExifMetadataExtractor.Handle(photoId);
 
         var photo = _fotoContext.Photos.Should().ContainSingle().Subject;
         (photo.Metadata?.DateTaken).Should().NotBeNull();
+    }
+
+    [Theory(DisplayName = "When a new photo has been uploaded, its thumbnail representation should be stored"), AutoData]
+    internal async Task Test02(PhotoId photoId, byte[] photoBytes, Uri photoUri)
+    {
+        _fotoContext.Photos.Add(new PhotoEntity(photoId, photoUri));
+        _fotoContext.MainStorage.Add((photoId.Id, photoBytes));
+
+        await _fotoContext.ThumbnailProducer.Handle(photoId);
+
+        _fotoContext.ThumbnailsStorage.Should().ContainSingle();
     }
 }

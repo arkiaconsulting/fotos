@@ -23,7 +23,7 @@ internal static class AdaptersConfigurationExtensions
 
                 return (albumId) =>
                 {
-                    var photos = store.Where(x => x.AlbumId == albumId.Id).ToList();
+                    var photos = store.Where(x => x.Id.AlbumId == albumId.Id).ToList();
 
                     return Task.FromResult<IReadOnlyCollection<PhotoEntity>>(photos);
                 };
@@ -32,7 +32,7 @@ internal static class AdaptersConfigurationExtensions
             {
                 var store = sp.GetRequiredService<List<PhotoEntity>>();
 
-                store.RemoveAll(photo => photo.Id == photoId.Id);
+                store.RemoveAll(photo => photo.Id.Id == photoId.Id);
 
                 return Task.CompletedTask;
             })
@@ -42,8 +42,10 @@ internal static class AdaptersConfigurationExtensions
             {
                 var store = _.GetRequiredService<List<PhotoEntity>>();
 
-                return Task.FromResult(store.Single(x => x.Id == photoId.Id));
-            });
+                return Task.FromResult(store.Single(x => x.Id.Id == photoId.Id));
+            })
+            .AddScoped<CreateThumbnail>((_) => (_) => Task.FromResult(Stream.Null))
+            .AddScoped<AddPhotoToThumbnailStorage>((_) => (_, _) => Task.CompletedTask);
 
         return services;
     }

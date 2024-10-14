@@ -74,12 +74,12 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     }
 
     [Theory(DisplayName = "Listing the photos of an album should pass"), AutoData]
-    public async Task Test06(Guid photoId, Guid folderId, Guid albumId, Uri photoUri)
+    internal async Task Test06(PhotoId photoId, Uri photoUri)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(folderId, albumId, photoId, photoUri));
+        _fotoApi.Photos.Add(new PhotoEntity(photoId, photoUri));
 
-        using var response = await client.ListPhotos(folderId, albumId);
+        using var response = await client.ListPhotos(photoId.FolderId, photoId.AlbumId);
 
         response.Should().Be200Ok();
         var actual = await response.Content.ReadFromJsonAsync<List<object>>();
@@ -87,12 +87,12 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     }
 
     [Theory(DisplayName = "Removing a photo from an album should pass"), AutoData]
-    public async Task Test07(Guid photoId, Guid folderId, Guid albumId, Uri photoUri)
+    internal async Task Test07(PhotoId photoId, Uri photoUri)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId, folderId, albumId, photoUri));
+        _fotoApi.Photos.Add(new PhotoEntity(photoId, photoUri));
 
-        using var response = await client.RemovePhoto(folderId, albumId, photoId);
+        using var response = await client.RemovePhoto(photoId.FolderId, photoId.AlbumId, photoId.Id);
 
         response.Should().Be204NoContent();
     }
