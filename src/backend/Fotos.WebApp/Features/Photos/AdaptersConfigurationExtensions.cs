@@ -6,6 +6,15 @@ internal static class AdaptersConfigurationExtensions
     {
         services
             .AddSingleton<List<Photo>>(_ => [])
+            .AddScoped<StorePhotoData>(sp => photo =>
+            {
+                var store = sp.GetRequiredService<List<Photo>>();
+                store.Add(photo);
+
+                return Task.CompletedTask;
+            })
+            .AddScoped<AddPhotoToMainStorage>((_) => (_, _) => Task.CompletedTask)
+            .AddScoped<OnNewPhotoUploaded>((_) => (_) => Task.CompletedTask)
             .AddScoped<ListPhotos>(sp =>
             {
                 var store = sp.GetRequiredService<List<Photo>>();
@@ -16,14 +25,6 @@ internal static class AdaptersConfigurationExtensions
 
                     return Task.FromResult<IReadOnlyCollection<Photo>>(photos);
                 };
-            })
-            .AddScoped<AddPhoto>(sp => photo =>
-            {
-                var store = sp.GetRequiredService<List<Photo>>();
-
-                store.Add(photo);
-
-                return Task.CompletedTask;
             })
             .AddScoped<RemovePhoto>(sp => (_, _, id) =>
             {

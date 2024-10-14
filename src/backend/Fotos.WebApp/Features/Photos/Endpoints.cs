@@ -7,11 +7,11 @@ internal static class EndpointExtension
 {
     public static IEndpointRouteBuilder MapPhotosEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, IFormFile photo, [FromServices] AddPhoto addPhoto) =>
+        endpoints.MapPost("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, IFormFile photo, [FromServices] AddPhotosBusiness business) =>
         {
-            var aPhoto = new Photo(Guid.NewGuid(), folderId, albumId, new Uri("https://example.com/photo.jpg"));
+            await using var stream = photo.OpenReadStream();
 
-            await addPhoto(aPhoto);
+            await business.Process(folderId, albumId, stream);
 
             return Results.Accepted();
         })
