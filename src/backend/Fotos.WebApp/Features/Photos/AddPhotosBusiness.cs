@@ -1,3 +1,5 @@
+using Fotos.WebApp.Types;
+
 namespace Fotos.WebApp.Features.Photos;
 
 internal sealed class AddPhotosBusiness
@@ -22,7 +24,7 @@ internal sealed class AddPhotosBusiness
 
         await _addPhotoToMainStorage(photoId, photo);
 
-        var photoData = new Photo(photoId, folderId, albumId, new Uri("https://example.com/photo.jpg"));
+        var photoData = new PhotoEntity(folderId, albumId, photoId, new Uri("https://example.com/photo.jpg"));
 
         await _storePhotoData(photoData);
 

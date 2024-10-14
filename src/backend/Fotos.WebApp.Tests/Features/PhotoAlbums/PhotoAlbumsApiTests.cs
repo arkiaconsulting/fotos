@@ -1,7 +1,7 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
-using Fotos.WebApp.Features.Photos;
 using Fotos.WebApp.Tests.Assets;
+using Fotos.WebApp.Types;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -77,7 +77,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     public async Task Test06(Guid photoId, Guid folderId, Guid albumId, Uri photoUri)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new Photo(photoId, folderId, albumId, photoUri));
+        _fotoApi.Photos.Add(new PhotoEntity(folderId, albumId, photoId, photoUri));
 
         using var response = await client.ListPhotos(folderId, albumId);
 
@@ -90,7 +90,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     public async Task Test07(Guid photoId, Guid folderId, Guid albumId, Uri photoUri)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new Photo(photoId, folderId, albumId, photoUri));
+        _fotoApi.Photos.Add(new PhotoEntity(photoId, folderId, albumId, photoUri));
 
         using var response = await client.RemovePhoto(folderId, albumId, photoId);
 
