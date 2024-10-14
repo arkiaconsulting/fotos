@@ -24,6 +24,14 @@ internal static class AdaptersConfigurationExtensions
                 store.Add(photo);
 
                 return Task.CompletedTask;
+            })
+            .AddScoped<RemovePhoto>(sp => (_, _, id) =>
+            {
+                var store = sp.GetRequiredService<List<Photo>>();
+
+                store.RemoveAll(photo => photo.Id == id);
+
+                return Task.CompletedTask;
             });
 
         return services;

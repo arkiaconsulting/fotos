@@ -4,6 +4,7 @@
 @inject GetAlbum GetAlbum
 @inject ListPhotos ListPhotos
 @inject AddPhoto AddPhoto
+@inject RemovePhoto RemovePhoto
 
 @if (_loading)
 {
@@ -19,7 +20,10 @@ else
     <div id="photos">
         @foreach (var photo in _photos)
         {
-            <img src="@photo.Url" style="background-color:black" width="50" height="50"/>
+            <div class="photo">
+                <img src="@photo.Url" style="background-color:black" width="50" height="50" />
+                <button class="btn btn-error" onclick="@(() => RemoveAPhoto(photo.Id))">X</button>
+            </div>
         }
     </div>
 }
@@ -52,10 +56,18 @@ else
         var file = e.File;
         var buffer = new byte[file.Size];
         await file.OpenReadStream().ReadAsync(buffer);
-        
+
         await AddPhoto(FolderId, AlbumId, buffer);
 
         var photo = new Photo(Guid.Empty, AlbumId, new Uri("../img/new.png", UriKind.Relative));
         _photos.Add(photo);
+    }
+
+    private async Task RemoveAPhoto(Guid photoId)
+    {
+        await RemovePhoto(FolderId, AlbumId, photoId);
+
+        _photos.RemoveAll(p => p.Id == photoId);
+        StateHasChanged();
     }
 }

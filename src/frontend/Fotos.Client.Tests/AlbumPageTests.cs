@@ -55,7 +55,23 @@ public sealed class AlbumPageTests : IDisposable
         cut.WaitForElement("#album input[type=file]");
         cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00]));
 
-        cut.WaitForElements("#photos img").Should().HaveCount(1);
+        cut.WaitForElements("#photos .photo img").Should().HaveCount(1);
+    }
+
+    [Theory(DisplayName = "Removing a photo from an album should remove it from list"), AutoData]
+    public void Test05(Guid folderId, Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId, Url = new Uri("http://example.com") });
+
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        cut.WaitForElement("#photos .photo img");
+
+        var removeButton = cut.Find("#photos .photo button");
+        removeButton.Click();
+
+        cut.WaitForAssertion(() => cut.Find("#photos").InnerHtml.MarkupMatches(""));
     }
 
     #region IDisposable

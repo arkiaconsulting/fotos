@@ -84,4 +84,18 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
         var actual = await response.Content.ReadFromJsonAsync<List<object>>();
         actual.Should().ContainSingle();
     }
+
+    [Theory(DisplayName = "Removing a photo from an album should pass"), AutoData]
+    public async Task Test07(Guid folderId, Guid albumId, byte[] photo)
+    {
+        var client = _fotoApi.CreateClient();
+        using var _ = await client.AddPhoto(folderId, albumId, photo);
+        using var _2 = await client.ListPhotos(folderId, albumId);
+        var actual = await _2.Content.ReadFromJsonAsync<List<JsonElement>>();
+        var photoId = actual.Should().ContainSingle().Subject.GetProperty("id").GetGuid();
+
+        using var response = await client.RemovePhoto(folderId, albumId, photoId);
+
+        response.Should().Be204NoContent();
+    }
 }

@@ -79,5 +79,15 @@ public sealed class FotosTestContext : TestContext
 
             return (Guid _, Guid albumId, byte[] buffer) => Task.Run(() => photos.Add(new(Guid.NewGuid(), albumId, new Uri("https://www.google.com/images/branding/googlelogo/1x/googlelogo_light_color_272x92dp.png"))));
         });
+        Services.AddTransient<RemovePhoto>(sp =>
+        {
+            var photos = sp.GetRequiredService<List<Photo>>();
+
+            return (Guid _, Guid albumId, Guid photoId) => Task.Run(() =>
+            {
+                var photo = photos.First(p => p.Id == photoId);
+                photos.Remove(photo);
+            });
+        });
     }
 }

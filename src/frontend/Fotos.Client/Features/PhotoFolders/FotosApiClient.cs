@@ -82,4 +82,11 @@ internal sealed class FotosApiClient
 
         response.EnsureSuccessStatusCode();
     }
+
+    internal async Task RemovePhoto(Guid folderId, Guid albumId, Guid photoId)
+    {
+        using var response = await _httpClient.DeleteAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative));
+
+        response.EnsureSuccessStatusCode();
+    }
 }
