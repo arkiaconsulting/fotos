@@ -34,11 +34,11 @@ public sealed class FotoContext
             };
         });
         services.AddSingleton<ExtractExifMetadata>((_) => (_) => Task.FromResult(new ExifMetadata(DateTime.Now)));
-        services.AddSingleton<GetPhoto>(_ => (folderId, albumId, photoId) =>
+        services.AddSingleton<GetPhoto>(_ => (photoId) =>
         {
             var store = _.GetRequiredService<Collection<PhotoEntity>>();
 
-            return Task.FromResult(store.Single(x => x.FolderId == folderId && x.AlbumId == albumId && x.Id == photoId));
+            return Task.FromResult(store.Single(x => x.Id == photoId.Id));
         });
         services.AddSingleton<StorePhotoData>(sp =>
         {

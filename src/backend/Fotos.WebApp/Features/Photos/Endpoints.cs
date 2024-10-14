@@ -29,7 +29,7 @@ internal static class EndpointExtension
 
         endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] ListPhotos listPhotos) =>
         {
-            var photos = await listPhotos(folderId, albumId);
+            var photos = await listPhotos(new(folderId, albumId));
 
             return Results.Ok(photos);
         })
@@ -42,7 +42,7 @@ internal static class EndpointExtension
 
         endpoints.MapDelete("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] RemovePhoto removePhoto) =>
         {
-            await removePhoto(folderId, albumId, id);
+            await removePhoto(new(folderId, albumId, id));
 
             return Results.NoContent();
         })

@@ -1,4 +1,6 @@
-﻿namespace Fotos.WebApp.Features.Photos;
+﻿using Fotos.WebApp.Types;
+
+namespace Fotos.WebApp.Features.Photos;
 
 internal sealed class OnShouldExtractExifMetadata
 {
@@ -19,13 +21,13 @@ internal sealed class OnShouldExtractExifMetadata
         _storePhotoData = storePhotoData;
     }
 
-    public async Task Handle(Guid folderId, Guid albumId, Guid photoId)
+    public async Task Handle(PhotoId photoId)
     {
-        var bytes = await _readOriginalPhoto(photoId);
+        await using var stream = await _readOriginalPhoto(photoId.Id);
 
-        var metadata = await _extractExifMetadata(bytes);
+        var metadata = await _extractExifMetadata(stream);
 
-        var photo = await _getPhoto(folderId, albumId, photoId);
+        var photo = await _getPhoto(photoId);
 
         await _storePhotoData(photo = photo.WithMetadata(metadata));
     }

@@ -17,7 +17,7 @@ public sealed class OnNewPhotoUploadedHandlerTests : IClassFixture<FotoContext>
         _fotoContext.Photos.Add(new PhotoEntity(folderId, albumId, photoId, photoUri));
         _fotoContext.MainStorage.Add((photoId, photoBytes));
 
-        await _fotoContext.ExifMetadataExtractor.Handle(folderId, albumId, photoId);
+        await _fotoContext.ExifMetadataExtractor.Handle(new(folderId, albumId, photoId));
 
         var photo = _fotoContext.Photos.Should().ContainSingle().Subject;
         (photo.Metadata?.DateTaken).Should().NotBeNull();

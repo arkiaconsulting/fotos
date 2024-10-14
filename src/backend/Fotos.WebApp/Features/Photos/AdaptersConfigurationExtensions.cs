@@ -21,28 +21,28 @@ internal static class AdaptersConfigurationExtensions
             {
                 var store = sp.GetRequiredService<List<PhotoEntity>>();
 
-                return (folderId, albumId) =>
+                return (albumId) =>
                 {
-                    var photos = store.Where(x => x.FolderId == folderId && x.AlbumId == albumId).ToList();
+                    var photos = store.Where(x => x.AlbumId == albumId.Id).ToList();
 
                     return Task.FromResult<IReadOnlyCollection<PhotoEntity>>(photos);
                 };
             })
-            .AddScoped<RemovePhoto>(sp => (_, _, id) =>
+            .AddScoped<RemovePhoto>(sp => (photoId) =>
             {
                 var store = sp.GetRequiredService<List<PhotoEntity>>();
 
-                store.RemoveAll(photo => photo.Id == id);
+                store.RemoveAll(photo => photo.Id == photoId.Id);
 
                 return Task.CompletedTask;
             })
             .AddScoped<ReadOriginalPhoto>((_) => (_) => Task.FromResult(Stream.Null))
             .AddScoped<ExtractExifMetadata>((_) => (_) => Task.FromResult(new ExifMetadata(DateTime.Now)))
-            .AddScoped<GetPhoto>(_ => (folderId, albumId, photoId) =>
+            .AddScoped<GetPhoto>(_ => (photoId) =>
             {
                 var store = _.GetRequiredService<List<PhotoEntity>>();
 
-                return Task.FromResult(store.Single(x => x.FolderId == folderId && x.AlbumId == albumId && x.Id == photoId));
+                return Task.FromResult(store.Single(x => x.Id == photoId.Id));
             });
 
         return services;

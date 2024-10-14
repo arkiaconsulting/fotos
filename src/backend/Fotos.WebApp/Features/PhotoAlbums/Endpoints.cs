@@ -37,7 +37,7 @@ internal static class EndpointExtension
 
         endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] GetAlbum getAlbum) =>
         {
-            var album = await getAlbum(folderId, albumId);
+            var album = await getAlbum(new(folderId, albumId));
 
             return Results.Ok(album);
         })

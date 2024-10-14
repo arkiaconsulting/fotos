@@ -30,9 +30,9 @@ internal static class AdaptersConfigurationExtensions
             {
                 var store = sp.GetRequiredService<List<Album>>();
 
-                return (Guid folderId, Guid albumId) =>
+                return (albumId) =>
                 {
-                    var album = store.Single(x => x.FolderId == folderId && x.Id == albumId);
+                    var album = store.Single(x => x.Id == albumId.Id);
 
                     return Task.FromResult(album);
                 };
