@@ -1,4 +1,4 @@
-﻿namespace Fotos.WebApp.Types;
+﻿namespace Fotos.WebApp.Features.Shared;
 
 internal readonly record struct Name(string Value)
 {

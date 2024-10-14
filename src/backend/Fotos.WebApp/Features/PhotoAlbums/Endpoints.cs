@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
+using Fotos.WebApp.Features.Shared;
 using Fotos.WebApp.Framework;
-using Fotos.WebApp.Types;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fotos.WebApp.Features.PhotoAlbums;

@@ -1,7 +1,8 @@
-﻿using System.Text.Json;
+﻿using Fotos.WebApp.Features.Shared;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Fotos.WebApp.Types;
+namespace Fotos.WebApp.Features.PhotoFolders;
 
 internal readonly record struct Folder(Guid Id, Guid ParentId, [property: JsonConverter(typeof(NameJsonConverter))] Name Name)
 {

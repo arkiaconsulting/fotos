@@ -1,6 +1,4 @@
-﻿using Fotos.WebApp.Types;
-
-namespace Fotos.WebApp.Features.PhotoAlbums;
+﻿namespace Fotos.WebApp.Features.PhotoAlbums;
 
 internal static class AdaptersConfigurationExtensions
 {
