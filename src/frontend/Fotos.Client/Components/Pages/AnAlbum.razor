@@ -45,9 +45,9 @@ else
         using var stream = file.OpenReadStream();
         await stream.ReadAsync(buffer);
 
-        await AddPhoto(FolderId, AlbumId, buffer);
+        var id = await AddPhoto(FolderId, AlbumId, buffer);
 
-        var photo = new Photo(Guid.Empty, FolderId, AlbumId);
+        var photo = new Photo(id, FolderId, AlbumId);
         _thumbnailsComponent.AddPhoto(photo);
     }    
 }

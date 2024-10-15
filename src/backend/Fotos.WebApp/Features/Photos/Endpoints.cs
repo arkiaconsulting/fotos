@@ -11,18 +11,20 @@ internal static class EndpointExtension
         {
             await using var stream = photo.OpenReadStream();
 
-            await business.Process(folderId, albumId, stream);
+            var id = await business.Process(folderId, albumId, stream);
 
-            return Results.Accepted();
+            return Results.Accepted(value: id.ToString());
         })
             .DisableAntiforgery()
             .WithSummary("Upload a photo to an existing album")
             .WithTags("Photos")
+            .Produces<Guid>(StatusCodes.Status202Accepted)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi(operation =>
             {
                 // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2212
-                operation.Parameters[0].Description = "The ID of the album to upload the photo to";
+                operation.Parameters[0].Description = "The ID of the folder containing the album";
+                operation.Parameters[1].Description = "The ID of the album where to upload the photo to";
 
                 return operation;
             });

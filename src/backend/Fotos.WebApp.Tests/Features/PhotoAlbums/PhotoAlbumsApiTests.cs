@@ -44,6 +44,8 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
         using var response = await client.AddPhoto(folderId, albumId, photo);
 
         response.Should().Be202Accepted();
+        var id = await response.Content.ReadFromJsonAsync<Guid>();
+        id.Should().NotBeEmpty();
     }
 
     [Theory(DisplayName = "Listing folder albums should pass"), AutoData]

@@ -69,7 +69,7 @@ internal sealed class FotosApiClient
         return photos!;
     }
 
-    internal async Task AddPhoto(Guid folderId, Guid albumId, byte[] buffer)
+    internal async Task<Guid> AddPhoto(Guid folderId, Guid albumId, byte[] buffer)
     {
         await using var ms = new MemoryStream(buffer);
         using var streamContent = new StreamContent(ms);
@@ -81,6 +81,8 @@ internal sealed class FotosApiClient
         using var response = await _httpClient.PostAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos", UriKind.Relative), content);
 
         response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<Guid>()!;
     }
 
     internal async Task RemovePhoto(Guid folderId, Guid albumId, Guid photoId)

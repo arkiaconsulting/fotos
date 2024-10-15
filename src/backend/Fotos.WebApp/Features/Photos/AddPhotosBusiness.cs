@@ -18,9 +18,10 @@ internal sealed class AddPhotosBusiness
         _onNewPhotoUploaded = onNewPhotoUploaded;
     }
 
-    public async Task Process(Guid folderId, Guid albumId, Stream photo)
+    public async Task<Guid> Process(Guid folderId, Guid albumId, Stream photo)
     {
-        var photoId = new PhotoId(folderId, albumId, Guid.NewGuid());
+        var id = Guid.NewGuid();
+        var photoId = new PhotoId(folderId, albumId, id);
 
         await _addPhotoToMainStorage(photoId, photo);
 
@@ -29,5 +30,7 @@ internal sealed class AddPhotosBusiness
         await _storePhotoData(photoData);
 
         await _onNewPhotoUploaded(photoId);
+
+        return id;
     }
 }
