@@ -77,7 +77,7 @@ public sealed class FotosTestContext : TestContext
         {
             var photos = sp.GetRequiredService<List<Photo>>();
 
-            return (Guid _, Guid albumId, byte[] _) => Task.Run(() => photos.Add(new(Guid.NewGuid(), albumId)));
+            return (Guid folderId, Guid albumId, byte[] _) => Task.Run(() => photos.Add(new(Guid.NewGuid(), folderId, albumId)));
         });
         Services.AddTransient<RemovePhoto>(sp =>
         {

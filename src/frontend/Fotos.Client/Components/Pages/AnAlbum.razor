@@ -2,9 +2,7 @@
 @using Fotos.Client.Features.PhotoFolders
 
 @inject GetAlbum GetAlbum
-@inject ListPhotos ListPhotos
 @inject AddPhoto AddPhoto
-@inject RemovePhoto RemovePhoto
 
 @if (_loading)
 {
@@ -17,15 +15,7 @@ else
         <span>New photo</span><InputFile OnChange="UploadPhoto" />
     </div>
 
-    <div id="photos">
-        @foreach (var photo in _photos)
-        {
-            <div class="photo">
-                <img src="~/img/new.png" style="background-color:black" width="50" height="50" />
-                <button class="btn btn-error" onclick="@(() => RemoveAPhoto(photo.Id))">X</button>
-            </div>
-        }
-    </div>
+    <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" />
 }
 
 @code {
@@ -37,14 +27,13 @@ else
 
     private bool _loading = true;
     private Album _album = new();
-    private List<Photo> _photos = [];
+    private Thumbnails _thumbnailsComponent = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             _album = await GetAlbum(FolderId, AlbumId);
-            _photos = (await ListPhotos(FolderId, AlbumId)).ToList();
             _loading = false;
 
             StateHasChanged();
@@ -55,19 +44,12 @@ else
     {
         var file = e.File;
         var buffer = new byte[file.Size];
-        await file.OpenReadStream().ReadAsync(buffer);
+        using var stream = file.OpenReadStream();
+        await stream.ReadAsync(buffer);
 
         await AddPhoto(FolderId, AlbumId, buffer);
 
-        var photo = new Photo(Guid.Empty, AlbumId);
-        _photos.Add(photo);
-    }
-
-    private async Task RemoveAPhoto(Guid photoId)
-    {
-        await RemovePhoto(FolderId, AlbumId, photoId);
-
-        _photos.RemoveAll(p => p.Id == photoId);
-        StateHasChanged();
-    }
+        var photo = new Photo(Guid.Empty, FolderId, AlbumId);
+        _thumbnailsComponent.AddPhoto(photo);
+    }    
 }

@@ -33,7 +33,7 @@ public sealed class AlbumPageTests : IDisposable
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
 
-        cut.WaitForElements("#photos img").Should().HaveCount(1);
+        cut.WaitForElements("#thumbnails img").Should().HaveCount(1);
     }
 
     [Theory(DisplayName = "The album page should allow the uploading of an photo"), AutoData]
@@ -55,7 +55,7 @@ public sealed class AlbumPageTests : IDisposable
         cut.WaitForElement("#album input[type=file]");
         cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00]));
 
-        cut.WaitForElements("#photos .photo img").Should().HaveCount(1);
+        cut.WaitForElements("#thumbnails .thumbnail img").Should().HaveCount(1);
     }
 
     [Theory(DisplayName = "Removing a photo from an album should remove it from list"), AutoData]
@@ -66,12 +66,12 @@ public sealed class AlbumPageTests : IDisposable
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
-        cut.WaitForElement("#photos .photo img");
+        cut.WaitForElement("#thumbnails .thumbnail img");
 
-        var removeButton = cut.Find("#photos .photo button");
+        var removeButton = cut.Find("#thumbnails .thumbnail button");
         removeButton.Click();
 
-        cut.WaitForAssertion(() => cut.Find("#photos").InnerHtml.MarkupMatches(""));
+        cut.WaitForAssertion(() => cut.Find("#thumbnails").InnerHtml.MarkupMatches(""));
     }
 
     #region IDisposable

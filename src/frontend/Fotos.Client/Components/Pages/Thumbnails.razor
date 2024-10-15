@@ -1,0 +1,49 @@
+﻿@using Fotos.Client.Features.PhotoFolders
+
+@inject ListPhotos ListPhotos
+@inject RemovePhoto RemovePhoto
+
+<div id="thumbnails">
+    @foreach (var thumbnail in _thumbnails)
+    {
+        <div class="thumbnail">
+            <img src="img/new.png" style="background-color:black" width="50" height="50" />
+            <button class="btn btn-error" onclick="@(() => RemoveAPhoto(thumbnail))">X</button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid FolderId { get; set; }
+
+    [Parameter]
+    public Guid AlbumId { get; set; }
+    
+    private List<Photo> _thumbnails = [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _thumbnails = (await ListPhotos(FolderId, AlbumId)).ToList();
+
+            StateHasChanged();
+        }
+    }
+
+    public void AddPhoto(Photo photo)
+    {
+        _thumbnails.Add(photo);
+
+        StateHasChanged();
+    }
+
+    private async Task RemoveAPhoto(Photo photo)
+    {
+        await RemovePhoto(photo.FolderId, photo.AlbumId, photo.Id);
+        _thumbnails.Remove(photo);
+
+        StateHasChanged();
+    }
+}

@@ -31,7 +31,7 @@ internal static class EndpointExtension
         {
             var photos = await listPhotos(new(folderId, albumId));
 
-            return Results.Ok(photos);
+            return Results.Ok(photos.Select(e => e.Id));
         })
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithSummary("List the photos of an album")
