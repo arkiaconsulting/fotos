@@ -1,10 +1,12 @@
-﻿using Fotos.WebApp.Types;
+﻿using Azure.Storage.Blobs;
+using Fotos.WebApp.Types;
+using Microsoft.Extensions.Azure;
 
-namespace Fotos.WebApp.Features.Photos;
+namespace Fotos.WebApp.Features.Photos.Adapters;
 
 internal static class AdaptersConfigurationExtensions
 {
-    public static IServiceCollection AddPhotosAdapters(this IServiceCollection services)
+    public static IServiceCollection AddPhotosAdapters(this IServiceCollection services, IConfiguration configuration)
     {
         services
             .AddSingleton<List<PhotoEntity>>(_ => [])
@@ -15,7 +17,6 @@ internal static class AdaptersConfigurationExtensions
 
                 return Task.CompletedTask;
             })
-            .AddScoped<AddPhotoToMainStorage>((_) => (_, _) => Task.CompletedTask)
             .AddScoped<OnNewPhotoUploaded>((_) => (_) => Task.CompletedTask)
             .AddScoped<ListPhotos>(sp =>
             {
@@ -46,6 +47,42 @@ internal static class AdaptersConfigurationExtensions
             })
             .AddScoped<CreateThumbnail>((_) => (_) => Task.FromResult(Stream.Null))
             .AddScoped<AddPhotoToThumbnailStorage>((_) => (_, _) => Task.CompletedTask);
+
+        services.AddFotosAzureStorage(configuration);
+
+        return services;
+    }
+
+    public static IServiceCollection AddFotosAzureStorage(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<AzurePhotoStorage>()
+            .AddScoped<AddPhotoToMainStorage>(sp =>
+        {
+            var photoStorage = sp.GetRequiredService<AzurePhotoStorage>();
+
+            return photoStorage.AddOriginalPhoto;
+        });
+
+        services.AddAzureClients(builder =>
+        {
+            var serviceUriOrConnectionString = configuration[$"{Constants.BlobServiceClientName}:blobServiceUri"];
+
+            if (Uri.TryCreate(serviceUriOrConnectionString, UriKind.Absolute, out var serviceUri))
+            {
+                builder.AddBlobServiceClient(serviceUri).WithName(Constants.BlobServiceClientName);
+            }
+            else
+            {
+                builder.AddBlobServiceClient(serviceUriOrConnectionString).WithName(Constants.BlobServiceClientName);
+            }
+        });
+
+        services.AddSingleton(sp =>
+        {
+            var factory = sp.GetRequiredService<IAzureClientFactory<BlobServiceClient>>();
+
+            return factory.CreateClient(Constants.BlobServiceClientName);
+        });
 
         return services;
     }

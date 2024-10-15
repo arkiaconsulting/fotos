@@ -2,6 +2,7 @@ using FluentValidation;
 using Fotos.WebApp.Features.PhotoAlbums;
 using Fotos.WebApp.Features.PhotoFolders;
 using Fotos.WebApp.Features.Photos;
+using Fotos.WebApp.Features.Photos.Adapters;
 using Fotos.WebApp.Features.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +24,7 @@ builder.Services.AddPhotosBusiness();
 // Adapters
 builder.Services.AddPhotoFoldersAdapters();
 builder.Services.AddPhotoAlbumAdapters();
-builder.Services.AddPhotosAdapters();
+builder.Services.AddPhotosAdapters(builder.Configuration);
 
 var app = builder.Build();
 
