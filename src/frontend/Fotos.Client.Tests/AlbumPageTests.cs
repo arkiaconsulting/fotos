@@ -68,10 +68,42 @@ public sealed class AlbumPageTests : IDisposable
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#thumbnails .thumbnail img");
 
-        var removeButton = cut.Find("#thumbnails .thumbnail button");
+        var removeButton = cut.Find("#thumbnails .thumbnail button.remove");
         removeButton.Click();
 
         cut.WaitForAssertion(() => cut.Find("#thumbnails").InnerHtml.MarkupMatches(""));
+    }
+
+    [Theory(DisplayName = "Viewing a photo should display it"), AutoData]
+    public void Test06(Guid folderId, Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
+
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
+        var viewButton = cut.WaitForElement("#thumbnails .thumbnail button.view");
+        viewButton.Click();
+
+        cut.WaitForAssertion(() => cut.Find("#photo img"));
+    }
+
+    [Theory(DisplayName = "Dismissing a displayed photo should hide it"), AutoData]
+    public void Test07(Guid folderId, Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
+
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        var viewButton = cut.WaitForElement("#thumbnails .thumbnail button.view");
+        viewButton.Click();
+
+        var closeButton = cut.Find("#photo button.dismiss");
+        closeButton.Click();
+
+        cut.WaitForAssertion(() => cut.FindAll("#photo").Should().BeEmpty());
     }
 
     #region IDisposable

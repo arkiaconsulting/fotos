@@ -4,14 +4,14 @@
 @inject GetAlbum GetAlbum
 @inject AddPhoto AddPhoto
 
-@if (_loading)
+@if (_album is null)
 {
     <h3>Loading...</h3>
 }
 else
 {
     <div id="album">
-        <h3 id="album-name">@_album!.Name</h3>
+        <h3 id="album-name">@_album.Value.Name</h3>
         <span>New photo</span><InputFile OnChange="UploadPhoto" />
     </div>
 
@@ -25,8 +25,7 @@ else
     [Parameter]
     public Guid FolderId { get; set; }
 
-    private bool _loading = true;
-    private Album _album = new();
+    private Album? _album = default!;
     private Thumbnails _thumbnailsComponent = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -34,7 +33,6 @@ else
         if (firstRender)
         {
             _album = await GetAlbum(FolderId, AlbumId);
-            _loading = false;
 
             StateHasChanged();
         }

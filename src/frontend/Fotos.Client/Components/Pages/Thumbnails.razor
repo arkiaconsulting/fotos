@@ -7,20 +7,30 @@
     @foreach (var thumbnail in _thumbnails)
     {
         <div class="thumbnail">
-            <img src="img/new.png" style="background-color:black" width="50" height="50" />
-            <button class="btn btn-error" onclick="@(() => RemoveAPhoto(thumbnail))">X</button>
+            <button class="view" onclick="@(() => ViewPhoto(thumbnail))">
+                <img src="img/new.png" style="background-color:black" width="50" height="50" />
+            </button>
+            <button class="remove btn btn-error" onclick="@(() => RemoveAPhoto(thumbnail))">X</button>
         </div>
     }
 </div>
 
+@if(_photo is not null)
+{
+    <div id="photo">
+        <img src="img/new.png" width="500" height="300"/>
+        <button class="dismiss btn btn-error" onclick="@(() => DismissPhoto(_photo!.Value))">X</button>
+    </div>
+}
 @code {
     [Parameter]
     public Guid FolderId { get; set; }
 
     [Parameter]
     public Guid AlbumId { get; set; }
-    
+
     private List<Photo> _thumbnails = [];
+    private Photo? _photo = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -43,6 +53,22 @@
     {
         await RemovePhoto(photo.FolderId, photo.AlbumId, photo.Id);
         _thumbnails.Remove(photo);
+
+        StateHasChanged();
+    }
+
+    private async Task ViewPhoto(Photo photo)
+    {
+        _photo = photo;
+
+        await Task.CompletedTask;
+
+        StateHasChanged();
+    }
+
+    private void DismissPhoto(Photo photo)
+    {
+        _photo = null;
 
         StateHasChanged();
     }
