@@ -5,6 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="AutoFixture.Xunit2" Version="5.0.0-preview0011" />
     <PackageVersion Include="Azure.Data.Tables" Version="12.9.0" />
+    <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.18.2" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.20.0" />
     <PackageVersion Include="Azure.Storage.Files.Shares" Version="12.18.0" />
     <PackageVersion Include="Azure.Storage.Queues" Version="12.18.0" />

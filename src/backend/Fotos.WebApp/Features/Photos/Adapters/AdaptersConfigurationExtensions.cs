@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
 using Fotos.WebApp.Types;
 using Microsoft.Extensions.Azure;
 
@@ -17,7 +18,6 @@ internal static class AdaptersConfigurationExtensions
 
                 return Task.CompletedTask;
             })
-            .AddScoped<OnNewPhotoUploaded>((_) => (_) => Task.CompletedTask)
             .AddScoped<ListPhotos>(sp =>
             {
                 var store = sp.GetRequiredService<List<PhotoEntity>>();
@@ -49,6 +49,7 @@ internal static class AdaptersConfigurationExtensions
             .AddScoped<AddPhotoToThumbnailStorage>((_) => (_, _) => Task.CompletedTask);
 
         services.AddFotosAzureStorage(configuration);
+        services.AddFotosServiceBus(configuration);
 
         return services;
     }
@@ -84,6 +85,29 @@ internal static class AdaptersConfigurationExtensions
             return factory.CreateClient(Constants.BlobServiceClientName);
         });
 
+        return services;
+    }
+
+    public static IServiceCollection AddFotosServiceBus(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<AzureServiceBus>()
+            .AddScoped<OnNewPhotoUploaded>(sp =>
+            {
+                var serviceBus = sp.GetRequiredService<AzureServiceBus>();
+                return serviceBus.OnNewPhotoUploaded;
+            });
+        services.AddAzureClients(builder =>
+        {
+            var fqdn = configuration[$"{Constants.ServiceBusClientName}:fqdn"];
+
+            builder.AddServiceBusClientWithNamespace(fqdn).WithName(Constants.ServiceBusClientName);
+        });
+        services.AddSingleton(sp =>
+        {
+            var factory = sp.GetRequiredService<IAzureClientFactory<ServiceBusClient>>();
+
+            return factory.CreateClient(Constants.ServiceBusClientName);
+        });
         return services;
     }
 }
