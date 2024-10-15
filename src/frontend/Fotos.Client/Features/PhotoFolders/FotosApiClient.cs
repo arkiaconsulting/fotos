@@ -89,4 +89,11 @@ internal sealed class FotosApiClient
 
         response.EnsureSuccessStatusCode();
     }
+
+    internal async Task<Uri> GetOriginalUri(Guid folderId, Guid albumId, Guid photoId)
+    {
+        var uri = await _httpClient.GetFromJsonAsync<Uri>($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}/originaluri");
+
+        return uri!;
+    }
 }

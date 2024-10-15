@@ -69,6 +69,12 @@ internal static class ConfigurationExtensions
 
             return async (Guid folderId, Guid albumId, Guid photoId) => await client.RemovePhoto(folderId, albumId, photoId);
         });
+        services.AddScoped<GetOriginalUri>(sp =>
+        {
+            var client = sp.GetRequiredService<FotosApiClient>();
+
+            return async (Guid folderId, Guid albumId, Guid photoId) => await client.GetOriginalUri(folderId, albumId, photoId);
+        });
 
         return services;
     }

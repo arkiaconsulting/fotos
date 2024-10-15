@@ -89,5 +89,6 @@ public sealed class FotosTestContext : TestContext
                 photos.Remove(photo);
             });
         });
+        Services.AddTransient<GetOriginalUri>(_ => (Guid _, Guid _, Guid photoId) => Task.FromResult(new Uri($"http://localhost/photos/{photoId}")));
     }
 }

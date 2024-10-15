@@ -96,4 +96,15 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
 
         response.Should().Be204NoContent();
     }
+
+    [Theory(DisplayName = "Getting the original URI of a photo should pass"), AutoData]
+    internal async Task Test08(PhotoId photoId)
+    {
+        var client = _fotoApi.CreateClient();
+        _fotoApi.Photos.Add(new PhotoEntity(photoId));
+
+        using var response = await client.GetOriginalUri(photoId.FolderId, photoId.AlbumId, photoId.Id);
+
+        response.Should().Be200Ok();
+    }
 }

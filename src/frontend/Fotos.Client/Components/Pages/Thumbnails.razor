@@ -1,7 +1,9 @@
-﻿@using Fotos.Client.Features.PhotoFolders
+﻿@using Fotos.Client.Components.Models
+@using Fotos.Client.Features.PhotoFolders
 
 @inject ListPhotos ListPhotos
 @inject RemovePhoto RemovePhoto
+@inject GetOriginalUri GetOriginalUri
 
 <div id="thumbnails">
     @foreach (var thumbnail in _thumbnails)
@@ -18,8 +20,8 @@
 @if(_photo is not null)
 {
     <div id="photo">
-        <img src="img/new.png" width="500" height="300"/>
-        <button class="dismiss btn btn-error" onclick="@(() => DismissPhoto(_photo!.Value))">X</button>
+        <img src="@_photo.OriginalUri.ToString()" width="500" height="300"/>
+        <button class="dismiss btn btn-error" @onclick="DismissPhoto">X</button>
     </div>
 }
 @code {
@@ -30,7 +32,7 @@
     public Guid AlbumId { get; set; }
 
     private List<Photo> _thumbnails = [];
-    private Photo? _photo = default!;
+    private PhotoModel? _photo = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -59,14 +61,14 @@
 
     private async Task ViewPhoto(Photo photo)
     {
-        _photo = photo;
+        var originalUri = await GetOriginalUri(photo.FolderId, photo.AlbumId, photo.Id);
 
-        await Task.CompletedTask;
+        _photo = new(photo.FolderId, photo.AlbumId, photo.Id, originalUri);
 
         StateHasChanged();
     }
 
-    private void DismissPhoto(Photo photo)
+    private void DismissPhoto()
     {
         _photo = null;
 

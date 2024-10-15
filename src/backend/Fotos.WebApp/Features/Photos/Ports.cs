@@ -12,3 +12,4 @@ internal delegate Task<ExifMetadata> ExtractExifMetadata(Stream photo);
 internal delegate Task<PhotoEntity> GetPhoto(PhotoId photoId);
 internal delegate Task<Stream> CreateThumbnail(Stream originalPhoto);
 internal delegate Task AddPhotoToThumbnailStorage(PhotoId photoId, Stream thumbnail);
+internal delegate Task<Uri> GetOriginalUri(PhotoId photoId);

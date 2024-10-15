@@ -105,4 +105,11 @@ internal static class FotoClient
     {
         return await client.DeleteAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative));
     }
+
+    public static async Task<HttpResponseMessage> GetOriginalUri(this HttpClient client, Guid folderId, Guid albumId, Guid photoId)
+    {
+        using var response = await client.GetAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}/originaluri", UriKind.Relative));
+
+        return response;
+    }
 }

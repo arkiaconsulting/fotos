@@ -53,6 +53,19 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/originaluri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetOriginalUri getOriginalUri) =>
+        {
+            var uri = await getOriginalUri(new(folderId, albumId, id));
+
+            return Results.Ok(uri);
+        })
+            .AddEndpointFilter<ValidationEndpointFilter>()
+            .WithSummary("Get the original URI of a photo")
+            .WithTags("Photos")
+            .Produces<Uri>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
         return endpoints;
     }
 }

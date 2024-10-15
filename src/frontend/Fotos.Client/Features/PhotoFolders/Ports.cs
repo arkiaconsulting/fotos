@@ -10,3 +10,4 @@ internal delegate Task<Album> GetAlbum(Guid folderId, Guid albumId);
 internal delegate Task<IReadOnlyCollection<Photo>> ListPhotos(Guid folderId, Guid albumId);
 internal delegate Task AddPhoto(Guid folderId, Guid albumId, byte[] buffer);
 internal delegate Task RemovePhoto(Guid folderId, Guid albumId, Guid photoId);
+internal delegate Task<Uri> GetOriginalUri(Guid folderId, Guid albumId, Guid photoId);
