@@ -24,7 +24,7 @@ public sealed class FotoIntegrationContext
 
     private readonly IHost _host = Host.CreateDefaultBuilder()
         .ConfigureServices(ConfigureServices)
-        .ConfigureAppConfiguration((context, config) =>
+        .ConfigureAppConfiguration((_, config) =>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {

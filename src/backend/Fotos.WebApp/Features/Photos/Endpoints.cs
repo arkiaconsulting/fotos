@@ -63,5 +63,4 @@ internal static class EndpointExtension
 /// <param name="Id">The ID of the photo</param>
 /// <param name="FolderId">The ID of the folder that contains the album</param>
 /// <param name="AlbumId">The ID of the album that contains the photos</param>
-/// <param name="Uri">The URL of the photo file</param>
-internal readonly record struct Photo(Guid Id, Guid FolderId, Guid AlbumId, Uri Uri);
+internal readonly record struct Photo(Guid Id, Guid FolderId, Guid AlbumId);

@@ -24,7 +24,7 @@ internal sealed class AddPhotosBusiness
 
         await _addPhotoToMainStorage(photoId, photo);
 
-        var photoData = new PhotoEntity(photoId, new Uri("https://example.com/photo.jpg"));
+        var photoData = new PhotoEntity(photoId);
 
         await _storePhotoData(photoData);
 

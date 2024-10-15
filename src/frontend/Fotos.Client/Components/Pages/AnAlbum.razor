@@ -21,7 +21,7 @@ else
         @foreach (var photo in _photos)
         {
             <div class="photo">
-                <img src="@photo.Url" style="background-color:black" width="50" height="50" />
+                <img src="~/img/new.png" style="background-color:black" width="50" height="50" />
                 <button class="btn btn-error" onclick="@(() => RemoveAPhoto(photo.Id))">X</button>
             </div>
         }
@@ -59,7 +59,7 @@ else
 
         await AddPhoto(FolderId, AlbumId, buffer);
 
-        var photo = new Photo(Guid.Empty, AlbumId, new Uri("../img/new.png", UriKind.Relative));
+        var photo = new Photo(Guid.Empty, AlbumId);
         _photos.Add(photo);
     }
 

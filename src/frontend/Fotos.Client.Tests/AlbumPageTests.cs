@@ -25,10 +25,10 @@ public sealed class AlbumPageTests : IDisposable
     }
 
     [Theory(DisplayName = "The album page should display the attached photos"), AutoData]
-    public void Test02(Guid folderId, Guid albumId, string albumName, Uri photoUrl)
+    public void Test02(Guid folderId, Guid albumId, string albumName)
     {
         _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId, Url = photoUrl });
+        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
@@ -62,7 +62,7 @@ public sealed class AlbumPageTests : IDisposable
     public void Test05(Guid folderId, Guid albumId, string albumName)
     {
         _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId, Url = new Uri("http://example.com") });
+        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
