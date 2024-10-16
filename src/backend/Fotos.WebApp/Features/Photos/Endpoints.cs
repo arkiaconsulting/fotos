@@ -11,7 +11,7 @@ internal static class EndpointExtension
         {
             await using var stream = photo.OpenReadStream();
 
-            var id = await business.Process(folderId, albumId, stream, photo.ContentType);
+            var id = await business.Process(folderId, albumId, stream, photo.ContentType, photo.FileName);
 
             return Results.Accepted(value: id.ToString());
         })
@@ -33,7 +33,7 @@ internal static class EndpointExtension
         {
             var photos = await listPhotos(new(folderId, albumId));
 
-            return Results.Ok(photos.Select(e => e.Id));
+            return Results.Ok(photos.Select(e => new Photo(e.Id.Id, e.Id.FolderId, e.Id.AlbumId, e.Title)));
         })
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithSummary("List the photos of an album")
@@ -78,4 +78,5 @@ internal static class EndpointExtension
 /// <param name="Id">The ID of the photo</param>
 /// <param name="FolderId">The ID of the folder that contains the album</param>
 /// <param name="AlbumId">The ID of the album that contains the photos</param>
-internal readonly record struct Photo(Guid Id, Guid FolderId, Guid AlbumId);
+/// <param name="Title">The title of the photo</param>
+internal readonly record struct Photo(Guid Id, Guid FolderId, Guid AlbumId, string Title);

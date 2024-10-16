@@ -130,6 +130,18 @@ public sealed class AlbumPageTests : IDisposable
         cut.WaitForAssertion(() => cut.Find("#alert").TextContent.Should().Be("Only photos can be uploaded."));
     }
 
+    [Theory(DisplayName = "The name of a photo that was just uploaded should be its original file name"), AutoData]
+    public void Test10(Guid folderId, Guid albumId, string albumName, string fileName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        cut.WaitForElement("#album input[type=file]");
+        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], fileName: fileName, contentType: "image/jpeg"));
+
+        cut.WaitForAssertion(() => cut.Find("#thumbnails .thumbnail span").TextContent.Should().Be(fileName));
+    }
+
     #region IDisposable
 
     public void Dispose() => _testContext.Dispose();

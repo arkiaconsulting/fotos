@@ -79,7 +79,7 @@ public sealed class FotosTestContext : TestContext
 
             return (Guid folderId, Guid albumId, PhotoBinary _) => Task.Run(() =>
             {
-                photos.Add(new(Guid.NewGuid(), folderId, albumId));
+                photos.Add(new(Guid.NewGuid(), folderId, albumId, default!));
 
                 return Guid.NewGuid();
             });

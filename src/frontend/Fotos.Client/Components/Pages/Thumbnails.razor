@@ -12,6 +12,7 @@
             <button class="view" onclick="@(() => ViewPhoto(thumbnail))">
                 <img src="img/new.png" style="max-width: 50px" />
             </button>
+            <span>@thumbnail.Title</span>
             <button class="remove btn btn-error" onclick="@(() => RemoveAPhoto(thumbnail))">X</button>
         </div>
     }

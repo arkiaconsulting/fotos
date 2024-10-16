@@ -78,9 +78,9 @@ else
             await ms.WriteAsync(buffer.AsMemory(0, bytesRead));
         };
 
-        var id = await AddPhoto(FolderId, AlbumId, new(ms.ToArray(), file.ContentType));
+        var id = await AddPhoto(FolderId, AlbumId, new(ms.ToArray(), file.ContentType, file.Name));
 
-        var photo = new Photo(id, FolderId, AlbumId);
+        var photo = new Photo(id, FolderId, AlbumId, file.Name);
         _thumbnailsComponent.AddPhoto(photo);
     }
 }

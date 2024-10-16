@@ -76,10 +76,10 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     }
 
     [Theory(DisplayName = "Listing the photos of an album should pass"), AutoData]
-    internal async Task Test06(PhotoId photoId)
+    internal async Task Test06(PhotoId photoId, string title)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId));
+        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
 
         using var response = await client.ListPhotos(photoId.FolderId, photoId.AlbumId);
 
@@ -89,10 +89,10 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     }
 
     [Theory(DisplayName = "Removing a photo from an album should pass"), AutoData]
-    internal async Task Test07(PhotoId photoId)
+    internal async Task Test07(PhotoId photoId, string title)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId));
+        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
 
         using var response = await client.RemovePhoto(photoId.FolderId, photoId.AlbumId, photoId.Id);
 
@@ -100,10 +100,10 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     }
 
     [Theory(DisplayName = "Getting the original URI of a photo should pass"), AutoData]
-    internal async Task Test08(PhotoId photoId)
+    internal async Task Test08(PhotoId photoId, string title)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId));
+        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
 
         using var response = await client.GetOriginalUri(photoId.FolderId, photoId.AlbumId, photoId.Id);
 

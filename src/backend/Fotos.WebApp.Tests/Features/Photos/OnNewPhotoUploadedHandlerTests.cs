@@ -12,9 +12,9 @@ public sealed class OnNewPhotoUploadedHandlerTests : IClassFixture<FotoContext>
     public OnNewPhotoUploadedHandlerTests(FotoContext fotoContext) => _fotoContext = fotoContext;
 
     [Theory(DisplayName = "When a new photo has been uploaded, its EXIF metadata should be stored"), AutoData]
-    internal async Task Test01(PhotoId photoId, byte[] photoBytes)
+    internal async Task Test01(PhotoId photoId, byte[] photoBytes, string title)
     {
-        _fotoContext.Photos.Add(new PhotoEntity(photoId));
+        _fotoContext.Photos.Add(new PhotoEntity(photoId, title));
         _fotoContext.MainStorage.Add((photoId.Id, photoBytes));
 
         await _fotoContext.ExifMetadataExtractor.Handle(photoId);
@@ -24,9 +24,9 @@ public sealed class OnNewPhotoUploadedHandlerTests : IClassFixture<FotoContext>
     }
 
     [Theory(DisplayName = "When a new photo has been uploaded, its thumbnail representation should be stored"), AutoData]
-    internal async Task Test02(PhotoId photoId, byte[] photoBytes)
+    internal async Task Test02(PhotoId photoId, byte[] photoBytes, string title)
     {
-        _fotoContext.Photos.Add(new PhotoEntity(photoId));
+        _fotoContext.Photos.Add(new PhotoEntity(photoId, title));
         _fotoContext.MainStorage.Add((photoId.Id, photoBytes));
 
         await _fotoContext.ThumbnailProducer.Handle(photoId);

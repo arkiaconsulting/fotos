@@ -78,7 +78,7 @@ internal sealed class FotosApiClient
         streamContent.Headers.ContentType = new MediaTypeHeaderValue(photoBinary.ContentType);
         using var content = new MultipartFormDataContent()
         {
-            { streamContent, "photo", "photo.jpg" }
+            { streamContent, "photo", photoBinary.FileName }
         };
 
         using var response = await _httpClient.PostAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos", UriKind.Relative), content);
