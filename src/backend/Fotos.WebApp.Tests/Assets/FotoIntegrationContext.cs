@@ -14,6 +14,7 @@ public sealed class FotoIntegrationContext
 {
     internal AddPhotoToMainStorage AddPhotoToMainStorage => _host.Services.GetRequiredService<AddPhotoToMainStorage>();
     internal GetOriginalUri GetOriginalUri => _host.Services.GetRequiredService<GetOriginalUri>();
+    internal ReadOriginalPhoto ReadOriginalPhoto => _host.Services.GetRequiredService<ReadOriginalPhoto>();
     internal BlobContainerClient PhotosContainer
     {
         get

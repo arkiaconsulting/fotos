@@ -37,7 +37,6 @@ internal static class AdaptersConfigurationExtensions
 
                 return Task.CompletedTask;
             })
-            .AddScoped<ReadOriginalPhoto>((_) => (_) => Task.FromResult(Stream.Null))
             .AddScoped<ExtractExifMetadata>((_) => (_) => Task.FromResult(new ExifMetadata(DateTime.Now)))
             .AddScoped<GetPhoto>(_ => (photoId) =>
             {
@@ -57,18 +56,9 @@ internal static class AdaptersConfigurationExtensions
     public static IServiceCollection AddFotosAzureStorage(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<AzurePhotoStorage>()
-            .AddScoped<AddPhotoToMainStorage>(sp =>
-        {
-            var photoStorage = sp.GetRequiredService<AzurePhotoStorage>();
-
-            return photoStorage.AddOriginalPhoto;
-        })
-        .AddScoped<GetOriginalUri>(sp =>
-        {
-            var photoStorage = sp.GetRequiredService<AzurePhotoStorage>();
-
-            return photoStorage.GetOriginalUri;
-        });
+        .AddScoped<AddPhotoToMainStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().AddOriginalPhoto)
+        .AddScoped<GetOriginalUri>(sp => sp.GetRequiredService<AzurePhotoStorage>().GetOriginalUri)
+        .AddScoped<ReadOriginalPhoto>(sp => sp.GetRequiredService<AzurePhotoStorage>().ReadOriginalPhoto);
 
         services.AddAzureClients(builder =>
         {

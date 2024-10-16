@@ -35,4 +35,19 @@ public sealed class AzureMainPhotoStorageTests : IClassFixture<FotoIntegrationCo
 
         uri.AbsoluteUri.Should().StartWith($"http://127.0.0.1:10000/devstoreaccount1/fotostests/{photoId.Id}.original");
     }
+
+    [Theory(DisplayName = "When readon an original photo should return it as stream"), AutoData]
+    internal async Task Test03(PhotoId photoId, byte[] photo)
+    {
+        await using var ms = new MemoryStream(photo);
+        var blob = _context.PhotosContainer.GetBlobClient($"{photoId.Id}.original");
+        await blob.UploadAsync(ms);
+
+        await using var stream = await _context.ReadOriginalPhoto(photoId);
+
+        await using var ms2 = new MemoryStream();
+        await stream.CopyToAsync(ms2);
+        ms2.Position = 0;
+        ms2.ToArray().Should().BeEquivalentTo(photo);
+    }
 }
