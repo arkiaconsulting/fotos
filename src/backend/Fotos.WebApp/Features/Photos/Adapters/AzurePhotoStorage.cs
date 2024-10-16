@@ -58,9 +58,9 @@ internal sealed class AzurePhotoStorage
     {
         var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
         var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
-        var blobDownloadInfo = await blobClient.DownloadAsync();
+        var blobDownloadInfo = await blobClient.DownloadContentAsync();
 
-        return new(blobDownloadInfo.Value.Content, blobDownloadInfo.Value.Details.ContentType);
+        return new(blobDownloadInfo.Value.Content.ToStream(), blobDownloadInfo.Value.Details.ContentType);
     }
 
     public async Task AddPhotoToThumbnailStorage(PhotoId photoId, PhotoBinary photo)

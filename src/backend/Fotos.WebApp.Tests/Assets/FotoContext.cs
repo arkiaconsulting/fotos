@@ -1,5 +1,6 @@
 ﻿using Fotos.WebApp.Features.Photos;
 using Fotos.WebApp.Types;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Collections.ObjectModel;
@@ -17,6 +18,7 @@ public sealed class FotoContext
 
     private readonly IHost _host = Host.CreateDefaultBuilder()
         .ConfigureServices(ConfigureServices)
+        .ConfigureAppConfiguration(ConfigureAppConfiguration)
         .Build();
 
     private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
@@ -77,4 +79,10 @@ public sealed class FotoContext
             return Task.CompletedTask;
         });
     }
+
+    private static void ConfigureAppConfiguration(HostBuilderContext context, IConfigurationBuilder builder) =>
+        builder.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true"
+        });
 }

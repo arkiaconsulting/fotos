@@ -94,7 +94,7 @@ internal static class AdaptersConfigurationExtensions
             });
         services.AddAzureClients(builder =>
         {
-            var fqdn = configuration[$"{Constants.ServiceBusClientName}:fqdn"];
+            var fqdn = configuration[$"{Constants.ServiceBusClientName}:fullyQualifiedNamespace"];
 
             builder.AddServiceBusClientWithNamespace(fqdn).WithName(Constants.ServiceBusClientName);
         });

@@ -5,13 +5,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Data.Tables" />
-		<PackageReference Include="Azure.Messaging.ServiceBus" />
 		<PackageReference Include="Azure.Storage.Blobs" />
-		<PackageReference Include="Azure.Storage.Files.Shares" />
-		<PackageReference Include="Azure.Storage.Queues" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" />
 		<PackageReference Include="Microsoft.Extensions.Azure" />
 		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />

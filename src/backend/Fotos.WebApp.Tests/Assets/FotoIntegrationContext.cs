@@ -41,7 +41,7 @@ public sealed class FotoIntegrationContext
             {
                 ["MainStorage:blobServiceUri"] = "UseDevelopmentStorage=true",
                 ["MainStorage:PhotosContainer"] = "fotostests",
-                ["ServiceBus:fqdn"] = "arkiabus.servicebus.windows.net",
+                ["ServiceBus:fullyQualifiedNamespace"] = "arkiabus.servicebus.windows.net",
                 ["ServiceBus:MainTopic"] = "tests-fotos-main"
             });
         }).ConfigureLogging(builder => builder

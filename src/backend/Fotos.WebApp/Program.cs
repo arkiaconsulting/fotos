@@ -7,6 +7,8 @@ using Fotos.WebApp.Features.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.ConfigureWebJobs(builder => builder.AddServiceBus());
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
