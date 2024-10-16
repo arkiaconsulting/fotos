@@ -15,6 +15,7 @@ public sealed class FotoIntegrationContext
     internal AddPhotoToMainStorage AddPhotoToMainStorage => _host.Services.GetRequiredService<AddPhotoToMainStorage>();
     internal GetOriginalUri GetOriginalUri => _host.Services.GetRequiredService<GetOriginalUri>();
     internal ReadOriginalPhoto ReadOriginalPhoto => _host.Services.GetRequiredService<ReadOriginalPhoto>();
+    internal CreateThumbnail CreateThumbnail => _host.Services.GetRequiredService<CreateThumbnail>();
     internal BlobContainerClient PhotosContainer
     {
         get
@@ -52,5 +53,6 @@ public sealed class FotoIntegrationContext
     {
         services.AddFotosAzureStorage(context.Configuration);
         services.AddFotosServiceBus(context.Configuration);
+        services.AddFotosImageProcessing();
     }
 }

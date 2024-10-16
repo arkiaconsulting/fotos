@@ -44,11 +44,11 @@ internal static class AdaptersConfigurationExtensions
 
                 return Task.FromResult(store.Single(x => x.Id.Id == photoId.Id));
             })
-            .AddScoped<CreateThumbnail>((_) => (_) => Task.FromResult(Stream.Null))
             .AddScoped<AddPhotoToThumbnailStorage>((_) => (_, _) => Task.CompletedTask);
 
         services.AddFotosAzureStorage(configuration);
         services.AddFotosServiceBus(configuration);
+        services.AddFotosImageProcessing();
 
         return services;
     }
@@ -104,6 +104,13 @@ internal static class AdaptersConfigurationExtensions
 
             return factory.CreateClient(Constants.ServiceBusClientName);
         });
+        return services;
+    }
+
+    public static IServiceCollection AddFotosImageProcessing(this IServiceCollection services)
+    {
+        services.AddScoped<CreateThumbnail>(_ => SkiaSharpImageProcessing.CreateThumbnail);
+
         return services;
     }
 }

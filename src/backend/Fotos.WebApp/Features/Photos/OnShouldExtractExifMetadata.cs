@@ -23,7 +23,7 @@ internal sealed class OnShouldExtractExifMetadata
 
     public async Task Handle(PhotoId photoId)
     {
-        await using var stream = await _readOriginalPhoto(photoId);
+        var (stream, _) = await _readOriginalPhoto(photoId);
 
         var metadata = await _extractExifMetadata(stream);
 

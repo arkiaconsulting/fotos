@@ -34,7 +34,7 @@ public sealed class FotoContext
             {
                 var (id, bytes) = mainStorage.Single(x => x.Item1 == photoId.Id);
 
-                return Task.FromResult<Stream>(new MemoryStream(bytes));
+                return Task.FromResult<PhotoBinary>(new(new MemoryStream(bytes), "image/jpeg"));
             };
         });
         services.AddSingleton<ExtractExifMetadata>((_) => (_) => Task.FromResult(new ExifMetadata(DateTime.Now)));
@@ -61,7 +61,7 @@ public sealed class FotoContext
                 return Task.CompletedTask;
             };
         });
-        services.AddSingleton<CreateThumbnail>((_) => async (originalPhoto) =>
+        services.AddSingleton<CreateThumbnail>((_) => async (originalPhoto, _) =>
         {
             var thumbnail = new MemoryStream();
             await originalPhoto.CopyToAsync(thumbnail);

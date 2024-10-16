@@ -54,13 +54,13 @@ internal sealed class AzurePhotoStorage
         return blobClient.GenerateSasUri(sasBuilder);
     }
 
-    public async Task<Stream> ReadOriginalPhoto(PhotoId photoId)
+    public async Task<PhotoBinary> ReadOriginalPhoto(PhotoId photoId)
     {
         var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
         var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
         var blobDownloadInfo = await blobClient.DownloadAsync();
 
-        return blobDownloadInfo.Value.Content;
+        return new(blobDownloadInfo.Value.Content, blobDownloadInfo.Value.Details.ContentType);
     }
 
     private static string ComputeOriginalName(PhotoId photoId) => $"{photoId.Id}.original";

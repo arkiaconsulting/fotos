@@ -20,9 +20,9 @@ internal sealed class OnShouldProduceThumbnail
 
     public async Task Handle(PhotoId photoId)
     {
-        await using var originalStream = await _readOriginalPhoto(photoId);
+        var (originalStream, mimeType) = await _readOriginalPhoto(photoId);
 
-        await using var thumbnailStream = await _createThumbnail(originalStream);
+        await using var thumbnailStream = await _createThumbnail(originalStream, mimeType);
 
         await _addPhotoToThumbnailStorage(photoId, thumbnailStream);
     }

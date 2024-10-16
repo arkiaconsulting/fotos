@@ -13,6 +13,7 @@
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Microsoft.Extensions.Azure" />
+		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
 		<PackageReference Include="System.Text.Json" />		
 	</ItemGroup>
