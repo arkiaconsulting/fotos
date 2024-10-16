@@ -16,11 +16,12 @@ public sealed class AzureMainPhotoStorageTests : IClassFixture<FotoIntegrationCo
     internal async Task Test01(PhotoId photoId, byte[] photo)
     {
         await using var ms = new MemoryStream(photo);
-
-        await _context.AddPhotoToMainStorage(photoId, ms);
+        const string contentType = "image/jpeg";
+        await _context.AddPhotoToMainStorage(photoId, ms, contentType);
 
         var blob = _context.PhotosContainer.GetBlobClient($"{photoId.Id}.original");
-        (await blob.ExistsAsync()).Value.Should().BeTrue();
+        var blobContent = await blob.DownloadContentAsync();
+        blobContent.Value.Details.ContentType.Should().Be(contentType);
     }
 
     [Theory(DisplayName = "When getting the URI of the photo original should return the storage URI"), AutoData]

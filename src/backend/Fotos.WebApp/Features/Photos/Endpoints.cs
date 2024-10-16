@@ -11,7 +11,7 @@ internal static class EndpointExtension
         {
             await using var stream = photo.OpenReadStream();
 
-            var id = await business.Process(folderId, albumId, stream);
+            var id = await business.Process(folderId, albumId, stream, photo.ContentType);
 
             return Results.Accepted(value: id.ToString());
         })

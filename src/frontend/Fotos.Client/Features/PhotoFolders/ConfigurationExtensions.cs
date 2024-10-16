@@ -61,7 +61,7 @@ internal static class ConfigurationExtensions
         {
             var client = sp.GetRequiredService<FotosApiClient>();
 
-            return async (Guid folderId, Guid albumId, byte[] buffer) => await client.AddPhoto(folderId, albumId, buffer);
+            return async (Guid folderId, Guid albumId, PhotoBinary photoBinary) => await client.AddPhoto(folderId, albumId, photoBinary);
         });
         services.AddScoped<RemovePhoto>(sp =>
         {

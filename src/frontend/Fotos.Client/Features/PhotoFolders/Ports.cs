@@ -8,6 +8,6 @@ internal delegate Task CreateAlbum(Guid folderId, string albumName);
 internal delegate Task<IReadOnlyCollection<Album>> ListAlbums(Guid folderId);
 internal delegate Task<Album> GetAlbum(Guid folderId, Guid albumId);
 internal delegate Task<IReadOnlyCollection<Photo>> ListPhotos(Guid folderId, Guid albumId);
-internal delegate Task<Guid> AddPhoto(Guid folderId, Guid albumId, byte[] buffer);
+internal delegate Task<Guid> AddPhoto(Guid folderId, Guid albumId, PhotoBinary Binary);
 internal delegate Task RemovePhoto(Guid folderId, Guid albumId, Guid photoId);
 internal delegate Task<Uri> GetOriginalUri(Guid folderId, Guid albumId, Guid photoId);

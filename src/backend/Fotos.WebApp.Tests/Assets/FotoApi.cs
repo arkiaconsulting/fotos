@@ -18,7 +18,7 @@ public sealed class FotoApi : WebApplicationFactory<Program>
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.ConfigureServices(services =>
-            services.AddScoped<AddPhotoToMainStorage>(_ => (_, _) => Task.CompletedTask)
+            services.AddScoped<AddPhotoToMainStorage>(_ => (_, _, _) => Task.CompletedTask)
             .AddScoped<OnNewPhotoUploaded>((_) => (_) => Task.CompletedTask)
             .AddScoped<GetOriginalUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
         );

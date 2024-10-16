@@ -1,4 +1,6 @@
-﻿namespace Fotos.Client.Features.PhotoFolders;
+﻿using System.Net.Http.Headers;
+
+namespace Fotos.Client.Features.PhotoFolders;
 
 internal sealed class FotosApiClient
 {
@@ -69,10 +71,11 @@ internal sealed class FotosApiClient
         return photos!;
     }
 
-    internal async Task<Guid> AddPhoto(Guid folderId, Guid albumId, byte[] buffer)
+    internal async Task<Guid> AddPhoto(Guid folderId, Guid albumId, PhotoBinary photoBinary)
     {
-        await using var ms = new MemoryStream(buffer);
+        await using var ms = new MemoryStream(photoBinary.Buffer.ToArray());
         using var streamContent = new StreamContent(ms);
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(photoBinary.ContentType);
         using var content = new MultipartFormDataContent()
         {
             { streamContent, "photo", "photo.jpg" }

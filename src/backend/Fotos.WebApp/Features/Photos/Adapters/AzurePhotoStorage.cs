@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using Fotos.WebApp.Types;
@@ -17,12 +18,20 @@ internal sealed class AzurePhotoStorage
         _mainContainer = configuration[$"{Constants.BlobServiceClientName}:PhotosContainer"];
     }
 
-    public async Task AddOriginalPhoto(PhotoId photoId, Stream photo)
+    public async Task AddOriginalPhoto(PhotoId photoId, Stream photo, string contentType)
     {
         var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
         var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
 
-        await blobClient.UploadAsync(photo);
+        var options = new BlobUploadOptions
+        {
+            HttpHeaders = new BlobHttpHeaders
+            {
+                ContentType = contentType,
+            },
+        };
+
+        await blobClient.UploadAsync(photo, options);
     }
 
     public async Task<Uri> GetOriginalUri(PhotoId photoId)
