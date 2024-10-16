@@ -53,7 +53,7 @@ public sealed class AlbumPageTests : IDisposable
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#album input[type=file]");
-        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00]));
+        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], contentType: "image/jpeg"));
 
         cut.WaitForElements("#thumbnails .thumbnail img").Should().HaveCount(1);
     }
@@ -104,6 +104,30 @@ public sealed class AlbumPageTests : IDisposable
         closeButton.Click();
 
         cut.WaitForAssertion(() => cut.FindAll("#photo").Should().BeEmpty());
+    }
+
+    [Theory(DisplayName = "Uploading a photo that is larger than 20MB should not be allowed"), AutoData]
+    public void Test08(Guid folderId, Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        cut.WaitForElement("#album input[type=file]");
+        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary(new byte[21L * 1024L * 1024L]));
+
+        cut.WaitForAssertion(() => cut.Find("#alert").TextContent.Should().Be("The file is too large."));
+    }
+
+    [Theory(DisplayName = "Uploading a photo that has not an allowed type should not be allowed"), AutoData]
+    public void Test09(Guid folderId, Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        cut.WaitForElement("#album input[type=file]");
+        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], contentType: "application/pdf"));
+
+        cut.WaitForAssertion(() => cut.Find("#alert").TextContent.Should().Be("Only photos can be uploaded."));
     }
 
     #region IDisposable

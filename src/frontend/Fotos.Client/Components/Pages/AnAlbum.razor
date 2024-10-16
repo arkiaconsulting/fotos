@@ -1,4 +1,5 @@
 ﻿@page "/album/{FolderId:guid}/{AlbumId:guid}"
+@using Fotos.Client.Features
 @using Fotos.Client.Features.PhotoFolders
 @using System.Buffers
 
@@ -19,6 +20,13 @@ else
     <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" />
 }
 
+@if (_alertMessage is not null)
+{
+    <div id="alert">
+        <p>@_alertMessage</p>
+    </div>
+}
+
 @code {
     [Parameter]
     public Guid AlbumId { get; set; }
@@ -28,6 +36,7 @@ else
 
     private Album? _album = default!;
     private Thumbnails _thumbnailsComponent = default!;
+    private string? _alertMessage;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -42,13 +51,28 @@ else
     private async Task UploadPhoto(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        byte[] buffer = ArrayPool<byte>.Shared.Rent(512*1024);
-        using var stream = file.OpenReadStream(maxAllowedSize: 1L*1024L*1024L*1024L);
+
+        if (file.Size > Constants.MaxPhotoSize)
+        {
+            _alertMessage = "The file is too large.";
+            StateHasChanged();
+            return;
+        }
+
+        if (!Constants.AllowedPhotoContentTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+        {
+            _alertMessage = "Only photos can be uploaded.";
+            StateHasChanged();
+            return;
+        }
+
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(512 * 1024);
+        using var stream = file.OpenReadStream(maxAllowedSize: Constants.MaxPhotoSize);
 
         using var ms = new MemoryStream();
         int bytesRead;
         long totalBytesRead = 0;
-        while((bytesRead = await stream.ReadAsync(buffer)) != 0)
+        while ((bytesRead = await stream.ReadAsync(buffer)) != 0)
         {
             totalBytesRead += bytesRead;
             await ms.WriteAsync(buffer.AsMemory(0, bytesRead));
@@ -58,5 +82,5 @@ else
 
         var photo = new Photo(id, FolderId, AlbumId);
         _thumbnailsComponent.AddPhoto(photo);
-    }    
+    }
 }
