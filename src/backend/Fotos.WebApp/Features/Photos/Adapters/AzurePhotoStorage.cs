@@ -63,5 +63,23 @@ internal sealed class AzurePhotoStorage
         return new(blobDownloadInfo.Value.Content, blobDownloadInfo.Value.Details.ContentType);
     }
 
+    public async Task AddPhotoToThumbnailStorage(PhotoId photoId, PhotoBinary photo)
+    {
+        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
+        var blobClient = container.GetBlobClient(ComputeThumbnailName(photoId));
+
+        var options = new BlobUploadOptions
+        {
+            HttpHeaders = new BlobHttpHeaders
+            {
+                ContentType = photo.MimeType,
+            },
+        };
+
+        await blobClient.UploadAsync(photo.Content, options);
+    }
+
     private static string ComputeOriginalName(PhotoId photoId) => $"{photoId.Id}.original";
+
+    private static string ComputeThumbnailName(PhotoId photoId) => $"{photoId.Id}.thumbnail";
 }

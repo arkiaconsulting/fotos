@@ -1,14 +1,15 @@
-﻿using SkiaSharp;
+﻿using Fotos.WebApp.Types;
+using SkiaSharp;
 
 namespace Fotos.WebApp.Features.Photos.Adapters;
 
 internal sealed class SkiaSharpImageProcessing
 {
-    public static async Task<Stream> CreateThumbnail(Stream original, string mimeType)
+    public static async Task<Stream> CreateThumbnail(PhotoBinary photo)
     {
         await Task.CompletedTask;
 
-        using var originalStream = new SKManagedStream(original);
+        using var originalStream = new SKManagedStream(photo.Content);
         using var originalImage = SKImage.FromEncodedData(originalStream);
 
         var originalWidth = originalImage.Width;
@@ -32,11 +33,11 @@ internal sealed class SkiaSharpImageProcessing
         using var resizedBitmap = bitmap.Resize(new SKImageInfo(newWidth, newHeight), SKFilterQuality.Medium);
         using var image = SKImage.FromBitmap(resizedBitmap);
 
-        var encodingType = mimeType switch
+        var encodingType = photo.MimeType switch
         {
             "image/jpeg" or "image/jpg" => SKEncodedImageFormat.Jpeg,
             "image/png" => SKEncodedImageFormat.Png,
-            _ => throw new NotSupportedException($"MIME type {mimeType} is not supported")
+            _ => throw new NotSupportedException($"MIME type {photo.MimeType} is not supported")
         };
         using var data = image.Encode(encodingType, 100);
 

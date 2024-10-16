@@ -20,10 +20,12 @@ internal sealed class OnShouldProduceThumbnail
 
     public async Task Handle(PhotoId photoId)
     {
-        var (originalStream, mimeType) = await _readOriginalPhoto(photoId);
+        var photo = await _readOriginalPhoto(photoId);
 
-        await using var thumbnailStream = await _createThumbnail(originalStream, mimeType);
+        await using var thumbnailStream = await _createThumbnail(photo);
 
-        await _addPhotoToThumbnailStorage(photoId, thumbnailStream);
+        await _addPhotoToThumbnailStorage(photoId, photo);
+
+        await photo.Content.DisposeAsync();
     }
 }

@@ -43,8 +43,7 @@ internal static class AdaptersConfigurationExtensions
                 var store = _.GetRequiredService<List<PhotoEntity>>();
 
                 return Task.FromResult(store.Single(x => x.Id.Id == photoId.Id));
-            })
-            .AddScoped<AddPhotoToThumbnailStorage>((_) => (_, _) => Task.CompletedTask);
+            });
 
         services.AddFotosAzureStorage(configuration);
         services.AddFotosServiceBus(configuration);
@@ -58,7 +57,8 @@ internal static class AdaptersConfigurationExtensions
         services.AddSingleton<AzurePhotoStorage>()
         .AddScoped<AddPhotoToMainStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().AddOriginalPhoto)
         .AddScoped<GetOriginalUri>(sp => sp.GetRequiredService<AzurePhotoStorage>().GetOriginalUri)
-        .AddScoped<ReadOriginalPhoto>(sp => sp.GetRequiredService<AzurePhotoStorage>().ReadOriginalPhoto);
+        .AddScoped<ReadOriginalPhoto>(sp => sp.GetRequiredService<AzurePhotoStorage>().ReadOriginalPhoto)
+        .AddScoped<AddPhotoToThumbnailStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().AddPhotoToThumbnailStorage);
 
         services.AddAzureClients(builder =>
         {

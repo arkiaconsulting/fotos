@@ -10,6 +10,6 @@ internal delegate Task OnNewPhotoUploaded(PhotoId photoId);
 internal delegate Task<PhotoBinary> ReadOriginalPhoto(PhotoId photoId);
 internal delegate Task<ExifMetadata> ExtractExifMetadata(Stream photo);
 internal delegate Task<PhotoEntity> GetPhoto(PhotoId photoId);
-internal delegate Task<Stream> CreateThumbnail(Stream originalPhoto, string mimeType);
-internal delegate Task AddPhotoToThumbnailStorage(PhotoId photoId, Stream thumbnail);
+internal delegate Task<Stream> CreateThumbnail(PhotoBinary photo);
+internal delegate Task AddPhotoToThumbnailStorage(PhotoId photoId, PhotoBinary photo);
 internal delegate Task<Uri> GetOriginalUri(PhotoId photoId);

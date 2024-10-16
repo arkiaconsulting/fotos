@@ -57,8 +57,21 @@ public sealed class AzureMainPhotoStorageTests : IClassFixture<FotoIntegrationCo
     {
         await using var stream = File.OpenRead(photoTestPath);
 
-        await using var thumbnailStream = await _context.CreateThumbnail(stream, "image/jpeg");
+        await using var thumbnailStream = await _context.CreateThumbnail(new(stream, "image/jpeg"));
 
         thumbnailStream.Should().NotBeNull();
+    }
+
+    [Theory(DisplayName = "When adding a image to the thumbnail storage should effectively store it"), AutoData]
+    internal async Task Test05(PhotoId photoId, byte[] photo)
+    {
+        await using var ms = new MemoryStream(photo);
+
+        await _context.AddPhotoToThumbnailStorage(photoId, new(ms, "image/jpeg"));
+
+        var blob = _context.PhotosContainer.GetBlobClient($"{photoId.Id}.thumbnail");
+        var blobContent = await blob.DownloadContentAsync();
+        blobContent.Value.Content.ToArray().Should().BeEquivalentTo(photo);
+        blobContent.Value.Details.ContentType.Should().Be("image/jpeg");
     }
 }

@@ -61,10 +61,10 @@ public sealed class FotoContext
                 return Task.CompletedTask;
             };
         });
-        services.AddSingleton<CreateThumbnail>((_) => async (originalPhoto, _) =>
+        services.AddSingleton<CreateThumbnail>((_) => async (originalPhoto) =>
         {
             var thumbnail = new MemoryStream();
-            await originalPhoto.CopyToAsync(thumbnail);
+            await originalPhoto.Content.CopyToAsync(thumbnail);
             thumbnail.Position = 0;
 
             return thumbnail;
@@ -72,7 +72,7 @@ public sealed class FotoContext
         services.AddSingleton<AddPhotoToThumbnailStorage>((_) => (photoId, thumbnail) =>
         {
             var thumbnailsStorage = _.GetRequiredKeyedService<Collection<(Guid, byte[])>>("thumbnails");
-            thumbnailsStorage.Add((photoId.Id, ((MemoryStream)thumbnail).ToArray()));
+            thumbnailsStorage.Add((photoId.Id, ((MemoryStream)thumbnail.Content).ToArray()));
 
             return Task.CompletedTask;
         });
