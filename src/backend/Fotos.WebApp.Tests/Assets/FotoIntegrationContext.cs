@@ -13,6 +13,7 @@ namespace Fotos.WebApp.Tests.Assets;
 public sealed class FotoIntegrationContext
 {
     internal AddPhotoToMainStorage AddPhotoToMainStorage => _host.Services.GetRequiredService<AddPhotoToMainStorage>();
+    internal GetOriginalUri GetOriginalUri => _host.Services.GetRequiredService<GetOriginalUri>();
     internal BlobContainerClient PhotosContainer
     {
         get

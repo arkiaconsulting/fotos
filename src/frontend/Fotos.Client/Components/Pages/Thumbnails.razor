@@ -10,7 +10,7 @@
     {
         <div class="thumbnail">
             <button class="view" onclick="@(() => ViewPhoto(thumbnail))">
-                <img src="img/new.png" style="background-color:black" width="50" height="50" />
+                <img src="img/new.png" style="max-width: 50px" />
             </button>
             <button class="remove btn btn-error" onclick="@(() => RemoveAPhoto(thumbnail))">X</button>
         </div>
@@ -20,7 +20,7 @@
 @if(_photo is not null)
 {
     <div id="photo">
-        <img src="@_photo.OriginalUri.ToString()" width="500" height="300"/>
+        <img src="@_photo.OriginalUri.ToString()" style="max-width: 500px"/>
         <button class="dismiss btn btn-error" @onclick="DismissPhoto">X</button>
     </div>
 }

@@ -62,6 +62,12 @@ internal static class AdaptersConfigurationExtensions
             var photoStorage = sp.GetRequiredService<AzurePhotoStorage>();
 
             return photoStorage.AddOriginalPhoto;
+        })
+        .AddScoped<GetOriginalUri>(sp =>
+        {
+            var photoStorage = sp.GetRequiredService<AzurePhotoStorage>();
+
+            return photoStorage.GetOriginalUri;
         });
 
         services.AddAzureClients(builder =>

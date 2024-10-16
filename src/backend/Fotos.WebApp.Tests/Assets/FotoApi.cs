@@ -20,6 +20,7 @@ public sealed class FotoApi : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
             services.AddScoped<AddPhotoToMainStorage>(_ => (_, _) => Task.CompletedTask)
             .AddScoped<OnNewPhotoUploaded>((_) => (_) => Task.CompletedTask)
+            .AddScoped<GetOriginalUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
         );
     }
 }
