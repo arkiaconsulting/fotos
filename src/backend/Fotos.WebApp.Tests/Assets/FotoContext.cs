@@ -14,7 +14,8 @@ public sealed class FotoContext
     internal Collection<(Guid, byte[])> ThumbnailsStorage => _host.Services.GetRequiredKeyedService<Collection<(Guid, byte[])>>("thumbnails");
     internal Collection<PhotoEntity> Photos => _host.Services.GetRequiredService<Collection<PhotoEntity>>();
     internal OnShouldExtractExifMetadata ExifMetadataExtractor => _host.Services.GetRequiredService<OnShouldExtractExifMetadata>();
-    internal OnShouldProduceThumbnail ThumbnailProducer => _host.Services.GetRequiredService<OnShouldProduceThumbnail>();
+    internal OnShouldProduceThumbnail OnShouldProduceThumbnail => _host.Services.GetRequiredService<OnShouldProduceThumbnail>();
+    internal OnShouldRemovePhotoBinaries OnShouldRemovePhotoBinaries => _host.Services.GetRequiredService<OnShouldRemovePhotoBinaries>();
 
     private readonly IHost _host = Host.CreateDefaultBuilder()
         .ConfigureServices(ConfigureServices)
@@ -28,6 +29,7 @@ public sealed class FotoContext
         services.AddSingleton<Collection<PhotoEntity>>();
         services.AddSingleton<OnShouldExtractExifMetadata>();
         services.AddSingleton<OnShouldProduceThumbnail>();
+        services.AddSingleton<OnShouldRemovePhotoBinaries>();
         services.AddSingleton<ReadOriginalPhoto>(sp =>
         {
             var mainStorage = sp.GetRequiredKeyedService<Collection<(Guid, byte[])>>("main");
@@ -75,6 +77,22 @@ public sealed class FotoContext
         {
             var thumbnailsStorage = _.GetRequiredKeyedService<Collection<(Guid, byte[])>>("thumbnails");
             thumbnailsStorage.Add((photoId.Id, ((MemoryStream)thumbnail.Content).ToArray()));
+
+            return Task.CompletedTask;
+        });
+        services.AddSingleton<RemovePhotoOriginal>(sp => photoId =>
+        {
+            var mainStorage = sp.GetRequiredKeyedService<Collection<(Guid, byte[])>>("main");
+            var photo = mainStorage.Single(x => x.Item1 == photoId.Id);
+            mainStorage.Remove(photo);
+
+            return Task.CompletedTask;
+        });
+        services.AddSingleton<RemovePhotoThumbnail>(sp => photoId =>
+        {
+            var thumbnailsStorage = sp.GetRequiredKeyedService<Collection<(Guid, byte[])>>("thumbnails");
+            var photo = thumbnailsStorage.Single(x => x.Item1 == photoId.Id);
+            thumbnailsStorage.Remove(photo);
 
             return Task.CompletedTask;
         });

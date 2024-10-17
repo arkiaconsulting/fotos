@@ -29,7 +29,7 @@ public sealed class OnNewPhotoUploadedHandlerTests : IClassFixture<FotoContext>
         _fotoContext.Photos.Add(new PhotoEntity(photoId, title));
         _fotoContext.MainStorage.Add((photoId.Id, photoBytes));
 
-        await _fotoContext.ThumbnailProducer.Handle(photoId);
+        await _fotoContext.OnShouldProduceThumbnail.Handle(photoId);
 
         _fotoContext.ThumbnailsStorage.Should().ContainSingle();
     }

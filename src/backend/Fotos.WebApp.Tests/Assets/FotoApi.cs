@@ -32,6 +32,7 @@ public sealed class FotoApi : WebApplicationFactory<Program>
     private static void ConfigureAppConfiguration(WebHostBuilderContext _, IConfigurationBuilder builder) =>
         builder.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true"
+            ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true",
+            ["AzureWebJobs.OnShouldRemovePhotoBinaries.Disabled"] = "true",
         });
 }
