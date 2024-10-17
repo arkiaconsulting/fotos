@@ -112,4 +112,11 @@ internal static class FotoClient
 
         return response;
     }
+
+    public static async Task<HttpResponseMessage> GetThumbnailUri(this HttpClient client, Guid folderId, Guid albumId, Guid photoId)
+    {
+        using var response = await client.GetAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}/thumbnailuri", UriKind.Relative));
+
+        return response;
+    }
 }

@@ -74,4 +74,16 @@ public sealed class AzureMainPhotoStorageTests : IClassFixture<FotoIntegrationCo
         blobContent.Value.Content.ToArray().Should().BeEquivalentTo(photo);
         blobContent.Value.Details.ContentType.Should().Be("image/jpeg");
     }
+
+    [Theory(DisplayName = "When getting the URI of the photo thumbnail should return the storage URI"), AutoData]
+    internal async Task Test06(PhotoId photoId, byte[] photo)
+    {
+        await using var ms = new MemoryStream(photo);
+        var blob = _context.PhotosContainer.GetBlobClient($"{photoId.Id}.thumbnail");
+        await blob.UploadAsync(ms);
+
+        var uri = await _context.GetThumbnailUri(photoId);
+
+        uri.AbsoluteUri.Should().StartWith($"http://127.0.0.1:10000/devstoreaccount1/fotostests/{photoId.Id}.thumbnail");
+    }
 }

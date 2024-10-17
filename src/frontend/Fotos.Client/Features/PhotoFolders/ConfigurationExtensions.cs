@@ -75,6 +75,12 @@ internal static class ConfigurationExtensions
 
             return async (Guid folderId, Guid albumId, Guid photoId) => await client.GetOriginalUri(folderId, albumId, photoId);
         });
+        services.AddScoped<GetThumbnailUri>(sp =>
+        {
+            var client = sp.GetRequiredService<FotosApiClient>();
+
+            return async (Guid folderId, Guid albumId, Guid photoId) => await client.GetThumbnailUri(folderId, albumId, photoId);
+        });
 
         return services;
     }

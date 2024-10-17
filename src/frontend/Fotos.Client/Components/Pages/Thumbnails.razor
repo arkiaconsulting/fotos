@@ -4,13 +4,14 @@
 @inject ListPhotos ListPhotos
 @inject RemovePhoto RemovePhoto
 @inject GetOriginalUri GetOriginalUri
+@inject GetThumbnailUri GetThumbnailUri
 
 <div id="thumbnails">
     @foreach (var thumbnail in _thumbnails)
     {
         <div class="thumbnail">
             <button class="view" onclick="@(() => ViewPhoto(thumbnail))">
-                <img src="img/new.png" style="max-width: 50px" />
+                <img src="@thumbnail.ThumbnailUri?.ToString()" style="max-width: 50px" />
             </button>
             <span>@thumbnail.Title</span>
             <button class="remove btn btn-error" onclick="@(() => RemoveAPhoto(thumbnail))">X</button>
@@ -18,41 +19,42 @@
     }
 </div>
 
-@if(_photo is not null)
+@if (_photo is not null)
 {
     <div id="photo">
-        <img src="@_photo.OriginalUri.ToString()" style="max-width: 500px"/>
+        <img src="@_photo.OriginalUri?.ToString()" style="max-width: 500px" />
         <button class="dismiss btn btn-error" @onclick="DismissPhoto">X</button>
     </div>
 }
 @code {
-    [Parameter]
-    public Guid FolderId { get; set; }
+        [Parameter]
+        public Guid FolderId { get; set; }
 
-    [Parameter]
-    public Guid AlbumId { get; set; }
+        [Parameter]
+        public Guid AlbumId { get; set; }
 
-    private List<Photo> _thumbnails = [];
+    private List<PhotoModel> _thumbnails = [];
     private PhotoModel? _photo = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _thumbnails = (await ListPhotos(FolderId, AlbumId)).ToList();
+            _thumbnails = (await ListPhotos(FolderId, AlbumId)).Select(p => new PhotoModel(p.FolderId, p.AlbumId, p.Id, p.Title)).ToList();
+            await SetThumbnailUris();
 
             StateHasChanged();
         }
     }
 
-    public void AddPhoto(Photo photo)
+    internal void AddPhoto(Photo photo)
     {
-        _thumbnails.Add(photo);
+        _thumbnails.Add(new(photo.FolderId, photo.AlbumId, photo.Id, photo.Title));
 
         StateHasChanged();
     }
 
-    private async Task RemoveAPhoto(Photo photo)
+    private async Task RemoveAPhoto(PhotoModel photo)
     {
         await RemovePhoto(photo.FolderId, photo.AlbumId, photo.Id);
         _thumbnails.Remove(photo);
@@ -60,11 +62,12 @@
         StateHasChanged();
     }
 
-    private async Task ViewPhoto(Photo photo)
+    private async Task ViewPhoto(PhotoModel photo)
     {
         var originalUri = await GetOriginalUri(photo.FolderId, photo.AlbumId, photo.Id);
 
-        _photo = new(photo.FolderId, photo.AlbumId, photo.Id, originalUri);
+        photo.OriginalUri = originalUri;
+        _photo = photo;
 
         StateHasChanged();
     }
@@ -74,5 +77,13 @@
         _photo = null;
 
         StateHasChanged();
+    }
+
+    private async Task SetThumbnailUris()
+    {
+        foreach (var photo in _thumbnails)
+        {
+            photo.ThumbnailUri = await GetThumbnailUri(photo.FolderId, photo.AlbumId, photo.Id);
+        }
     }
 }

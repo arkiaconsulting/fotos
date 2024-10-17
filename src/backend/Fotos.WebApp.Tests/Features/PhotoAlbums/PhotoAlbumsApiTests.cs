@@ -109,4 +109,15 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
 
         response.Should().Be200Ok();
     }
+
+    [Theory(DisplayName = "Getting the thumbnail URI of a photo should pass"), AutoData]
+    internal async Task Test09(PhotoId photoId, string title)
+    {
+        var client = _fotoApi.CreateClient();
+        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
+
+        using var response = await client.GetThumbnailUri(photoId.FolderId, photoId.AlbumId, photoId.Id);
+
+        response.Should().Be200Ok();
+    }
 }

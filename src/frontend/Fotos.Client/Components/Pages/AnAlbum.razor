@@ -80,7 +80,7 @@ else
 
         var id = await AddPhoto(FolderId, AlbumId, new(ms.ToArray(), file.ContentType, file.Name));
 
-        var photo = new Photo(id, FolderId, AlbumId, file.Name);
+        var photo = new Photo(id, FolderId, AlbumId, file.Name, new Uri("img/new.png", UriKind.Relative));
         _thumbnailsComponent.AddPhoto(photo);
     }
 }

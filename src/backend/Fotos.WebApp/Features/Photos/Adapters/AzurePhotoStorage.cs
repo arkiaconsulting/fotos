@@ -38,20 +38,14 @@ internal sealed class AzurePhotoStorage
     {
         await Task.CompletedTask;
 
-        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
+        return GetAuthorizedUri(ComputeOriginalName(photoId))!;
+    }
 
-        var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
+    public async Task<Uri> GetThumbnailUri(PhotoId photoId)
+    {
+        await Task.CompletedTask;
 
-        var sasBuilder = new BlobSasBuilder()
-        {
-            BlobContainerName = blobClient.GetParentBlobContainerClient().Name,
-            BlobName = blobClient.Name,
-            Resource = "b",
-            ExpiresOn = DateTimeOffset.UtcNow.AddSeconds(30),
-        };
-        sasBuilder.SetPermissions(BlobSasPermissions.Read);
-
-        return blobClient.GenerateSasUri(sasBuilder);
+        return GetAuthorizedUri(ComputeThumbnailName(photoId))!;
     }
 
     public async Task<PhotoBinary> ReadOriginalPhoto(PhotoId photoId)
@@ -79,7 +73,23 @@ internal sealed class AzurePhotoStorage
         await blobClient.UploadAsync(photo.Content, options);
     }
 
+    private Uri? GetAuthorizedUri(string blobName)
+    {
+        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
+        var blobClient = container.GetBlobClient(blobName);
+        var sasBuilder = new BlobSasBuilder()
+        {
+            BlobContainerName = blobClient.GetParentBlobContainerClient().Name,
+            BlobName = blobClient.Name,
+            Resource = "b",
+            ExpiresOn = DateTimeOffset.UtcNow.AddSeconds(30),
+        };
+        sasBuilder.SetPermissions(BlobSasPermissions.Read);
+        return blobClient.GenerateSasUri(sasBuilder);
+    }
+
     private static string ComputeOriginalName(PhotoId photoId) => $"{photoId.Id}.original";
 
     private static string ComputeThumbnailName(PhotoId photoId) => $"{photoId.Id}.thumbnail";
+
 }

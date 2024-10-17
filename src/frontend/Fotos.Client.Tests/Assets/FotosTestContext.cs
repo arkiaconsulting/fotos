@@ -79,7 +79,7 @@ public sealed class FotosTestContext : TestContext
 
             return (Guid folderId, Guid albumId, PhotoBinary _) => Task.Run(() =>
             {
-                photos.Add(new(Guid.NewGuid(), folderId, albumId, default!));
+                photos.Add(new(Guid.NewGuid(), folderId, albumId, default!, new Uri("/", UriKind.Relative)));
 
                 return Guid.NewGuid();
             });
@@ -95,5 +95,6 @@ public sealed class FotosTestContext : TestContext
             });
         });
         Services.AddTransient<GetOriginalUri>(_ => (Guid _, Guid _, Guid photoId) => Task.FromResult(new Uri($"http://localhost/photos/{photoId}")));
+        Services.AddTransient<GetThumbnailUri>(_ => (Guid _, Guid _, Guid photoId) => Task.FromResult<Uri?>(default));
     }
 }

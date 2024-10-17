@@ -14,6 +14,7 @@ public sealed class FotoIntegrationContext
 {
     internal AddPhotoToMainStorage AddPhotoToMainStorage => _host.Services.GetRequiredService<AddPhotoToMainStorage>();
     internal GetOriginalUri GetOriginalUri => _host.Services.GetRequiredService<GetOriginalUri>();
+    internal GetThumbnailUri GetThumbnailUri => _host.Services.GetRequiredService<GetThumbnailUri>();
     internal ReadOriginalPhoto ReadOriginalPhoto => _host.Services.GetRequiredService<ReadOriginalPhoto>();
     internal CreateThumbnail CreateThumbnail => _host.Services.GetRequiredService<CreateThumbnail>();
     internal AddPhotoToThumbnailStorage AddPhotoToThumbnailStorage => _host.Services.GetRequiredService<AddPhotoToThumbnailStorage>();

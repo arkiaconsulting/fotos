@@ -2,6 +2,7 @@
 using Fotos.WebApp.Types;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Fotos.WebApp.Tests.Assets;
@@ -21,6 +22,15 @@ public sealed class FotoApi : WebApplicationFactory<Program>
             services.AddScoped<AddPhotoToMainStorage>(_ => (_, _, _) => Task.CompletedTask)
             .AddScoped<OnNewPhotoUploaded>((_) => (_) => Task.CompletedTask)
             .AddScoped<GetOriginalUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
+            .AddScoped<GetThumbnailUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
         );
+
+        builder.ConfigureAppConfiguration(ConfigureAppConfiguration);
     }
+
+    private static void ConfigureAppConfiguration(WebHostBuilderContext _, IConfigurationBuilder builder) =>
+        builder.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true"
+        });
 }

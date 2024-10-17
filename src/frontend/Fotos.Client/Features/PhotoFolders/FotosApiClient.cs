@@ -101,4 +101,11 @@ internal sealed class FotosApiClient
 
         return uri!;
     }
+
+    internal async Task<Uri> GetThumbnailUri(Guid folderId, Guid albumId, Guid photoId)
+    {
+        var uri = await _httpClient.GetFromJsonAsync<Uri>($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}/thumbnailuri");
+
+        return uri!;
+    }
 }

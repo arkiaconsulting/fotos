@@ -10,6 +10,7 @@ internal delegate Task OnNewPhotoUploaded(PhotoId photoId);
 internal delegate Task<ExifMetadata> ExtractExifMetadata(Stream photo);
 internal delegate Task<PhotoEntity> GetPhoto(PhotoId photoId);
 internal delegate Task<Uri> GetOriginalUri(PhotoId photoId);
+internal delegate Task<Uri> GetThumbnailUri(PhotoId photoId);
 
 #pragma warning disable CA1515 // Consider making public types internal (required for Azure Functions)
 public delegate Task<PhotoBinary> ReadOriginalPhoto(PhotoId photoId);
