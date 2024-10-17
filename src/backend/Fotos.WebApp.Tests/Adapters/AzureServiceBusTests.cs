@@ -27,4 +27,19 @@ public sealed class AzureServiceBusTests : IClassFixture<FotoIntegrationContext>
         var payload = message.Body.ToObjectFromJson<PhotoId>(options: new(JsonSerializerDefaults.Web));
         payload.Should().BeEquivalentTo(photoId);
     }
+
+    [Theory(DisplayName = "When removing a photo should inform by publishing"), AutoData]
+    internal async Task Test02(PhotoId photoId)
+    {
+        await _context.OnPhotoRemoved(photoId);
+
+        var receiver = _context.ServiceBusClient.CreateReceiver(_context.MainTopicName, "photo-removed", options: new() { ReceiveMode = Azure.Messaging.ServiceBus.ServiceBusReceiveMode.ReceiveAndDelete });
+        var messages = await receiver.ReceiveMessagesAsync(1, maxWaitTime: TimeSpan.FromSeconds(2));
+        var message = messages.Should().ContainSingle().Subject;
+
+        message.Subject.Should().Be("PhotoRemoved");
+        message.ContentType.Should().Be(MediaTypeNames.Application.Json);
+        var payload = message.Body.ToObjectFromJson<PhotoId>(options: new(JsonSerializerDefaults.Web));
+        payload.Should().BeEquivalentTo(photoId);
+    }
 }

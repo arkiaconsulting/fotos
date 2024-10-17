@@ -29,4 +29,16 @@ internal sealed class AzureServiceBus
 
         await _mainTopicSender.SendMessageAsync(message);
     }
+
+    public async Task OnPhotoRemoved(PhotoId photoId)
+    {
+        var message = new ServiceBusMessage
+        {
+            Subject = "PhotoRemoved",
+            ContentType = MediaTypeNames.Application.Json,
+            Body = new BinaryData(JsonSerializer.Serialize(photoId, options: Constants.JsonSerializerOptions)),
+        };
+
+        await _mainTopicSender.SendMessageAsync(message);
+    }
 }

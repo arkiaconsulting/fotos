@@ -88,11 +88,9 @@ internal static class AdaptersConfigurationExtensions
     public static IServiceCollection AddFotosServiceBus(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<AzureServiceBus>()
-            .AddScoped<OnNewPhotoUploaded>(sp =>
-            {
-                var serviceBus = sp.GetRequiredService<AzureServiceBus>();
-                return serviceBus.OnNewPhotoUploaded;
-            });
+        .AddScoped<OnNewPhotoUploaded>(sp => sp.GetRequiredService<AzureServiceBus>().OnNewPhotoUploaded)
+        .AddScoped<OnPhotoRemoved>(sp => sp.GetRequiredService<AzureServiceBus>().OnPhotoRemoved);
+
         services.AddAzureClients(builder =>
         {
             var fqdn = configuration[$"{Constants.ServiceBusClientName}:fullyQualifiedNamespace"];
