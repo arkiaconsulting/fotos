@@ -46,6 +46,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
         response.Should().Be202Accepted();
         var id = await response.Content.ReadFromJsonAsync<Guid>();
         id.Should().NotBeEmpty();
+        _fotoApi.PhotoUploadedMessageSink.Should().Contain(new PhotoId(folderId, albumId, id));
     }
 
     [Theory(DisplayName = "Listing folder albums should pass"), AutoData]
@@ -97,6 +98,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
         using var response = await client.RemovePhoto(photoId.FolderId, photoId.AlbumId, photoId.Id);
 
         response.Should().Be204NoContent();
+        _fotoApi.PhotoRemovedMessageSink.Should().Contain(photoId);
     }
 
     [Theory(DisplayName = "Getting the original URI of a photo should pass"), AutoData]

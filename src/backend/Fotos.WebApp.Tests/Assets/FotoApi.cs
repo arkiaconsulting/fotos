@@ -11,6 +11,8 @@ namespace Fotos.WebApp.Tests.Assets;
 public sealed class FotoApi : WebApplicationFactory<Program>
 {
     internal List<PhotoEntity> Photos => Services.GetRequiredService<List<PhotoEntity>>();
+    internal List<PhotoId> PhotoRemovedMessageSink { get; } = [];
+    internal List<PhotoId> PhotoUploadedMessageSink { get; } = [];
 
     public FotoApi() => ClientOptions.BaseAddress = new Uri("https://localhost");
 
@@ -20,8 +22,18 @@ public sealed class FotoApi : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
             services.AddScoped<AddPhotoToMainStorage>(_ => (_, _, _) => Task.CompletedTask)
-            .AddScoped<OnNewPhotoUploaded>((_) => (_) => Task.CompletedTask)
-            .AddScoped<OnPhotoRemoved>((_) => (_) => Task.CompletedTask)
+            .AddScoped<OnNewPhotoUploaded>((_) => (id) =>
+            {
+                PhotoUploadedMessageSink.Add(id);
+
+                return Task.CompletedTask;
+            })
+            .AddScoped<OnPhotoRemoved>((_) => (id) =>
+            {
+                PhotoRemovedMessageSink.Add(id);
+
+                return Task.CompletedTask;
+            })
             .AddScoped<GetOriginalUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
             .AddScoped<GetThumbnailUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
         );
