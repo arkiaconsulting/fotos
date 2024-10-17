@@ -1,11 +1,14 @@
 using Fotos.Client.Components;
 using Fotos.Client.Features.PhotoFolders;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddMudServices();
 
 builder.Services.AddFotosApi();
 

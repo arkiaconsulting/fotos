@@ -2,9 +2,20 @@
 
 @inject IHostEnvironment HostEnvironment
 
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudSnackbarProvider />
+
 <CustomErrorBoundary @ref="errorBoundary">
     <ChildContent>
-        @Body
+        <MudLayout>
+            <MudAppBar>
+                Fotos
+            </MudAppBar>
+            <MudMainContent>
+                @Body
+            </MudMainContent>
+        </MudLayout>
     </ChildContent>
     <ErrorContent>
         <div class="alert alert-danger" role="alert">
