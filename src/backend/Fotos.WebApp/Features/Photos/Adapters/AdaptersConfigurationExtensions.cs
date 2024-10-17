@@ -59,7 +59,9 @@ internal static class AdaptersConfigurationExtensions
         .AddScoped<GetOriginalUri>(sp => sp.GetRequiredService<AzurePhotoStorage>().GetOriginalUri)
         .AddScoped<GetThumbnailUri>(sp => sp.GetRequiredService<AzurePhotoStorage>().GetThumbnailUri)
         .AddScoped<ReadOriginalPhoto>(sp => sp.GetRequiredService<AzurePhotoStorage>().ReadOriginalPhoto)
-        .AddScoped<AddPhotoToThumbnailStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().AddPhotoToThumbnailStorage);
+        .AddScoped<AddPhotoToThumbnailStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().AddPhotoToThumbnailStorage)
+        .AddScoped<RemovePhotoOriginal>(sp => sp.GetRequiredService<AzurePhotoStorage>().RemovePhotoOriginal)
+        .AddScoped<RemovePhotoThumbnail>(sp => sp.GetRequiredService<AzurePhotoStorage>().RemovePhotoThumbnail);
 
         services.AddAzureClients(builder =>
         {

@@ -73,6 +73,17 @@ internal sealed class AzurePhotoStorage
         await blobClient.UploadAsync(photo.Content, options);
     }
 
+    public async Task RemovePhotoOriginal(PhotoId photoId) => await RemoveBlob(ComputeOriginalName(photoId));
+
+    public async Task RemovePhotoThumbnail(PhotoId photoId) => await RemoveBlob(ComputeThumbnailName(photoId));
+
+    private async Task RemoveBlob(string blobName)
+    {
+        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
+        var blobClient = container.GetBlobClient(blobName);
+        await blobClient.DeleteIfExistsAsync();
+    }
+
     private Uri? GetAuthorizedUri(string blobName)
     {
         var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
