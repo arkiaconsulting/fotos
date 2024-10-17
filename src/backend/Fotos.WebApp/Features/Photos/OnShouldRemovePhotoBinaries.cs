@@ -19,7 +19,7 @@ public sealed class OnShouldRemovePhotoBinaries
 
     [FunctionName("OnShouldRemovePhotoBinaries")]
     public async Task Handle(
-        [ServiceBusTrigger("%ServiceBus:MainTopic%", "%ServiceBus:PhotoRemovedSubscription%", AutoCompleteMessages = true, Connection = "ServiceBus")] PhotoId photoId)
+        [ServiceBusTrigger("%ServiceBus:MainTopic%", "%ServiceBus:RemovePhotoBinariesSubscription%", AutoCompleteMessages = true, Connection = "ServiceBus")] PhotoId photoId)
     {
         await _removePhotoOriginal(photoId);
         await _removePhotoThumbnail(photoId);

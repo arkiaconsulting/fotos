@@ -46,5 +46,6 @@ public sealed class FotoApi : WebApplicationFactory<Program>
         {
             ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true",
             ["AzureWebJobs.OnShouldRemovePhotoBinaries.Disabled"] = "true",
+            ["AzureWebJobs.OnShouldExtractExifMetadata.Disabled"] = "true",
         });
 }

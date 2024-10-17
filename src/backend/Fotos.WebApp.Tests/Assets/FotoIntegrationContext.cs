@@ -20,6 +20,7 @@ public sealed class FotoIntegrationContext
     internal AddPhotoToThumbnailStorage AddPhotoToThumbnailStorage => _host.Services.GetRequiredService<AddPhotoToThumbnailStorage>();
     internal RemovePhotoOriginal RemovePhotoOriginal => _host.Services.GetRequiredService<RemovePhotoOriginal>();
     internal RemovePhotoThumbnail RemovePhotoThumbnail => _host.Services.GetRequiredService<RemovePhotoThumbnail>();
+    internal ExtractExifMetadata ExtractExifMetadata => _host.Services.GetRequiredService<ExtractExifMetadata>();
 
     internal BlobContainerClient PhotosContainer
     {

@@ -41,7 +41,7 @@ public sealed class FotoContext
                 return Task.FromResult<PhotoBinary>(new(new MemoryStream(bytes), "image/jpeg"));
             };
         });
-        services.AddSingleton<ExtractExifMetadata>((_) => (_) => Task.FromResult(new ExifMetadata(DateTime.Now)));
+        services.AddSingleton<ExtractExifMetadata>((_) => (_, _) => Task.FromResult(new ExifMetadata(DateTime.Now)));
         services.AddSingleton<GetPhoto>(_ => (photoId) =>
         {
             var store = _.GetRequiredService<Collection<PhotoEntity>>();

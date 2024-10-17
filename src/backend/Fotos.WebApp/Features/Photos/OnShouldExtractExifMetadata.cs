@@ -1,8 +1,10 @@
 ﻿using Fotos.WebApp.Types;
+using Microsoft.Azure.WebJobs;
 
 namespace Fotos.WebApp.Features.Photos;
 
-internal sealed class OnShouldExtractExifMetadata
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Required by WebJobs runtime")]
+public sealed class OnShouldExtractExifMetadata
 {
     private readonly ReadOriginalPhoto _readOriginalPhoto;
     private readonly ExtractExifMetadata _extractExifMetadata;
@@ -21,14 +23,25 @@ internal sealed class OnShouldExtractExifMetadata
         _storePhotoData = storePhotoData;
     }
 
-    public async Task Handle(PhotoId photoId)
+    [FunctionName("OnShouldExtractExifMetadata")]
+    public async Task Handle(
+        [ServiceBusTrigger("%ServiceBus:MainTopic%", "%ServiceBus:ExtractExifMetadataSubscription%", AutoCompleteMessages = true, Connection = "ServiceBus")] PhotoId photoId)
     {
-        var (stream, _) = await _readOriginalPhoto(photoId);
+        var (stream, mimeType) = await _readOriginalPhoto(photoId);
 
-        var metadata = await _extractExifMetadata(stream);
+        try
+        {
+            var metadata = await _extractExifMetadata(stream, mimeType);
 
-        var photo = await _getPhoto(photoId);
+            var photo = await _getPhoto(photoId);
 
-        await _storePhotoData(photo = photo.WithMetadata(metadata));
+            await _storePhotoData(photo = photo.WithMetadata(metadata));
+
+            await stream.DisposeAsync();
+        }
+        catch (NotSupportedException)
+        {
+            // Should log warning here
+        }
     }
 }

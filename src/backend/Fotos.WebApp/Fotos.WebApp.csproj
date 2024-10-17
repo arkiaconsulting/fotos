@@ -7,6 +7,7 @@
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+		<PackageReference Include="MetadataExtractor" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" />
 		<PackageReference Include="Microsoft.Extensions.Azure" />

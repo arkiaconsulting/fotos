@@ -22,7 +22,7 @@ public sealed class OnShouldProduceThumbnail
 
     [FunctionName("OnShouldProduceThumbnail")]
     public async Task Handle(
-        [ServiceBusTrigger("%ServiceBus:MainTopic%", "%ServiceBus:PhotoUploadedSubscription%", AutoCompleteMessages = true, Connection = "ServiceBus")] PhotoId photoId)
+        [ServiceBusTrigger("%ServiceBus:MainTopic%", "%ServiceBus:ProduceThumbnailSubscription%", AutoCompleteMessages = true, Connection = "ServiceBus")] PhotoId photoId)
     {
         var photo = await _readOriginalPhoto(photoId);
 

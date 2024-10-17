@@ -37,7 +37,6 @@ internal static class AdaptersConfigurationExtensions
 
                 return Task.CompletedTask;
             })
-            .AddScoped<ExtractExifMetadata>((_) => (_) => Task.FromResult(new ExifMetadata(DateTime.Now)))
             .AddScoped<GetPhoto>(_ => (photoId) =>
             {
                 var store = _.GetRequiredService<List<PhotoEntity>>();
@@ -111,6 +110,7 @@ internal static class AdaptersConfigurationExtensions
     public static IServiceCollection AddFotosImageProcessing(this IServiceCollection services)
     {
         services.AddScoped<CreateThumbnail>(_ => SkiaSharpImageProcessing.CreateThumbnail);
+        services.AddScoped<ExtractExifMetadata>(_ => ExifMetadataService.Extract);
 
         return services;
     }
