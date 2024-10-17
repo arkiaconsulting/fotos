@@ -29,7 +29,7 @@ internal static class AdaptersConfigurationExtensions
                     return Task.FromResult<IReadOnlyCollection<PhotoEntity>>(photos);
                 };
             })
-            .AddScoped<RemovePhoto>(sp => (photoId) =>
+            .AddScoped<RemovePhotoData>(sp => (photoId) =>
             {
                 var store = sp.GetRequiredService<List<PhotoEntity>>();
 

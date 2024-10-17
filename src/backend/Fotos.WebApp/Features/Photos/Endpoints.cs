@@ -42,9 +42,9 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapDelete("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] RemovePhoto removePhoto) =>
+        endpoints.MapDelete("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] RemovePhotoBusiness business) =>
         {
-            await removePhoto(new(folderId, albumId, id));
+            await business.Process(new(folderId, albumId, id));
 
             return Results.NoContent();
         })
