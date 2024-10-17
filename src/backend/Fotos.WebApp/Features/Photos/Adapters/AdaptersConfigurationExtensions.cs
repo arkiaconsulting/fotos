@@ -14,6 +14,13 @@ internal static class AdaptersConfigurationExtensions
             .AddScoped<StorePhotoData>(sp => photo =>
             {
                 var store = sp.GetRequiredService<List<PhotoEntity>>();
+
+                var existingPhoto = store.Find(x => x.Id == photo.Id);
+                if (existingPhoto != null)
+                {
+                    store.Remove(existingPhoto);
+                }
+
                 store.Add(photo);
 
                 return Task.CompletedTask;

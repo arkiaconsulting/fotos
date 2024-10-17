@@ -102,5 +102,4 @@ internal sealed class AzurePhotoStorage
     private static string ComputeOriginalName(PhotoId photoId) => $"{photoId.Id}.original";
 
     private static string ComputeThumbnailName(PhotoId photoId) => $"{photoId.Id}.thumbnail";
-
 }
