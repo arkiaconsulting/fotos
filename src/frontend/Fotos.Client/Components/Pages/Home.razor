@@ -82,6 +82,7 @@ else
     private string _newFolder = string.Empty;
     private string _newAlbumName = string.Empty;
     private bool _loaded = false;
+    private Guid _parentIdOfParent = Guid.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -117,6 +118,7 @@ else
 
     private async Task GotToFolder(Folder folder)
     {
+        _parentIdOfParent = _currentFolder.ParentId;
         _currentFolder = folder;
 
         await RefreshFoldersAndAlbums();
@@ -124,14 +126,15 @@ else
 
     private async Task GotToParentFolder()
     {
-        _currentFolder = await GetFolder(_currentFolder.ParentId);
+        _currentFolder = await GetFolder(_parentIdOfParent, _currentFolder.ParentId);
+        _parentIdOfParent = _currentFolder.ParentId;
 
         await RefreshFoldersAndAlbums();
     }
 
     private async Task RemoveThisFolder(Folder folder)
     {
-        await RemoveFolder(folder.Id);
+        await RemoveFolder(folder.ParentId, folder.Id);
 
         _folders.Remove(folder);
     }

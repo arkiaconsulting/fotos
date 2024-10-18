@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Fotos.WebApp.Features.Photos.Adapters;
+namespace Fotos.WebApp.Adapters;
 
 internal static class Constants
 {

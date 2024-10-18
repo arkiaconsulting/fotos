@@ -12,11 +12,12 @@ internal static class EndpointExtension
         endpoints.MapPost("api/folders", async ([FromBody] CreateFolder folder, [FromServices] StoreNewFolder storeNewFolder) =>
         {
             var folderName = Name.Create(folder.Name);
-            var newFolder = new Folder(Guid.NewGuid(), folder.ParentId, folderName);
+            var id = Guid.NewGuid();
+            var newFolder = new Folder(id, folder.ParentId, folderName);
 
             await storeNewFolder(newFolder);
 
-            return Results.NoContent();
+            return Results.Ok(id);
         })
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Folders")
@@ -37,11 +38,11 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapGet("api/folders/{folderId}", async (Guid folderId, [FromServices] GetFolder getFolder) =>
+        endpoints.MapGet("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] GetFolder getFolder) =>
         {
             try
             {
-                var folder = await getFolder(folderId);
+                var folder = await getFolder(parentId, folderId);
 
                 return Results.Ok(folder);
             }
@@ -56,11 +57,11 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapDelete("api/folders/{folderId}", async (Guid folderId, [FromServices] RemoveFolder removeFolder) =>
+        endpoints.MapDelete("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] RemoveFolder removeFolder) =>
         {
             try
             {
-                await removeFolder(folderId);
+                await removeFolder(parentId, folderId);
 
                 return Results.NoContent();
             }

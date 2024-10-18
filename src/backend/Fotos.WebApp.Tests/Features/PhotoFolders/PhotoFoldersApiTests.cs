@@ -19,7 +19,8 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
 
         using var response = await client.CreatePhotoFolder(parentFolderId, folderName);
 
-        response.Should().Be204NoContent();
+        response.Should().Be200Ok();
+        (await response.Content.ReadFromJsonAsync<Guid>()).Should().NotBeEmpty();
     }
 
     [Theory(DisplayName = "Creating a new folder with an invalid payload should fail"), ClassData(typeof(CreateFolderWrongTheoryData))]
@@ -58,36 +59,37 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     }
 
     [Theory(DisplayName = "Getting a folder that does not exist should fail"), AutoData]
-    public async Task Test05(Guid nonExistingFolderId)
+    public async Task Test05(Guid parentId, Guid nonExistingFolderId)
     {
         var client = _fotoApi.CreateClient();
 
-        using var response = await client.GetFolder(nonExistingFolderId);
+        using var response = await client.GetFolder(parentId, nonExistingFolderId);
 
         response.Should().Be400BadRequest();
         response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");
     }
 
     [Theory(DisplayName = "Removing a folder that does not exist should pass"), AutoData]
-    public async Task Test06(Guid nonExistingFolderId)
+    public async Task Test06(Guid parentId, Guid nonExistingFolderId)
     {
         var client = _fotoApi.CreateClient();
 
-        using var response = await client.RemoveFolder(nonExistingFolderId);
+        using var response = await client.RemoveFolder(parentId, nonExistingFolderId);
 
         response.Should().Be204NoContent();
     }
 
     [Theory(DisplayName = "Removing a folder that exists should pass"), AutoData]
-    public async Task Test07(Guid folderId, string folderName)
+    public async Task Test07(Guid parentId, string folderName)
     {
         var client = _fotoApi.CreateClient();
-        using var _ = await client.CreatePhotoFolder(folderId, folderName);
+        using var r0 = await client.CreatePhotoFolder(parentId, folderName);
+        var folderId = await r0.Content.ReadFromJsonAsync<Guid>();
 
-        using var response1 = await client.RemoveFolder(folderId);
+        using var response1 = await client.RemoveFolder(parentId, folderId);
 
         response1.Should().Be204NoContent();
-        using var response2 = await client.GetFolder(folderId);
+        using var response2 = await client.GetFolder(parentId, folderId);
         response2.Should().Be400BadRequest();
     }
 }

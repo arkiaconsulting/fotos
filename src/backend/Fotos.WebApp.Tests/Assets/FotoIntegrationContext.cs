@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
+using Fotos.WebApp.Adapters;
 using Fotos.WebApp.Features.Photos;
-using Fotos.WebApp.Features.Photos.Adapters;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
