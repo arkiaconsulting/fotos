@@ -3,7 +3,7 @@ using Fotos.WebApp.Types;
 using System.Net.Mime;
 using System.Text.Json;
 
-namespace Fotos.WebApp.Features.Photos.Adapters;
+namespace Fotos.WebApp.Adapters;
 
 internal sealed class AzureServiceBus
 {

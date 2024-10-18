@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
+using Fotos.WebApp.Adapters;
 using Fotos.WebApp.Features.Photos;
-using Fotos.WebApp.Features.Photos.Adapters;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,7 +57,9 @@ public sealed class FotoIntegrationContext
                 ["CosmosDb:AccountEndpoint"] = "https://localhost:8081",
                 ["CosmosDb:AccountKey"] = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
                 ["CosmosDb:DatabaseId"] = "fotos",
-                ["CosmosDb:ContainerId"] = "photos-test"
+                ["CosmosDb:ContainerId"] = "photos-test",
+                ["CosmosDb:FoldersContainerId"] = "folders-test",
+                ["CosmosDb:AlbumsContainerId"] = "albums-test",
             });
         }).ConfigureLogging(builder => builder
             .AddFilter("Azure.Identity", LogLevel.Warning)

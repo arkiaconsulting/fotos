@@ -1,7 +1,7 @@
 ﻿using Fotos.WebApp.Types;
 using SkiaSharp;
 
-namespace Fotos.WebApp.Features.Photos.Adapters;
+namespace Fotos.WebApp.Adapters;
 
 internal sealed class SkiaSharpImageProcessing
 {

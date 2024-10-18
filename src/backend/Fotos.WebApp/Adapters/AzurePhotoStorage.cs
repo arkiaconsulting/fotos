@@ -4,7 +4,7 @@ using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using Fotos.WebApp.Types;
 
-namespace Fotos.WebApp.Features.Photos.Adapters;
+namespace Fotos.WebApp.Adapters;
 
 internal sealed class AzurePhotoStorage
 {

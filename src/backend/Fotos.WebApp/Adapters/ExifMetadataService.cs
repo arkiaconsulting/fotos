@@ -4,7 +4,7 @@ using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Jpeg;
 using System.Net.Mime;
 
-namespace Fotos.WebApp.Features.Photos.Adapters;
+namespace Fotos.WebApp.Adapters;
 
 internal sealed class ExifMetadataService
 {

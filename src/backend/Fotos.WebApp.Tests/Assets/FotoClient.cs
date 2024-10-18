@@ -37,14 +37,14 @@ internal static class FotoClient
         return await client.GetAsync(new Uri($"api/folders/{folderId}/children", UriKind.Relative));
     }
 
-    public static async Task<HttpResponseMessage> GetFolder(this HttpClient client, Guid folderId)
+    public static async Task<HttpResponseMessage> GetFolder(this HttpClient client, Guid parentId, Guid folderId)
     {
-        return await client.GetAsync(new Uri($"api/folders/{folderId}", UriKind.Relative));
+        return await client.GetAsync(new Uri($"api/folders/{parentId}/{folderId}", UriKind.Relative));
     }
 
-    public static async Task<HttpResponseMessage> RemoveFolder(this HttpClient client, Guid folderId)
+    public static async Task<HttpResponseMessage> RemoveFolder(this HttpClient client, Guid parentId, Guid folderId)
     {
-        return await client.DeleteAsync(new Uri($"api/folders/{folderId}", UriKind.Relative));
+        return await client.DeleteAsync(new Uri($"api/folders/{parentId}/{folderId}", UriKind.Relative));
     }
 
     public static async Task<HttpResponseMessage> CreatePhotoAlbum(this HttpClient client, Guid folderId, string name)

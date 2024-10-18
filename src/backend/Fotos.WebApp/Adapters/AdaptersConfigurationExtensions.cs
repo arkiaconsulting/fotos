@@ -1,11 +1,13 @@
 ﻿using Azure.Core;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using Microsoft.Azure.Cosmos;
+using Fotos.WebApp.Features.PhotoAlbums;
+using Fotos.WebApp.Features.PhotoFolders;
+using Fotos.WebApp.Features.Photos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Azure;
 
-namespace Fotos.WebApp.Features.Photos.Adapters;
+namespace Fotos.WebApp.Adapters;
 
 internal static class AdaptersConfigurationExtensions
 {
@@ -89,28 +91,29 @@ internal static class AdaptersConfigurationExtensions
         .AddScoped<StorePhotoData>(sp => sp.GetRequiredService<AzureCosmosDb>().SavePhoto)
         .AddScoped<ListPhotos>(sp => sp.GetRequiredService<AzureCosmosDb>().ListPhotos)
         .AddScoped<RemovePhotoData>(sp => sp.GetRequiredService<AzureCosmosDb>().RemovePhoto)
-        .AddScoped<GetPhoto>(sp => sp.GetRequiredService<AzureCosmosDb>().GetPhoto);
+        .AddScoped<GetPhoto>(sp => sp.GetRequiredService<AzureCosmosDb>().GetPhoto)
+        .AddScoped<StoreNewFolder>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreFolder)
+        .AddScoped<GetFolders>(sp => sp.GetRequiredService<AzureCosmosDb>().GetFolders)
+        .AddScoped<GetFolder>(sp => sp.GetRequiredService<AzureCosmosDb>().GetFolder)
+        .AddScoped<RemoveFolder>(sp => sp.GetRequiredService<AzureCosmosDb>().RemoveFolder)
+        .AddScoped<GetFolderAlbums>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbums)
+        .AddScoped<AddAlbum>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreAlbum)
+        .AddScoped<GetAlbum>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbum);
 
         services.AddSingleton(sp =>
         {
             var endpoint = configuration["CosmosDb:AccountEndpoint"];
             var key = configuration["CosmosDb:AccountKey"];
+            var clientBuilder = string.IsNullOrWhiteSpace(key)
+                ? new CosmosClientBuilder(endpoint, sp.GetRequiredService<TokenCredential>())
+                : new CosmosClientBuilder(endpoint, key);
 
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                var credential = sp.GetRequiredService<TokenCredential>();
-                var clientBuilder = new CosmosClientBuilder(endpoint, credential)
-                .WithSerializerOptions(new() { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase });
-
-                return clientBuilder.Build();
-            }
-            else
-            {
-                var clientBuilder = new CosmosClientBuilder(endpoint, key)
-                .WithSerializerOptions(new() { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase });
-
-                return clientBuilder.Build();
-            }
+            return clientBuilder
+            .WithContentResponseOnWrite(false)
+            .WithConnectionModeDirect()
+            .WithLimitToEndpoint(true)
+            .WithSystemTextJsonSerializerOptions(new(System.Text.Json.JsonSerializerDefaults.Web))
+            .Build();
         });
 
         return services;

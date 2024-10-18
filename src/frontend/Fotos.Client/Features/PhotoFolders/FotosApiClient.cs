@@ -8,14 +8,14 @@ internal sealed class FotosApiClient
 
     public FotosApiClient(HttpClient httpClient) => _httpClient = httpClient;
 
-    public async Task<IReadOnlyCollection<Folder>> GetFolders(Guid folderId)
+    public async Task<IReadOnlyCollection<Folder>> GetFolders(Guid parentId)
     {
-        var folders = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<Folder>>($"api/folders/{folderId}/children");
+        var folders = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<Folder>>($"api/folders/{parentId}/children");
 
         return folders!;
     }
 
-    public async Task CreateFolder(Guid parentId, string name)
+    public async Task<Guid> CreateFolder(Guid parentId, string name)
     {
         using var response = await _httpClient.PostAsJsonAsync("api/folders", new
         {
@@ -24,18 +24,20 @@ internal sealed class FotosApiClient
         });
 
         response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<Guid>()!;
     }
 
-    public async Task<Folder> GetFolder(Guid folderId)
+    public async Task<Folder> GetFolder(Guid parentId, Guid folderId)
     {
-        var folder = await _httpClient.GetFromJsonAsync<Folder>($"api/folders/{folderId}");
+        var folder = await _httpClient.GetFromJsonAsync<Folder>($"api/folders/{parentId}/{folderId}");
 
         return folder!;
     }
 
-    public async Task RemoveFolder(Guid folderId)
+    public async Task RemoveFolder(Guid parentId, Guid folderId)
     {
-        using var response = await _httpClient.DeleteAsync(new Uri($"api/folders/{folderId}", UriKind.Relative));
+        using var response = await _httpClient.DeleteAsync(new Uri($"api/folders/{parentId}/{folderId}", UriKind.Relative));
 
         response.EnsureSuccessStatusCode();
     }
