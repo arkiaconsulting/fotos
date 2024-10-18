@@ -1,5 +1,7 @@
 ﻿using Fotos.Client.Features.PhotoFolders;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor;
+using MudBlazor.Services;
 
 namespace Fotos.Client.Tests.Assets;
 
@@ -17,6 +19,7 @@ public sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
+        Services.AddMudServices();
         Services.AddSingleton<List<Folder>>(_ => [new Folder(RootFolderId, Guid.Empty, "Root")]);
         Services.AddTransient<ListFolders>(sp =>
         {

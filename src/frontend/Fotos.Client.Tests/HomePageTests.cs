@@ -15,13 +15,13 @@ public sealed class HomePageTests : IDisposable
 
     public HomePageTests() => _testContext = new FotosTestContext();
 
-    [Theory(DisplayName = "Home page should folders that are children of root"), AutoData]
+    [Theory(DisplayName = "Home page should display folders that are children of root"), AutoData]
     public void Test01(string folderName)
     {
         _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find("ul").MarkupMatches($"<ul><li diff:ignoreChildren>{folderName}</li></ul>");
+        home.Find("#folders .folder .title").InnerHtml.MarkupMatches(folderName);
     }
 
     [Theory(DisplayName = "Adding a folder at root should add it to the folders list"), AutoData]
@@ -33,7 +33,7 @@ public sealed class HomePageTests : IDisposable
 
         home.Find("#create-folder").Click();
 
-        home.WaitForAssertion(() => home.FindAll($"ul li:contains('{folderName}')").MarkupMatches("<li diff:ignoreChildren>{folderName}</li>"));
+        home.WaitForAssertion(() => home.Find($"#folders .folder .title:contains('{folderName}')").InnerHtml.MarkupMatches(folderName));
     }
 
     [Theory(DisplayName = "Clicking on a newly created folder should display its child folders (none in this case)"), AutoData]
@@ -43,9 +43,9 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find($"ul li:contains('{folderName}') #go").Click();
+        home.Find("#folders .folder #go").Click();
 
-        home.WaitForAssertion(() => home.Find("ul").ChildElementCount.Should().Be(0));
+        home.WaitForAssertion(() => home.Find("#folders").ChildElementCount.Should().Be(0));
     }
 
     [Theory(DisplayName = "Navigating to the parent folder should pass"), AutoData]
@@ -54,12 +54,12 @@ public sealed class HomePageTests : IDisposable
         _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
 
         var home = _testContext.RenderComponent<Home>();
-        home.Find($"ul li:contains('{folderName}') #go").Click();
+        home.Find("#folders .folder #go").Click();
 
         home.Find("#up").Click();
         home.WaitForState(() => true, TimeSpan.FromSeconds(1));
 
-        home.WaitForAssertion(() => home.FindAll($"ul li:contains('{folderName}')").MarkupMatches("<li diff:ignoreChildren>{folderName}</li>"));
+        home.WaitForAssertion(() => home.Find($"#folders .folder .title:contains('{folderName}')").InnerHtml.MarkupMatches(folderName));
     }
 
     [Fact(DisplayName = "When at root it should not be possible to go to parent")]
@@ -77,7 +77,7 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find($"ul li:contains('{folderName}') #go").Click();
+        home.Find($"#folders .folder #go").Click();
 
         home.Find("#up").GetAttribute("disabled").Should().BeNull();
     }
@@ -97,9 +97,9 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find($"ul li:contains('{folderName}') #remove").Click();
+        home.Find("#folders .folder #remove").Click();
 
-        home.WaitForAssertion(() => home.Find("ul").MarkupMatches("<ul></ul>"));
+        home.WaitForAssertion(() => home.Find("#folders").ChildElementCount.Should().Be(0));
     }
 
     [Theory(DisplayName = "Creating an empty album in a folder should display it"), AutoData]
@@ -111,7 +111,7 @@ public sealed class HomePageTests : IDisposable
         newFolderInput.Change(albumName);
         home.Find("#create-album").Click();
 
-        home.WaitForAssertion(() => home.Find("#albums ul").MarkupMatches($"<ul><li diff:ignoreChildren>{albumName}</li></ul>"));
+        home.WaitForAssertion(() => home.Find("#albums .title").InnerHtml.MarkupMatches(albumName));
     }
 
     [Theory(DisplayName = "Clicking on an album should navigate to the album page"), AutoData]
@@ -123,8 +123,8 @@ public sealed class HomePageTests : IDisposable
         newFolderInput.Change(albumName);
         home.Find("#create-album").Click();
 
-        home.WaitForAssertion(() => home.Find("#albums ul").MarkupMatches($"<ul><li diff:ignoreChildren>{albumName}</li></ul>"));
-        home.Find($"#albums ul li:contains('{albumName}') button").Click();
+        home.WaitForAssertion(() => home.Find("#albums #go"));
+        home.Find($"#albums #go").Click();
         _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().StartWith("http://localhost/album/");
     }
 
