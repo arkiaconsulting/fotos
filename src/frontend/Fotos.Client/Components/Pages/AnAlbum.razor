@@ -12,12 +12,18 @@
 }
 else
 {
-    <div id="album">
-        <h3 id="album-name">@_album.Value.Name</h3>
-        <span>New photo</span><InputFile OnChange="UploadPhoto" />
-    </div>
-
-    <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" />
+    <MudContainer>
+        <MudStack id="album" Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
+            <MudText id="album-name" Typo="Typo.h5">@_album.Value.Name</MudText>
+            <MudFileUpload T="IBrowserFile" OnFilesChanged="UploadPhoto" Accept=".jpg, .jpeg, .png">
+                <ActivatorContent>
+                    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload" Label="Upload photo" />
+                </ActivatorContent>
+            </MudFileUpload>
+        </MudStack>
+        <MudDivider Class="mt-4 mb-4"/>
+        <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" />
+    </MudContainer>
 }
 
 @if (_alertMessage is not null)

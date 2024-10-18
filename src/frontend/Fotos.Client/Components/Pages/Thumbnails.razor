@@ -6,32 +6,41 @@
 @inject GetOriginalUri GetOriginalUri
 @inject GetThumbnailUri GetThumbnailUri
 
-<div id="thumbnails">
+<MudStack id="thumbnails" Row Wrap="Wrap.Wrap">
     @foreach (var thumbnail in _thumbnails)
     {
-        <div class="thumbnail">
-            <button class="view" onclick="@(() => ViewPhoto(thumbnail))">
-                <img src="@thumbnail.ThumbnailUri?.ToString()" style="max-width: 50px" />
-            </button>
-            <span>@thumbnail.Title</span>
-            <button class="remove btn btn-error" onclick="@(() => RemoveAPhoto(thumbnail))">X</button>
-        </div>
+        <MudCard Class="thumbnail">
+            <MudCardContent Class="py-0">
+                <MudButton class="view" ondblclick="@(() => ViewPhoto(thumbnail))">
+                    <MudImage src="@thumbnail.ThumbnailUri?.ToString()" alt="@thumbnail.Title" Width="200" Height="133" ObjectFit="ObjectFit.Contain" />
+                </MudButton>
+            </MudCardContent>
+            <MudCardActions Class="d-flex justify-end py-0">
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(() => RemoveAPhoto(thumbnail))" Class="remove" Size="Size.Small" />
+            </MudCardActions>
+        </MudCard>
     }
-</div>
+</MudStack>
 
-@if (_photo is not null)
-{
-    <div id="photo">
-        <img src="@_photo.OriginalUri?.ToString()" style="max-width: 500px" />
-        <button class="dismiss btn btn-error" @onclick="DismissPhoto">X</button>
-    </div>
-}
+<MudOverlay id="photo" @bind-Visible="IsPhotoDisplayed" DarkBackground AutoClose OnClosed="DismissPhoto">
+    <MudImage src="@_photo?.OriginalUri?.ToString()" Width="1024" Height="768" ObjectFit="ObjectFit.Contain" />
+</MudOverlay>
+
 @code {
-        [Parameter]
-        public Guid FolderId { get; set; }
+    [Parameter]
+    public Guid FolderId { get; set; }
 
-        [Parameter]
-        public Guid AlbumId { get; set; }
+    [Parameter]
+    public Guid AlbumId { get; set; }
+
+    public bool IsPhotoDisplayed
+    {
+        get
+        {
+            return _photo is not null;
+        }
+        set { }
+    }
 
     private List<PhotoModel> _thumbnails = [];
     private PhotoModel? _photo = default!;

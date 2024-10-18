@@ -4,6 +4,7 @@ using Fotos.Client.Components.Pages;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Tests.Assets;
 using Microsoft.AspNetCore.Components.Forms;
+using System.Net.Mime;
 
 namespace Fotos.Client.Tests;
 
@@ -53,7 +54,7 @@ public sealed class AlbumPageTests : IDisposable
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#album input[type=file]");
-        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], contentType: "image/jpeg"));
+        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], contentType: MediaTypeNames.Image.Jpeg));
 
         cut.WaitForElements("#thumbnails .thumbnail img").Should().HaveCount(1);
     }
@@ -83,8 +84,7 @@ public sealed class AlbumPageTests : IDisposable
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
 
-        var viewButton = cut.WaitForElement("#thumbnails .thumbnail button.view");
-        viewButton.Click();
+        cut.WaitForElement("#thumbnails .thumbnail button.view").DoubleClick();
 
         cut.WaitForAssertion(() => cut.Find("#photo img"));
     }
@@ -97,11 +97,10 @@ public sealed class AlbumPageTests : IDisposable
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
-        var viewButton = cut.WaitForElement("#thumbnails .thumbnail button.view");
-        viewButton.Click();
 
-        var closeButton = cut.Find("#photo button.dismiss");
-        closeButton.Click();
+        cut.WaitForElement("#thumbnails .thumbnail button.view").DoubleClick();
+
+        cut.WaitForElement("#photo img").Click();
 
         cut.WaitForAssertion(() => cut.FindAll("#photo").Should().BeEmpty());
     }
@@ -125,7 +124,7 @@ public sealed class AlbumPageTests : IDisposable
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#album input[type=file]");
-        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], contentType: "application/pdf"));
+        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], contentType: MediaTypeNames.Application.Pdf));
 
         cut.WaitForAssertion(() => cut.Find("#alert").TextContent.Should().Be("Only photos can be uploaded."));
     }
@@ -137,9 +136,9 @@ public sealed class AlbumPageTests : IDisposable
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#album input[type=file]");
-        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], fileName: fileName, contentType: "image/jpeg"));
+        cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], fileName: fileName, contentType: MediaTypeNames.Image.Jpeg));
 
-        cut.WaitForAssertion(() => cut.Find("#thumbnails .thumbnail span").TextContent.Should().Be(fileName));
+        cut.WaitForAssertion(() => cut.Find($"#thumbnails .thumbnail img[alt='{fileName}']"));
     }
 
     #region IDisposable

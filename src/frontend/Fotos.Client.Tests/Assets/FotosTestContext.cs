@@ -19,6 +19,8 @@ public sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
+        JSInterop.SetupVoid("mudScrollManager.lockScroll", "body", "scroll-locked");
+        JSInterop.SetupVoid("mudScrollManager.unlockScroll", "body", "scroll-locked");
         Services.AddMudServices();
         Services.AddSingleton<List<Folder>>(_ => [new Folder(RootFolderId, Guid.Empty, "Root")]);
         Services.AddTransient<ListFolders>(sp =>
