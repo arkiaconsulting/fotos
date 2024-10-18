@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs;
 using Fotos.WebApp.Features.Photos;
 using Fotos.WebApp.Features.Photos.Adapters;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,6 +22,8 @@ public sealed class FotoIntegrationContext
     internal RemovePhotoOriginal RemovePhotoOriginal => _host.Services.GetRequiredService<RemovePhotoOriginal>();
     internal RemovePhotoThumbnail RemovePhotoThumbnail => _host.Services.GetRequiredService<RemovePhotoThumbnail>();
     internal ExtractExifMetadata ExtractExifMetadata => _host.Services.GetRequiredService<ExtractExifMetadata>();
+    internal StorePhotoData StorePhotoData => _host.Services.GetRequiredService<StorePhotoData>();
+    internal Container PhotosData => _host.Services.GetRequiredService<CosmosClient>().GetDatabase("fotos").GetContainer("photos");
 
     internal BlobContainerClient PhotosContainer
     {
@@ -47,7 +50,11 @@ public sealed class FotoIntegrationContext
                 ["MainStorage:blobServiceUri"] = "UseDevelopmentStorage=true",
                 ["MainStorage:PhotosContainer"] = "fotostests",
                 ["ServiceBus:fullyQualifiedNamespace"] = "arkiabus.servicebus.windows.net",
-                ["ServiceBus:MainTopic"] = "tests-fotos-main"
+                ["ServiceBus:MainTopic"] = "tests-fotos-main",
+                ["CosmosDb:AccountEndpoint"] = "https://localhost:8081",
+                ["CosmosDb:AccountKey"] = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+                ["CosmosDb:DatabaseId"] = "fotos",
+                ["CosmosDb:ContainerId"] = "photos"
             });
         }).ConfigureLogging(builder => builder
             .AddFilter("Azure.Identity", LogLevel.Warning)
@@ -61,5 +68,6 @@ public sealed class FotoIntegrationContext
         services.AddFotosAzureStorage(context.Configuration);
         services.AddFotosServiceBus(context.Configuration);
         services.AddFotosImageProcessing();
+        services.AddFotosCosmosDb(context.Configuration);
     }
 }

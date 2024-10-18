@@ -1,6 +1,9 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Azure.Core;
+using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Fotos.WebApp.Types;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Azure;
 
 namespace Fotos.WebApp.Features.Photos.Adapters;
@@ -11,20 +14,6 @@ internal static class AdaptersConfigurationExtensions
     {
         services
             .AddSingleton<List<PhotoEntity>>(_ => [])
-            .AddScoped<StorePhotoData>(sp => photo =>
-            {
-                var store = sp.GetRequiredService<List<PhotoEntity>>();
-
-                var existingPhoto = store.Find(x => x.Id == photo.Id);
-                if (existingPhoto != null)
-                {
-                    store.Remove(existingPhoto);
-                }
-
-                store.Add(photo);
-
-                return Task.CompletedTask;
-            })
             .AddScoped<ListPhotos>(sp =>
             {
                 var store = sp.GetRequiredService<List<PhotoEntity>>();
@@ -54,6 +43,7 @@ internal static class AdaptersConfigurationExtensions
         services.AddFotosAzureStorage(configuration);
         services.AddFotosServiceBus(configuration);
         services.AddFotosImageProcessing();
+        services.AddFotosCosmosDb(configuration);
 
         return services;
     }
@@ -118,6 +108,36 @@ internal static class AdaptersConfigurationExtensions
     {
         services.AddScoped<CreateThumbnail>(_ => SkiaSharpImageProcessing.CreateThumbnail);
         services.AddScoped<ExtractExifMetadata>(_ => ExifMetadataService.Extract);
+
+        return services;
+    }
+
+    public static IServiceCollection AddFotosCosmosDb(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<AzureCosmosDb>()
+        .AddScoped<StorePhotoData>(sp => sp.GetRequiredService<AzureCosmosDb>().SavePhoto);
+
+        services.AddSingleton(sp =>
+        {
+            var endpoint = configuration["CosmosDb:AccountEndpoint"];
+            var key = configuration["CosmosDb:AccountKey"];
+
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                var credential = sp.GetRequiredService<TokenCredential>();
+                var clientBuilder = new CosmosClientBuilder(endpoint, credential)
+                .WithSerializerOptions(new() { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase });
+
+                return clientBuilder.Build();
+            }
+            else
+            {
+                var clientBuilder = new CosmosClientBuilder(endpoint, key)
+                .WithSerializerOptions(new() { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase });
+
+                return clientBuilder.Build();
+            }
+        });
 
         return services;
     }

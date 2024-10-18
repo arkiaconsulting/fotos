@@ -36,6 +36,13 @@ public sealed class FotoApi : WebApplicationFactory<Program>
             })
             .AddScoped<GetOriginalUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
             .AddScoped<GetThumbnailUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
+            .AddSingleton<List<PhotoEntity>>(_ => [])
+            .AddScoped<StorePhotoData>(_ => entity =>
+            {
+                Photos.Add(entity);
+
+                return Task.CompletedTask;
+            })
         );
 
         builder.ConfigureAppConfiguration(ConfigureAppConfiguration);
