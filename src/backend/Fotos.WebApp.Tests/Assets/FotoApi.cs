@@ -43,6 +43,21 @@ public sealed class FotoApi : WebApplicationFactory<Program>
 
                 return Task.CompletedTask;
             })
+            .AddScoped<ListPhotos>(_ => albumId => Task.FromResult<IReadOnlyCollection<PhotoEntity>>(Photos.Where(p => p.Id.FolderId == albumId.FolderId && p.Id.AlbumId == albumId.Id).ToList()))
+            .AddScoped<RemovePhotoData>(sp => (photoId) =>
+            {
+                var store = sp.GetRequiredService<List<PhotoEntity>>();
+
+                store.RemoveAll(photo => photo.Id.Id == photoId.Id);
+
+                return Task.CompletedTask;
+            })
+            .AddScoped<GetPhoto>(_ => (photoId) =>
+            {
+                var store = _.GetRequiredService<List<PhotoEntity>>();
+
+                return Task.FromResult(store.Single(x => x.Id.Id == photoId.Id));
+            })
         );
 
         builder.ConfigureAppConfiguration(ConfigureAppConfiguration);

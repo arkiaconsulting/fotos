@@ -1,7 +1,6 @@
 ﻿using Azure.Core;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using Fotos.WebApp.Types;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Azure;
@@ -12,34 +11,6 @@ internal static class AdaptersConfigurationExtensions
 {
     public static IServiceCollection AddPhotosAdapters(this IServiceCollection services, IConfiguration configuration)
     {
-        services
-            .AddSingleton<List<PhotoEntity>>(_ => [])
-            .AddScoped<ListPhotos>(sp =>
-            {
-                var store = sp.GetRequiredService<List<PhotoEntity>>();
-
-                return (albumId) =>
-                {
-                    var photos = store.Where(x => x.Id.AlbumId == albumId.Id).ToList();
-
-                    return Task.FromResult<IReadOnlyCollection<PhotoEntity>>(photos);
-                };
-            })
-            .AddScoped<RemovePhotoData>(sp => (photoId) =>
-            {
-                var store = sp.GetRequiredService<List<PhotoEntity>>();
-
-                store.RemoveAll(photo => photo.Id.Id == photoId.Id);
-
-                return Task.CompletedTask;
-            })
-            .AddScoped<GetPhoto>(_ => (photoId) =>
-            {
-                var store = _.GetRequiredService<List<PhotoEntity>>();
-
-                return Task.FromResult(store.Single(x => x.Id.Id == photoId.Id));
-            });
-
         services.AddFotosAzureStorage(configuration);
         services.AddFotosServiceBus(configuration);
         services.AddFotosImageProcessing();
@@ -115,7 +86,10 @@ internal static class AdaptersConfigurationExtensions
     public static IServiceCollection AddFotosCosmosDb(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<AzureCosmosDb>()
-        .AddScoped<StorePhotoData>(sp => sp.GetRequiredService<AzureCosmosDb>().SavePhoto);
+        .AddScoped<StorePhotoData>(sp => sp.GetRequiredService<AzureCosmosDb>().SavePhoto)
+        .AddScoped<ListPhotos>(sp => sp.GetRequiredService<AzureCosmosDb>().ListPhotos)
+        .AddScoped<RemovePhotoData>(sp => sp.GetRequiredService<AzureCosmosDb>().RemovePhoto)
+        .AddScoped<GetPhoto>(sp => sp.GetRequiredService<AzureCosmosDb>().GetPhoto);
 
         services.AddSingleton(sp =>
         {

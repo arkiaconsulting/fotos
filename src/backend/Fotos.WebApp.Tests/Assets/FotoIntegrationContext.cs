@@ -23,7 +23,10 @@ public sealed class FotoIntegrationContext
     internal RemovePhotoThumbnail RemovePhotoThumbnail => _host.Services.GetRequiredService<RemovePhotoThumbnail>();
     internal ExtractExifMetadata ExtractExifMetadata => _host.Services.GetRequiredService<ExtractExifMetadata>();
     internal StorePhotoData StorePhotoData => _host.Services.GetRequiredService<StorePhotoData>();
-    internal Container PhotosData => _host.Services.GetRequiredService<CosmosClient>().GetDatabase("fotos").GetContainer("photos");
+    internal ListPhotos ListPhotos => _host.Services.GetRequiredService<ListPhotos>();
+    internal RemovePhotoData RemovePhotoData => _host.Services.GetRequiredService<RemovePhotoData>();
+    internal GetPhoto GetPhoto => _host.Services.GetRequiredService<GetPhoto>();
+    internal Container PhotosData => _host.Services.GetRequiredService<CosmosClient>().GetDatabase("fotos").GetContainer("photos-test");
 
     internal BlobContainerClient PhotosContainer
     {
@@ -54,7 +57,7 @@ public sealed class FotoIntegrationContext
                 ["CosmosDb:AccountEndpoint"] = "https://localhost:8081",
                 ["CosmosDb:AccountKey"] = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
                 ["CosmosDb:DatabaseId"] = "fotos",
-                ["CosmosDb:ContainerId"] = "photos"
+                ["CosmosDb:ContainerId"] = "photos-test"
             });
         }).ConfigureLogging(builder => builder
             .AddFilter("Azure.Identity", LogLevel.Warning)

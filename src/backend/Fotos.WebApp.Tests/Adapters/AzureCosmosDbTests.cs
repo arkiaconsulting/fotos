@@ -30,4 +30,37 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
         item.GetProperty("title").GetString().Should().Be(photo.Title);
         item.GetProperty("metadata").GetProperty("dateTaken").GetDateTime().Should().Be(photo.Metadata?.DateTaken);
     }
+
+    [Theory(DisplayName = "When listing photo data of an album should return data"), AutoData]
+    internal async Task Test02(PhotoEntity photo0, PhotoEntity photo1)
+    {
+        await _context.StorePhotoData(photo0);
+        await _context.StorePhotoData(photo1);
+
+        var actualPhotos = await _context.ListPhotos(new(photo0.Id.FolderId, photo0.Id.AlbumId));
+
+        actualPhotos.Should().BeEquivalentTo([photo0]);
+    }
+
+    [Theory(DisplayName = "When removing an existing photo should remove it"), AutoData]
+    internal async Task Test03(PhotoEntity photo)
+    {
+        await _context.StorePhotoData(photo);
+
+        await _context.RemovePhotoData(photo.Id);
+
+        var partitionKey = new PartitionKeyBuilder().Add(photo.Id.FolderId.ToString()).Add(photo.Id.AlbumId.ToString()).Build();
+        var response = await _context.PhotosData.ReadItemStreamAsync(photo.Id.Id.ToString(), partitionKey);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Theory(DisplayName = "When getting an existing photo should return it"), AutoData]
+    internal async Task Test04(PhotoEntity photo)
+    {
+        await _context.StorePhotoData(photo);
+
+        var actualPhoto = await _context.GetPhoto(photo.Id);
+
+        actualPhoto.Should().BeEquivalentTo(photo);
+    }
 }
