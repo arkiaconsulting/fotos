@@ -19,9 +19,19 @@ else
                 <MudText id="album-name" Typo="Typo.h5">@_album.Value.Name</MudText>
                 <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" Color="Color.Primary" OnClick="GoParentFolder" />
             </MudStack>
-            <MudFileUpload T="IBrowserFile" OnFilesChanged="UploadPhoto" Accept=".jpg, .jpeg, .png">
+            <MudFileUpload T="IBrowserFile" OnFilesChanged="UploadPhoto" Accept=".jpg, .jpeg, .png" Hidden="@false" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10" InputStyle="opacity:0"
+                           @ondrop="@ClearDragClass"
+                           @ondragenter="@SetDragClass"
+                           @ondragleave="@ClearDragClass"
+                           @ondragend="@ClearDragClass">
                 <ActivatorContent>
-                    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload" Label="Upload photo" />
+                    <MudPaper Height="75px" Outlined Class="@_dragClass" tabindex="-1">
+                              InputStyle="opacity:0"
+                              tabindex="-1">
+                        <MudText Typo="Typo.body1">
+                            Drag and drop files here or click
+                        </MudText>
+                    </MudPaper>
                 </ActivatorContent>
             </MudFileUpload>
         </MudStack>
@@ -50,6 +60,9 @@ else
     private Album? _album = default!;
     private Thumbnails _thumbnailsComponent = default!;
     private string? _alertMessage;
+    private string _dragClass = DefaultDragClass;
+
+    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -101,4 +114,10 @@ else
     {
         NavigationManager.NavigateTo($"/?parentId={ParentId}&folderId={FolderId}");
     }
+
+    private void SetDragClass()
+        => _dragClass = $"{DefaultDragClass} mud-border-primary";
+
+    private void ClearDragClass()
+        => _dragClass = DefaultDragClass;
 }
