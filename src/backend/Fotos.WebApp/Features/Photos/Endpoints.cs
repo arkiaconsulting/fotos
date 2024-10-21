@@ -81,6 +81,19 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
+        endpoints.MapPatch("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromBody] Photo photo, [FromServices] UpdatePhotoBusiness business) =>
+        {
+            await business.Process(new(folderId, albumId, id), photo.Title);
+
+            return Results.NoContent();
+        })
+            .AddEndpointFilter<ValidationEndpointFilter>()
+            .WithSummary("Modify an existing photo")
+            .WithTags("Photos")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
         return endpoints;
     }
 }

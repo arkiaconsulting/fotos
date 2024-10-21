@@ -110,4 +110,14 @@ internal sealed class FotosApiClient
 
         return uri!;
     }
+
+    internal async Task UpdatePhoto(Guid folderId, Guid albumId, Guid photoId, string title)
+    {
+        using var response = await _httpClient.PatchAsJsonAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative), new
+        {
+            title
+        });
+
+        response.EnsureSuccessStatusCode();
+    }
 }

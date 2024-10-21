@@ -119,4 +119,15 @@ internal static class FotoClient
 
         return response;
     }
+
+    public static async Task<HttpResponseMessage> UpdatePhoto(this HttpClient client, Guid folderId, Guid albumId, Guid photoId, string title)
+    {
+        var body = $$"""
+{
+    "title":"{{title}}"
+}
+""";
+        using var content = new StringContent(body, Encoding.UTF8, MediaTypeNames.Application.Json);
+        return await client.PatchAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative), content);
+    }
 }

@@ -5,6 +5,7 @@
 @inject RemovePhoto RemovePhoto
 @inject GetOriginalUri GetOriginalUri
 @inject GetThumbnailUri GetThumbnailUri
+@inject UpdatePhoto UpdatePhoto
 
 <MudGrid Class="mt-2">
     <MudItem xs="9">
@@ -27,9 +28,9 @@
             </div>
             <MudPaper Outlined Height="500px" Class="pa-4">
                 <MudStack>
-                    <MudStack Row>
+                    <MudStack Row AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.body2">Title</MudText>
-                        <MudText id="title" Typo="Typo.body2">@_photo?.Title</MudText>
+                        <MudTextField T="string" id="title" Typo="Typo.body2" @bind-Text="@_photo.Title" Margin="Margin.Dense" ValueChanged="PhotoRenamed" TextUpdateSuppression />
                     </MudStack>
                 </MudStack>
             </MudPaper>
@@ -93,8 +94,6 @@
     private void DismissPhoto()
     {
         _isPhotoDisplayed = false;
-
-        StateHasChanged();
     }
 
     private async Task SetThumbnailUris()
@@ -108,6 +107,16 @@
     private void ShowDetails(PhotoModel photo)
     {
         _photo = photo;
-        StateHasChanged();
+    }
+
+    private async Task PhotoRenamed(string newValue)
+    {
+        if(_photo is null || newValue == _photo!.Title) {
+            return;
+        }
+
+        _photo.Title = newValue;
+
+        await UpdatePhoto(_photo.FolderId, _photo.AlbumId, _photo.Id, newValue);
     }
 }

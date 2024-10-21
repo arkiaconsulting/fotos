@@ -164,7 +164,22 @@ public sealed class AlbumPageTests : IDisposable
 
         await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());
 
-        cut.WaitForAssertion(() => cut.Find("#details #title").InnerHtml.Should().Be(title));
+        cut.WaitForAssertion(() => cut.Find("#details #title").GetAttribute("value").Should().Be(title));
+    }
+
+    [Theory(DisplayName = "Modifying the title of a photo should update the title"), AutoData]
+    public async Task Test13(Guid folderId, Guid albumId, string albumName, string title, string newTitle)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        var photoId = Guid.NewGuid();
+        _testContext.Photos.Add(new Photo { Id = photoId, AlbumId = albumId, Title = title });
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());
+
+        cut.Find("#details #title").Change(newTitle);
+
+        cut.WaitForAssertion(() => _testContext.Photos.Single(p => p.Id == photoId).Title.Should().Be(newTitle));
     }
 
     #region IDisposable

@@ -12,3 +12,4 @@ internal delegate Task<Guid> AddPhoto(Guid folderId, Guid albumId, PhotoBinary B
 internal delegate Task RemovePhoto(Guid folderId, Guid albumId, Guid id);
 internal delegate Task<Uri> GetOriginalUri(Guid folderId, Guid albumId, Guid id);
 internal delegate Task<Uri> GetThumbnailUri(Guid folderId, Guid albumId, Guid id);
+internal delegate Task UpdatePhoto(Guid folderId, Guid albumId, Guid id, string title);

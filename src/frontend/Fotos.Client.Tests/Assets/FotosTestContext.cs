@@ -99,6 +99,19 @@ public sealed class FotosTestContext : TestContext
                 photos.Remove(photo);
             });
         });
+        Services.AddTransient<UpdatePhoto>(sp =>
+        {
+            var photos = sp.GetRequiredService<List<Photo>>();
+
+            return (_, _, id, title) =>
+            {
+                var photo = photos.Single(p => p.Id == id);
+                photos.Remove(photo);
+                photos.Add(new Photo(photo.Id, photo.FolderId, photo.AlbumId, title, new Uri("/", UriKind.Relative)));
+
+                return Task.CompletedTask;
+            };
+        });
         Services.AddTransient<GetOriginalUri>(_ => (Guid _, Guid _, Guid photoId) => Task.FromResult(new Uri($"http://localhost/photos/{photoId}")));
         Services.AddTransient<GetThumbnailUri>(_ => (Guid _, Guid _, Guid photoId) => Task.FromResult<Uri>(new Uri($"http://localhost/photos/{photoId}")));
     }

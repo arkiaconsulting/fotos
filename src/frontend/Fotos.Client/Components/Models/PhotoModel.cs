@@ -7,7 +7,7 @@ internal sealed class PhotoModel
     public Guid FolderId { get; }
     public Guid AlbumId { get; }
     public Guid Id { get; }
-    public string Title { get; }
+    public string Title { get; set; }
 
     public PhotoModel(Guid folderId, Guid albumId, Guid id, string title)
     {

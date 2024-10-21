@@ -122,4 +122,15 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
 
         response.Should().Be200Ok();
     }
+
+    [Theory(DisplayName = "Updating the title of a photo should pass"), AutoData]
+    internal async Task Test10(PhotoId photoId, string title)
+    {
+        var client = _fotoApi.CreateClient();
+        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
+
+        using var response = await client.UpdatePhoto(photoId.FolderId, photoId.AlbumId, photoId.Id, title);
+
+        response.Should().Be204NoContent();
+    }
 }
