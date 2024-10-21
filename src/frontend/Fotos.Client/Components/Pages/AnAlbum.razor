@@ -13,9 +13,9 @@
 }
 else
 {
-    <MudContainer>
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
         <MudStack id="album" Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
-            <MudStack Row>
+            <MudStack Row AlignItems="AlignItems.Center">
                 <MudText id="album-name" Typo="Typo.h5">@_album.Value.Name</MudText>
                 <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" Color="Color.Primary" OnClick="GoParentFolder" />
             </MudStack>

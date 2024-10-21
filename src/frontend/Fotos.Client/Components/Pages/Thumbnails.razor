@@ -6,24 +6,39 @@
 @inject GetOriginalUri GetOriginalUri
 @inject GetThumbnailUri GetThumbnailUri
 
-<MudStack id="thumbnails" Row Wrap="Wrap.Wrap">
-    @foreach (var thumbnail in _thumbnails)
-    {
-        <MudCard Class="thumbnail">
-            <MudCardContent Class="py-0">
-                <MudButton class="view" ondblclick="@(() => ViewPhoto(thumbnail))">
-                    <MudImage src="@thumbnail.ThumbnailUri?.ToString()" alt="@thumbnail.Title" Width="200" Height="133" ObjectFit="ObjectFit.Contain" />
-                </MudButton>
-            </MudCardContent>
-            <MudCardActions Class="d-flex justify-end py-0">
-                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(() => RemoveAPhoto(thumbnail))" Class="remove" Size="Size.Small" />
-            </MudCardActions>
-        </MudCard>
-    }
-</MudStack>
+<MudGrid Class="mt-2">
+    <MudItem xs="9">
+        <MudStack id="thumbnails" Row Wrap="Wrap.Wrap" Class="mt-12">
+            @foreach (var thumbnail in _thumbnails)
+            {
+                <div class="thumbnail">
+                    <MudButton class="view" ondblclick="@(() => ViewPhoto(thumbnail))" OnClick="@(() => ShowDetails(thumbnail))">
+                        <MudImage src="@thumbnail.ThumbnailUri?.ToString()" alt="@thumbnail.Title" Width="200" Height="133" ObjectFit="ObjectFit.Contain" />
+                    </MudButton>
+                </div>
+            }
+        </MudStack>
+    </MudItem>
+    <MudItem id="details" xs="3">
+        @if (_photo is not null)
+        {
+            <div class="d-flex justify-end py-0">
+                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(() => RemoveAPhoto(_photo))" Class="remove" Size="Size.Medium" />
+            </div>
+            <MudPaper Outlined Height="500px" Class="pa-4">
+                <MudStack>
+                    <MudStack Row>
+                        <MudText Typo="Typo.body2">Title</MudText>
+                        <MudText id="title" Typo="Typo.body2">@_photo?.Title</MudText>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        }
+    </MudItem>
+</MudGrid>
 
-<MudOverlay id="photo" @bind-Visible="IsPhotoDisplayed" DarkBackground AutoClose OnClosed="DismissPhoto">
-    <MudImage src="@_photo?.OriginalUri?.ToString()" Width="1024" Height="768" ObjectFit="ObjectFit.Contain" />
+<MudOverlay id="photo" @bind-Visible="_isPhotoDisplayed" DarkBackground AutoClose OnClosed="DismissPhoto">
+    <MudImage src="@_photo?.OriginalUri?.ToString()" ObjectFit="ObjectFit.Contain" Style="max-height: 85vh" />
 </MudOverlay>
 
 @code {
@@ -33,14 +48,7 @@
     [Parameter]
     public Guid AlbumId { get; set; }
 
-    public bool IsPhotoDisplayed
-    {
-        get
-        {
-            return _photo is not null;
-        }
-        set { }
-    }
+    private bool _isPhotoDisplayed;
 
     private List<PhotoModel> _thumbnails = [];
     private PhotoModel? _photo = default!;
@@ -77,13 +85,14 @@
 
         photo.OriginalUri = originalUri;
         _photo = photo;
+        _isPhotoDisplayed = true;
 
         StateHasChanged();
     }
 
     private void DismissPhoto()
     {
-        _photo = null;
+        _isPhotoDisplayed = false;
 
         StateHasChanged();
     }
@@ -94,5 +103,11 @@
         {
             photo.ThumbnailUri = await GetThumbnailUri(photo.FolderId, photo.AlbumId, photo.Id);
         }
+    }
+
+    private void ShowDetails(PhotoModel photo)
+    {
+        _photo = photo;
+        StateHasChanged();
     }
 }

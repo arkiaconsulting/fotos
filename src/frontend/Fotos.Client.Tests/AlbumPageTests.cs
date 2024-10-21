@@ -62,17 +62,16 @@ public sealed class AlbumPageTests : IDisposable
     }
 
     [Theory(DisplayName = "Removing a photo from an album should remove it from list"), AutoData]
-    public void Test05(Guid folderId, Guid albumId, string albumName)
+    public async Task Test05(Guid folderId, Guid albumId, string albumName)
     {
         _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
         _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
-        cut.WaitForElement("#thumbnails .thumbnail img");
+        await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());
 
-        var removeButton = cut.Find("#thumbnails .thumbnail button.remove");
-        removeButton.Click();
+        await cut.WaitForElement("#details button.remove").ClickAsync(new());
 
         cut.WaitForAssertion(() => cut.Find("#thumbnails").InnerHtml.MarkupMatches(""));
     }
@@ -153,6 +152,19 @@ public sealed class AlbumPageTests : IDisposable
         await cut.WaitForElement("#go-parent-folder").ClickAsync(new());
 
         _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().StartWith($"http://localhost/?parentId={Guid.Empty}&folderId={folderId}");
+    }
+
+    [Theory(DisplayName = "Clicking on a photo should display its title"), AutoData]
+    public async Task Test12(Guid folderId, Guid albumId, string albumName, string title)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId, Title = title });
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
+        await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());
+
+        cut.WaitForAssertion(() => cut.Find("#details #title").InnerHtml.Should().Be(title));
     }
 
     #region IDisposable
