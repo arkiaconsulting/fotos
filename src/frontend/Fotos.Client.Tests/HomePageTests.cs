@@ -77,7 +77,7 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find($"#folders .folder #go").Click();
+        home.Find("#folders .folder #go").Click();
 
         home.Find("#up").GetAttribute("disabled").Should().BeNull();
     }
@@ -115,7 +115,7 @@ public sealed class HomePageTests : IDisposable
     }
 
     [Theory(DisplayName = "Clicking on an album should navigate to the album page"), AutoData]
-    public void Test10(string albumName)
+    public async Task Test10(string albumName)
     {
         var home = _testContext.RenderComponent<Home>();
 
@@ -123,8 +123,7 @@ public sealed class HomePageTests : IDisposable
         newFolderInput.Change(albumName);
         home.Find("#create-album").Click();
 
-        home.WaitForAssertion(() => home.Find("#albums #go"));
-        home.Find($"#albums #go").Click();
+        await home.WaitForElement("#albums #go").ClickAsync(new());
         _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().StartWith("http://localhost/album/");
     }
 

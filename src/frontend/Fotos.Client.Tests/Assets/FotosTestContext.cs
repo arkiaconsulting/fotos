@@ -39,13 +39,13 @@ public sealed class FotosTestContext : TestContext
         {
             var folders = sp.GetRequiredService<List<Folder>>();
 
-            return (parentId, folderId) => Task.Run(() => folders.Single(f => f.Id == folderId));
+            return (_, folderId) => Task.Run(() => folders.Single(f => f.Id == folderId));
         });
         Services.AddTransient<RemoveFolder>(sp =>
         {
             var folders = sp.GetRequiredService<List<Folder>>();
 
-            return (parentId, folderId) => Task.Run(() =>
+            return (_, folderId) => Task.Run(() =>
             {
                 var folder = folders.First(f => f.Id == folderId);
 

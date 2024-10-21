@@ -76,6 +76,12 @@ else
 }
 
 @code {
+    [SupplyParameterFromQuery]
+    public Guid FolderId { get; set; } = Guid.Empty;
+
+    [SupplyParameterFromQuery]
+    public Guid ParentId { get; set; }
+
     private List<Folder> _folders = [];
     private List<Album> _albums = [];
     private Folder _currentFolder = new();
@@ -93,7 +99,14 @@ else
     {
         if (firstRender)
         {
-            _currentFolder = (await ListFolders(Guid.Empty)).Single();
+            if (FolderId == Guid.Empty)
+            {
+                _currentFolder = (await ListFolders(FolderId)).Single();
+            }
+            else
+            {
+                _currentFolder = await GetFolder(ParentId, FolderId);
+            }
 
             await RefreshFoldersAndAlbums();
 
@@ -148,6 +161,6 @@ else
 
     private void GoToAlbum(Guid albumId)
     {
-        NavigationManager.NavigateTo($"album/{_currentFolder.Id}/{albumId}");
+        NavigationManager.NavigateTo($"album/{_currentFolder.ParentId}/{_currentFolder.Id}/{albumId}");
     }
 }

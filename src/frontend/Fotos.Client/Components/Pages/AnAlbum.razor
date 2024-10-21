@@ -1,8 +1,9 @@
-﻿@page "/album/{FolderId:guid}/{AlbumId:guid}"
+﻿@page "/album/{ParentId:guid}/{FolderId:guid}/{AlbumId:guid}"
 @using Fotos.Client.Features
 @using Fotos.Client.Features.PhotoFolders
 @using System.Buffers
 
+@inject NavigationManager NavigationManager
 @inject GetAlbum GetAlbum
 @inject AddPhoto AddPhoto
 
@@ -14,14 +15,17 @@ else
 {
     <MudContainer>
         <MudStack id="album" Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
-            <MudText id="album-name" Typo="Typo.h5">@_album.Value.Name</MudText>
+            <MudStack Row>
+                <MudText id="album-name" Typo="Typo.h5">@_album.Value.Name</MudText>
+                <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" Color="Color.Primary" OnClick="GoParentFolder" />
+            </MudStack>
             <MudFileUpload T="IBrowserFile" OnFilesChanged="UploadPhoto" Accept=".jpg, .jpeg, .png">
                 <ActivatorContent>
                     <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload" Label="Upload photo" />
                 </ActivatorContent>
             </MudFileUpload>
         </MudStack>
-        <MudDivider Class="mt-4 mb-4"/>
+        <MudDivider Class="mt-4 mb-4" />
         <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" />
     </MudContainer>
 }
@@ -39,6 +43,9 @@ else
 
     [Parameter]
     public Guid FolderId { get; set; }
+
+    [Parameter]
+    public Guid ParentId { get; set; }
 
     private Album? _album = default!;
     private Thumbnails _thumbnailsComponent = default!;
@@ -88,5 +95,10 @@ else
 
         var photo = new Photo(id, FolderId, AlbumId, file.Name, new Uri("img/new.png", UriKind.Relative));
         _thumbnailsComponent.AddPhoto(photo);
+    }
+
+    private void GoParentFolder()
+    {
+        NavigationManager.NavigateTo($"/?parentId={ParentId}&folderId={FolderId}");
     }
 }

@@ -3,7 +3,9 @@ using FluentAssertions;
 using Fotos.Client.Components.Pages;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Tests.Assets;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net.Mime;
 
 namespace Fotos.Client.Tests;
@@ -139,6 +141,18 @@ public sealed class AlbumPageTests : IDisposable
         cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], fileName: fileName, contentType: MediaTypeNames.Image.Jpeg));
 
         cut.WaitForAssertion(() => cut.Find($"#thumbnails .thumbnail img[alt='{fileName}']"));
+    }
+
+    [Theory(DisplayName = "When on the albums page, should be able to go back to the parent folder view"), AutoData]
+    public async Task Test11(Guid folderId, Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
+        await cut.WaitForElement("#go-parent-folder").ClickAsync(new());
+
+        _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().StartWith($"http://localhost/?parentId={Guid.Empty}&folderId={folderId}");
     }
 
     #region IDisposable
