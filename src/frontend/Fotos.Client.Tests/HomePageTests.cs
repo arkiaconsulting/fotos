@@ -18,7 +18,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Home page should display folders that are children of root"), AutoData]
     public void Test01(string folderName)
     {
-        _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
         var home = _testContext.RenderComponent<Home>();
 
         home.Find("#folders .folder .title").InnerHtml.MarkupMatches(folderName);
@@ -39,7 +39,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Clicking on a newly created folder should display its child folders (none in this case)"), AutoData]
     public void Test03(string folderName)
     {
-        _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
 
         var home = _testContext.RenderComponent<Home>();
 
@@ -51,7 +51,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Navigating to the parent folder should pass"), AutoData]
     public void Test04(string folderName)
     {
-        _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
 
         var home = _testContext.RenderComponent<Home>();
         home.Find("#folders .folder #go").Click();
@@ -73,7 +73,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "When on a child folder, it should be possible to go to parent"), AutoData]
     public void Test06(string folderName)
     {
-        _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
 
         var home = _testContext.RenderComponent<Home>();
 
@@ -93,7 +93,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Deleting a folder should remove it from list"), AutoData]
     public void Test08(string folderName)
     {
-        _testContext.Folders.Add(new Folder { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
 
         var home = _testContext.RenderComponent<Home>();
 

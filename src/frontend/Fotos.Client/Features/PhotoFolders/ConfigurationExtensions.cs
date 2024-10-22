@@ -4,91 +4,29 @@ namespace Fotos.Client.Features.PhotoFolders;
 
 internal static class ConfigurationExtensions
 {
-    public static IServiceCollection AddFotosApi(this IServiceCollection services)
+    public static IServiceCollection AddFotosApi(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddHttpClient<FotosApiClient>(client => client.BaseAddress = new Uri("https://localhost:7112"));
+        services.AddHttpClient<FotosApiClient>(client => client.BaseAddress = new Uri(configuration["BaseUrl"]!));
 
-        services.AddScoped<ListFolders>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid guid) => await client.GetFolders(guid);
-        });
-
-        services.AddScoped<CreateFolder>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid parentId, string name) => await client.CreateFolder(parentId, name);
-        });
-
-        services.AddScoped<GetFolder>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (parentId, folderId) => await client.GetFolder(parentId, folderId);
-        });
-
-        services.AddScoped<RemoveFolder>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (parentId, folderId) => await client.RemoveFolder(parentId, folderId);
-        });
-        services.AddScoped<ListAlbums>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid folderId) => await client.GetAlbums(folderId);
-        });
-        services.AddScoped<CreateAlbum>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid folderId, string name) => await client.CreateAlbum(folderId, name);
-        });
-        services.AddScoped<GetAlbum>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid folderId, Guid albumId) => await client.GetAlbum(folderId, albumId);
-        });
-        services.AddScoped<ListPhotos>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid folderId, Guid albumId) => await client.ListPhotos(folderId, albumId);
-        });
-        services.AddScoped<AddPhoto>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid folderId, Guid albumId, PhotoBinary photoBinary) => await client.AddPhoto(folderId, albumId, photoBinary);
-        });
-        services.AddScoped<RemovePhoto>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid folderId, Guid albumId, Guid photoId) => await client.RemovePhoto(folderId, albumId, photoId);
-        });
-        services.AddScoped<GetOriginalUri>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid folderId, Guid albumId, Guid photoId) => await client.GetOriginalUri(folderId, albumId, photoId);
-        });
-        services.AddScoped<GetThumbnailUri>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-
-            return async (Guid folderId, Guid albumId, Guid photoId) => await client.GetThumbnailUri(folderId, albumId, photoId);
-        });
-        services.AddScoped<UpdatePhoto>(sp =>
-        {
-            var client = sp.GetRequiredService<FotosApiClient>();
-            return async (Guid folderId, Guid albumId, Guid photoId, string title) => await client.UpdatePhoto(folderId, albumId, photoId, title);
-        });
+        services.RegisterImplementation<ListFolders, FotosApiClient>(c => c.GetFolders);
+        services.RegisterImplementation<CreateFolder, FotosApiClient>(c => c.CreateFolder);
+        services.RegisterImplementation<GetFolder, FotosApiClient>(c => c.GetFolder);
+        services.RegisterImplementation<RemoveFolder, FotosApiClient>(c => c.RemoveFolder);
+        services.RegisterImplementation<ListAlbums, FotosApiClient>(c => c.GetAlbums);
+        services.RegisterImplementation<CreateAlbum, FotosApiClient>(c => c.CreateAlbum);
+        services.RegisterImplementation<GetAlbum, FotosApiClient>(c => c.GetAlbum);
+        services.RegisterImplementation<ListPhotos, FotosApiClient>(c => c.ListPhotos);
+        services.RegisterImplementation<AddPhoto, FotosApiClient>(c => c.AddPhoto);
+        services.RegisterImplementation<RemovePhoto, FotosApiClient>(c => c.RemovePhoto);
+        services.RegisterImplementation<GetOriginalUri, FotosApiClient>(c => c.GetOriginalUri);
+        services.RegisterImplementation<GetThumbnailUri, FotosApiClient>(c => c.GetThumbnailUri);
+        services.RegisterImplementation<UpdatePhoto, FotosApiClient>(c => c.UpdatePhoto);
 
         return services;
     }
+
+    private static IServiceCollection RegisterImplementation<TDelegate, TAdapter>(this IServiceCollection services, Func<TAdapter, TDelegate> implementer)
+        where TDelegate : class
+        where TAdapter : notnull =>
+        services.AddScoped(sp => implementer(sp.GetRequiredService<TAdapter>()));
 }

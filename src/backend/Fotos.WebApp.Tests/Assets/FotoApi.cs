@@ -1,6 +1,6 @@
-﻿using Fotos.WebApp.Features.PhotoAlbums;
-using Fotos.WebApp.Features.PhotoFolders;
-using Fotos.WebApp.Features.Photos;
+﻿using Fotos.Client.Api.PhotoAlbums;
+using Fotos.Client.Api.PhotoFolders;
+using Fotos.Client.Api.Photos;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -129,5 +129,6 @@ public sealed class FotoApi : WebApplicationFactory<Program>
             ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true",
             ["AzureWebJobs.OnShouldRemovePhotoBinaries.Disabled"] = "true",
             ["AzureWebJobs.OnShouldExtractExifMetadata.Disabled"] = "true",
+            ["AzureWebJobs.OnThumbnailReady.Disabled"] = "true",
         });
 }

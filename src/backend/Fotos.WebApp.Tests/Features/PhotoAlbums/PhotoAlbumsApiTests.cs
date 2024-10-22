@@ -1,6 +1,6 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
-using Fotos.WebApp.Features.Photos;
+using Fotos.Client.Api.Photos;
 using Fotos.WebApp.Tests.Assets;
 using System.Net.Http.Json;
 using System.Text.Json;

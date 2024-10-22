@@ -20,7 +20,7 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "The album page should display the name of the album"), AutoData]
     public void Test01(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
 
@@ -30,8 +30,8 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "The album page should display the attached photos"), AutoData]
     public void Test02(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId });
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
@@ -42,7 +42,7 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "The album page should allow the uploading of an photo"), AutoData]
     public void Test03(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
 
@@ -52,7 +52,7 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "The album page should display a photo that was just uploaded"), AutoData]
     public void Test04(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#album input[type=file]");
@@ -64,8 +64,8 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "Removing a photo from an album should remove it from list"), AutoData]
     public async Task Test05(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId });
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
@@ -79,8 +79,8 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "Viewing a photo should display it"), AutoData]
     public void Test06(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId });
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
@@ -93,8 +93,8 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "Dismissing a displayed photo should hide it"), AutoData]
     public void Test07(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId });
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
@@ -109,7 +109,7 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "Uploading a photo that is larger than 20MB should not be allowed"), AutoData]
     public void Test08(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#album input[type=file]");
@@ -121,7 +121,7 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "Uploading a photo that has not an allowed type should not be allowed"), AutoData]
     public void Test09(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#album input[type=file]");
@@ -133,7 +133,7 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "The name of a photo that was just uploaded should be its original file name"), AutoData]
     public void Test10(Guid folderId, Guid albumId, string albumName, string fileName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         cut.WaitForElement("#album input[type=file]");
@@ -145,7 +145,7 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "When on the albums page, should be able to go back to the parent folder view"), AutoData]
     public async Task Test11(Guid folderId, Guid albumId, string albumName)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
 
@@ -157,8 +157,8 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "Clicking on a photo should display its title"), AutoData]
     public async Task Test12(Guid folderId, Guid albumId, string albumName, string title)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new Photo { Id = Guid.NewGuid(), AlbumId = albumId, Title = title });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId, Title = title });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
 
@@ -170,9 +170,9 @@ public sealed class AlbumPageTests : IDisposable
     [Theory(DisplayName = "Modifying the title of a photo should update the title"), AutoData]
     public async Task Test13(Guid folderId, Guid albumId, string albumName, string title, string newTitle)
     {
-        _testContext.Albums.Add(new Album { Id = albumId, FolderId = folderId, Name = albumName });
+        _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var photoId = Guid.NewGuid();
-        _testContext.Photos.Add(new Photo { Id = photoId, AlbumId = albumId, Title = title });
+        _testContext.Photos.Add(new PhotoDto { Id = photoId, AlbumId = albumId, Title = title });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());

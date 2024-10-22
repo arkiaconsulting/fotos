@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fotos.WebApp\Fotos.WebApp.csproj" />
+    <ProjectReference Include="..\..\frontend\Fotos.Client\Fotos.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

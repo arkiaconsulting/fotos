@@ -1,3 +1,8 @@
+using FluentValidation;
+using Fotos.Client.Api.Adapters;
+using Fotos.Client.Api.PhotoAlbums;
+using Fotos.Client.Api.PhotoFolders;
+using Fotos.Client.Api.Photos;
 using Fotos.Client.Components;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Hubs;
@@ -11,12 +16,26 @@ builder.Host.ConfigureWebJobs(builder => builder.AddServiceBus());
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
 builder.Services.AddMudServices();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("fotos", new() { Title = "Fotos" });
+    options.IncludeXmlComments(typeof(Program).Assembly.Location.Replace("dll", "xml", StringComparison.OrdinalIgnoreCase));
+    options.NonNullableReferenceTypesAsRequired();
+});
+builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
+builder.Services.AddProblemDetails();
+
+// Business
+builder.Services.AddPhotosBusiness();
+
+// Adapters
+builder.Services.AddPhotosAdapters(builder.Configuration);
 builder.Services.AddSignalR();
 builder.Services.AddResponseCompression(options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]));
-builder.Services.AddFotosApi();
+builder.Services.AddFotosApi(builder.Configuration);
 builder.Services.AddTransient<RealTimeMessageService>();
 
 var app = builder.Build();
@@ -30,8 +49,17 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    app.UseSwagger(options => options.RouteTemplate = "{documentName}/openapi.json");
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/fotos/openapi.json", "Fotos Client Api"));
+}
 
 app.UseHttpsRedirection();
+
+app.MapPhotoFolderEndpoints();
+app.MapPhotoAlbumEndpoints();
+app.MapPhotosEndpoints();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
@@ -41,4 +69,10 @@ app.MapRazorComponents<App>()
 
 app.MapHub<PhotosHub>("/photoshub");
 
-app.Run();
+await app.RunAsync();
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
+public partial class Program
+{
+    protected Program() { }
+}

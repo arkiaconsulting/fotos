@@ -59,23 +59,23 @@
     {
         if (firstRender)
         {
-            _thumbnails = (await ListPhotos(FolderId, AlbumId)).Select(p => new PhotoModel(p.FolderId, p.AlbumId, p.Id, p.Title)).ToList();
+            _thumbnails = (await ListPhotos(new(FolderId, AlbumId))).Select(p => new PhotoModel(p.FolderId, p.AlbumId, p.Id, p.Title)).ToList();
             await SetThumbnailUris();
 
             StateHasChanged();
         }
     }
 
-    internal void AddPhoto(Photo photo)
+    internal void AddPhoto(PhotoModel photo)
     {
-        _thumbnails.Add(new(photo.FolderId, photo.AlbumId, photo.Id, photo.Title));
+        _thumbnails.Add(photo);
 
         StateHasChanged();
     }
 
     private async Task RemoveAPhoto(PhotoModel photo)
     {
-        await RemovePhoto(photo.FolderId, photo.AlbumId, photo.Id);
+        await RemovePhoto(new(photo.FolderId, photo.AlbumId, photo.Id));
         _thumbnails.Remove(photo);
 
         StateHasChanged();
@@ -83,7 +83,7 @@
 
     private async Task ViewPhoto(PhotoModel photo)
     {
-        var originalUri = await GetOriginalUri(photo.FolderId, photo.AlbumId, photo.Id);
+        var originalUri = await GetOriginalUri(new(photo.FolderId, photo.AlbumId, photo.Id));
 
         photo.OriginalUri = originalUri;
         _photo = photo;
@@ -101,7 +101,7 @@
     {
         foreach (var photo in _thumbnails)
         {
-            photo.ThumbnailUri = await GetThumbnailUri(photo.FolderId, photo.AlbumId, photo.Id);
+            photo.ThumbnailUri = await GetThumbnailUri(new(photo.FolderId, photo.AlbumId, photo.Id));
         }
     }
 
@@ -119,7 +119,7 @@
 
         _photo.Title = newValue;
 
-        await UpdatePhoto(_photo.FolderId, _photo.AlbumId, _photo.Id, newValue);
+        await UpdatePhoto(new(_photo.FolderId, _photo.AlbumId, _photo.Id), newValue);
     }
 
     public async Task OnNewThumbnail(Guid folderId, Guid albumId, Guid id)
@@ -130,7 +130,7 @@
             return;
         }
 
-        photo.ThumbnailUri = await GetThumbnailUri(folderId, albumId, id);
+        photo.ThumbnailUri = await GetThumbnailUri(new(folderId, albumId, id));
         StateHasChanged();
     }
 }

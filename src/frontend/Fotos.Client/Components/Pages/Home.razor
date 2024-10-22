@@ -83,9 +83,9 @@ else
     [SupplyParameterFromQuery]
     public Guid ParentId { get; set; }
 
-    private List<Folder> _folders = [];
-    private List<Album> _albums = [];
-    private Folder _currentFolder = new();
+    private List<FolderModel> _folders = [];
+    private List<AlbumModel> _albums = [];
+    private FolderModel _currentFolder = new();
     private string _newFolder = string.Empty;
     private string _newAlbumName = string.Empty;
     private bool _loaded = false;
@@ -100,14 +100,17 @@ else
     {
         if (firstRender)
         {
+            var folder = default(FolderDto);
             if (FolderId == Guid.Empty)
             {
-                _currentFolder = (await ListFolders(FolderId)).Single();
+                folder = (await ListFolders(FolderId)).Single();
             }
             else
             {
-                _currentFolder = await GetFolder(ParentId, FolderId);
+                folder = await GetFolder(ParentId, FolderId);
             }
+
+            _currentFolder = new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name };
 
             await RefreshFoldersAndAlbums();
 
@@ -118,8 +121,8 @@ else
 
     private async Task RefreshFoldersAndAlbums()
     {
-        _folders = (await ListFolders(_currentFolder.Id)).ToList();
-        _albums = (await ListAlbums(_currentFolder.Id)).ToList();
+        _folders = (await ListFolders(_currentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name }).ToList();
+        _albums = (await ListAlbums(_currentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name }).ToList();
     }
 
     private async Task CreateNewFolder()
@@ -130,7 +133,7 @@ else
         _newFolder = string.Empty;
     }
 
-    private async Task GotToFolder(Folder folder)
+    private async Task GotToFolder(FolderModel folder)
     {
         _parentIdOfParent = _currentFolder.ParentId;
         _currentFolder = folder;
@@ -140,13 +143,14 @@ else
 
     private async Task GotToParentFolder()
     {
-        _currentFolder = await GetFolder(_parentIdOfParent, _currentFolder.ParentId);
+        var folder = await GetFolder(_parentIdOfParent, _currentFolder.ParentId);
+        _currentFolder = new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name };
         _parentIdOfParent = _currentFolder.ParentId;
 
         await RefreshFoldersAndAlbums();
     }
 
-    private async Task RemoveThisFolder(Folder folder)
+    private async Task RemoveThisFolder(FolderModel folder)
     {
         await RemoveFolder(folder.ParentId, folder.Id);
 

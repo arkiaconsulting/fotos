@@ -1,4 +1,4 @@
-﻿using Fotos.WebApp.Features.Photos;
+﻿using Fotos.Client.Api.Photos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

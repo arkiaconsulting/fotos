@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Headers;
+﻿using Fotos.Client.Features.PhotoAlbums;
+using Fotos.Client.Features.Photos;
+using System.Net.Http.Headers;
 
 namespace Fotos.Client.Adapters;
 
@@ -8,9 +10,9 @@ internal sealed class FotosApiClient
 
     public FotosApiClient(HttpClient httpClient) => _httpClient = httpClient;
 
-    public async Task<IReadOnlyCollection<Folder>> GetFolders(Guid parentId)
+    public async Task<IReadOnlyCollection<FolderDto>> GetFolders(Guid parentId)
     {
-        var folders = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<Folder>>($"api/folders/{parentId}/children");
+        var folders = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<FolderDto>>($"api/folders/{parentId}/children");
 
         return folders!;
     }
@@ -28,9 +30,9 @@ internal sealed class FotosApiClient
         return await response.Content.ReadFromJsonAsync<Guid>()!;
     }
 
-    public async Task<Folder> GetFolder(Guid parentId, Guid folderId)
+    public async Task<FolderDto> GetFolder(Guid parentId, Guid folderId)
     {
-        var folder = await _httpClient.GetFromJsonAsync<Folder>($"api/folders/{parentId}/{folderId}");
+        var folder = await _httpClient.GetFromJsonAsync<FolderDto>($"api/folders/{parentId}/{folderId}");
 
         return folder!;
     }
@@ -42,9 +44,9 @@ internal sealed class FotosApiClient
         response.EnsureSuccessStatusCode();
     }
 
-    internal async Task<IReadOnlyCollection<Album>> GetAlbums(Guid folderId)
+    internal async Task<IReadOnlyCollection<AlbumDto>> GetAlbums(Guid folderId)
     {
-        var albums = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<Album>>($"api/folders/{folderId}/albums");
+        var albums = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<AlbumDto>>($"api/folders/{folderId}/albums");
 
         return albums!;
     }
@@ -59,21 +61,21 @@ internal sealed class FotosApiClient
         response.EnsureSuccessStatusCode();
     }
 
-    internal async Task<Album> GetAlbum(Guid folderId, Guid albumId)
+    internal async Task<AlbumDto> GetAlbum(AlbumId albumId)
     {
-        var album = await _httpClient.GetFromJsonAsync<Album>($"api/folders/{folderId}/albums/{albumId}");
+        var album = await _httpClient.GetFromJsonAsync<AlbumDto>($"api/folders/{albumId.FolderId}/albums/{albumId.Id}");
 
         return album!;
     }
 
-    internal async Task<IReadOnlyCollection<Photo>> ListPhotos(Guid folderId, Guid albumId)
+    internal async Task<IReadOnlyCollection<PhotoDto>> ListPhotos(AlbumId albumId)
     {
-        var photos = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<Photo>>($"api/folders/{folderId}/albums/{albumId}/photos");
+        var photos = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<PhotoDto>>($"api/folders/{albumId.FolderId}/albums/{albumId.Id}/photos");
 
         return photos!;
     }
 
-    internal async Task<Guid> AddPhoto(Guid folderId, Guid albumId, PhotoBinary photoBinary)
+    internal async Task<Guid> AddPhoto(AlbumId albumId, PhotoBinary photoBinary)
     {
         await using var ms = new MemoryStream(photoBinary.Buffer.ToArray());
         using var streamContent = new StreamContent(ms);
@@ -83,37 +85,37 @@ internal sealed class FotosApiClient
             { streamContent, "photo", photoBinary.FileName }
         };
 
-        using var response = await _httpClient.PostAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos", UriKind.Relative), content);
+        using var response = await _httpClient.PostAsync(new Uri($"api/folders/{albumId.FolderId}/albums/{albumId.Id}/photos", UriKind.Relative), content);
 
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<Guid>()!;
     }
 
-    internal async Task RemovePhoto(Guid folderId, Guid albumId, Guid photoId)
+    internal async Task RemovePhoto(PhotoId photoId)
     {
-        using var response = await _httpClient.DeleteAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative));
+        using var response = await _httpClient.DeleteAsync(new Uri($"api/folders/{photoId.FolderId}/albums/{photoId.AlbumId}/photos/{photoId.Id}", UriKind.Relative));
 
         response.EnsureSuccessStatusCode();
     }
 
-    internal async Task<Uri> GetOriginalUri(Guid folderId, Guid albumId, Guid photoId)
+    internal async Task<Uri> GetOriginalUri(PhotoId photoId)
     {
-        var uri = await _httpClient.GetFromJsonAsync<Uri>($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}/originaluri");
+        var uri = await _httpClient.GetFromJsonAsync<Uri>($"api/folders/{photoId.FolderId}/albums/{photoId.AlbumId}/photos/{photoId.Id}/originaluri");
 
         return uri!;
     }
 
-    internal async Task<Uri> GetThumbnailUri(Guid folderId, Guid albumId, Guid photoId)
+    internal async Task<Uri> GetThumbnailUri(PhotoId photoId)
     {
-        var uri = await _httpClient.GetFromJsonAsync<Uri>($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}/thumbnailuri");
+        var uri = await _httpClient.GetFromJsonAsync<Uri>($"api/folders/{photoId.FolderId}/albums/{photoId.AlbumId}/photos/{photoId.Id}/thumbnailuri");
 
         return uri!;
     }
 
-    internal async Task UpdatePhoto(Guid folderId, Guid albumId, Guid photoId, string title)
+    internal async Task UpdatePhoto(PhotoId photoId, string title)
     {
-        using var response = await _httpClient.PatchAsJsonAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative), new
+        using var response = await _httpClient.PatchAsJsonAsync(new Uri($"api/folders/{photoId.FolderId}/albums/{photoId.AlbumId}/photos/{photoId.Id}", UriKind.Relative), new
         {
             title
         });

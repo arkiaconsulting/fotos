@@ -4,8 +4,7 @@
 @using Fotos.Client.Features.PhotoFolders
 @using System.Buffers
 @using Fotos.Client.Hubs
-@using Microsoft.AspNetCore.SignalR.Client;
-    using Fotos.Client.Adapters
+@using Microsoft.AspNetCore.SignalR.Client
 
 @inject NavigationManager NavigationManager
 @inject GetAlbum GetAlbum
@@ -23,7 +22,7 @@ else
     <MudContainer MaxWidth="MaxWidth.ExtraLarge">
         <MudStack id="album" Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
             <MudStack Row AlignItems="AlignItems.Center">
-                <MudText id="album-name" Typo="Typo.h5">@_album.Value.Name</MudText>
+                <MudText id="album-name" Typo="Typo.h5">@_album.Name</MudText>
                 <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" Color="Color.Primary" OnClick="GoParentFolder" />
             </MudStack>
             <MudFileUpload T="IBrowserFile" OnFilesChanged="UploadPhoto" Accept=".jpg, .jpeg, .png" Hidden="@false" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10" InputStyle="opacity:0"
@@ -62,7 +61,7 @@ else
     [Parameter]
     public Guid ParentId { get; set; }
 
-    private Album? _album = default!;
+    private AlbumModel? _album = default!;
     private Thumbnails _thumbnailsComponent = default!;
     private string? _alertMessage;
     private string _dragClass = DefaultDragClass;
@@ -76,8 +75,9 @@ else
             RealTimeMessageService.OnThumbnailReady += OnThumbnailReady;
             await RealTimeMessageService.StartAsync();
 
-            _album = await GetAlbum(FolderId, AlbumId);
-
+            var album = await GetAlbum(new(FolderId, AlbumId));
+            _album = new AlbumModel { Id = album.Id, FolderId = album.FolderId, Name = album.Name };
+        
             StateHasChanged();
         }
     }
@@ -119,9 +119,9 @@ else
             await ms.WriteAsync(buffer.AsMemory(0, bytesRead));
         };
 
-        var id = await AddPhoto(FolderId, AlbumId, new(ms.ToArray(), file.ContentType, file.Name));
+        var id = await AddPhoto(new(FolderId, AlbumId), new(ms.ToArray(), file.ContentType, file.Name));
 
-        var photo = new Photo(id, FolderId, AlbumId, file.Name, new Uri("img/new.png", UriKind.Relative));
+        var photo = new PhotoModel(FolderId, AlbumId, id, file.Name);
         _thumbnailsComponent.AddPhoto(photo);
     }
 
