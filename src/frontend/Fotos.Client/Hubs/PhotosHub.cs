@@ -2,7 +2,8 @@
 
 namespace Fotos.Client.Hubs;
 
-internal sealed class PhotosHub : Hub
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Required by Function runtime")]
+public sealed class PhotosHub : Hub
 {
     public async Task SendThumbnailReady(PhotoId id)
     {
@@ -10,4 +11,5 @@ internal sealed class PhotosHub : Hub
     }
 }
 
-internal readonly record struct PhotoId(Guid FolderId, Guid AlbumId, Guid Id);
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Required by Function runtime")]
+public readonly record struct PhotoId(Guid FolderId, Guid AlbumId, Guid Id);

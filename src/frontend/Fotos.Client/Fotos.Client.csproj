@@ -10,6 +10,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" />
 		<PackageReference Include="MudBlazor" />
+		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" />
 	</ItemGroup>
 	
 	<ItemGroup>
