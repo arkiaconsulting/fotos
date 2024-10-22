@@ -42,4 +42,18 @@ public sealed class AzureServiceBusTests : IClassFixture<FotoIntegrationContext>
         var payload = message.Body.ToObjectFromJson<PhotoId>(options: new(JsonSerializerDefaults.Web));
         payload.Should().BeEquivalentTo(photoId);
     }
+
+    [Theory(DisplayName = "When a thumbnail has been generated, should inform by publishing"), AutoData]
+    internal async Task Test03(PhotoId photoId)
+    {
+        await _context.OnThumbnailReady(photoId);
+
+        var receiver = _context.ServiceBusClient.CreateReceiver(_context.MainTopicName, "thumbnail-ready", options: new() { ReceiveMode = Azure.Messaging.ServiceBus.ServiceBusReceiveMode.ReceiveAndDelete });
+        var messages = await receiver.ReceiveMessagesAsync(1, maxWaitTime: TimeSpan.FromSeconds(2));
+        var message = messages.Should().ContainSingle().Subject;
+        message.Subject.Should().Be("ThumbnailReady");
+        message.ContentType.Should().Be(MediaTypeNames.Application.Json);
+        var payload = message.Body.ToObjectFromJson<PhotoId>(options: new(JsonSerializerDefaults.Web));
+        payload.Should().BeEquivalentTo(photoId);
+    }
 }

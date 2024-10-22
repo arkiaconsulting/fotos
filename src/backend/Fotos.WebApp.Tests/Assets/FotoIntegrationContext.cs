@@ -41,6 +41,7 @@ public sealed class FotoIntegrationContext
 
     internal OnNewPhotoUploaded OnNewPhotoUploaded => _host.Services.GetRequiredService<OnNewPhotoUploaded>();
     internal OnPhotoRemoved OnPhotoRemoved => _host.Services.GetRequiredService<OnPhotoRemoved>();
+    internal OnThumbnailReady OnThumbnailReady => _host.Services.GetRequiredService<OnThumbnailReady>();
     internal ServiceBusClient ServiceBusClient => _host.Services.GetRequiredService<ServiceBusClient>();
     internal string MainTopicName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:MainTopic"]!;
 

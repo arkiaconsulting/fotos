@@ -9,15 +9,18 @@ public sealed class OnShouldProduceThumbnail
     private readonly ReadOriginalPhoto _readOriginalPhoto;
     private readonly CreateThumbnail _createThumbnail;
     private readonly AddPhotoToThumbnailStorage _addPhotoToThumbnailStorage;
+    private readonly OnThumbnailReady _onThumbnailReady;
 
     public OnShouldProduceThumbnail(
         ReadOriginalPhoto readOriginalPhoto,
         CreateThumbnail createThumbnail,
-        AddPhotoToThumbnailStorage addPhotoToThumbnailStorage)
+        AddPhotoToThumbnailStorage addPhotoToThumbnailStorage,
+        OnThumbnailReady onThumbnailReady)
     {
         _readOriginalPhoto = readOriginalPhoto;
         _createThumbnail = createThumbnail;
         _addPhotoToThumbnailStorage = addPhotoToThumbnailStorage;
+        _onThumbnailReady = onThumbnailReady;
     }
 
     [FunctionName("OnShouldProduceThumbnail")]
@@ -31,5 +34,7 @@ public sealed class OnShouldProduceThumbnail
         await _addPhotoToThumbnailStorage(photoId, new(thumbnailStream, photo.MimeType));
 
         await photo.Content.DisposeAsync();
+
+        await _onThumbnailReady(photoId);
     }
 }

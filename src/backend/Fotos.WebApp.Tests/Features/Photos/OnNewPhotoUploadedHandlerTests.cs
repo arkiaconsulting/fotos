@@ -19,7 +19,7 @@ public sealed class OnNewPhotoUploadedHandlerTests : IClassFixture<FotoContext>
 
         await _fotoContext.ExifMetadataExtractor.Handle(photoId);
 
-        var photo = _fotoContext.Photos.Should().ContainSingle().Subject;
+        var photo = _fotoContext.Photos.Should().ContainSingle(e => e.Id == photoId).Subject;
         (photo.Metadata?.DateTaken).Should().NotBeNull();
     }
 
@@ -31,6 +31,18 @@ public sealed class OnNewPhotoUploadedHandlerTests : IClassFixture<FotoContext>
 
         await _fotoContext.OnShouldProduceThumbnail.Handle(photoId);
 
-        _fotoContext.ThumbnailsStorage.Should().ContainSingle();
+        _fotoContext.ThumbnailsStorage.Should().ContainSingle(x => x.Item1 == photoId.Id);
+    }
+
+    [Theory(DisplayName = "When a thumbnail has been generated, should inform by using a message"), AutoData]
+    internal async Task Test03(PhotoId photoId, byte[] photoBytes, string title)
+    {
+        _fotoContext.Photos.Add(new PhotoEntity(photoId, title));
+        _fotoContext.MainStorage.Add((photoId.Id, photoBytes));
+
+        await _fotoContext.OnShouldProduceThumbnail.Handle(photoId);
+
+        _fotoContext.ThumbnailsReady.Should().ContainSingle()
+            .Subject.Should().Be(photoId);
     }
 }

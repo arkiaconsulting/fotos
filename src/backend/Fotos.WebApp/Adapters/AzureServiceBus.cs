@@ -41,4 +41,16 @@ internal sealed class AzureServiceBus
 
         await _mainTopicSender.SendMessageAsync(message);
     }
+
+    internal async Task OnThumbnailReady(PhotoId photoId)
+    {
+        var message = new ServiceBusMessage
+        {
+            Subject = "ThumbnailReady",
+            ContentType = MediaTypeNames.Application.Json,
+            Body = new BinaryData(JsonSerializer.Serialize(photoId, options: Constants.JsonSerializerOptions)),
+        };
+
+        await _mainTopicSender.SendMessageAsync(message);
+    }
 }

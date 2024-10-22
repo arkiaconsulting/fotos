@@ -19,4 +19,5 @@ public delegate Task<Stream> CreateThumbnail(PhotoBinary photo);
 public delegate Task AddPhotoToThumbnailStorage(PhotoId photoId, PhotoBinary photo);
 public delegate Task RemovePhotoOriginal(PhotoId photoId);
 public delegate Task RemovePhotoThumbnail(PhotoId photoId);
+public delegate Task OnThumbnailReady(PhotoId photoId);
 #pragma warning restore CA1515 // Consider making public types internal

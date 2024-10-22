@@ -16,6 +16,7 @@ public sealed class FotoContext
     internal OnShouldExtractExifMetadata ExifMetadataExtractor => _host.Services.GetRequiredService<OnShouldExtractExifMetadata>();
     internal OnShouldProduceThumbnail OnShouldProduceThumbnail => _host.Services.GetRequiredService<OnShouldProduceThumbnail>();
     internal OnShouldRemovePhotoBinaries OnShouldRemovePhotoBinaries => _host.Services.GetRequiredService<OnShouldRemovePhotoBinaries>();
+    internal Collection<PhotoId> ThumbnailsReady => _host.Services.GetRequiredKeyedService<Collection<PhotoId>>("thumbnailsready");
 
     private readonly IHost _host = Host.CreateDefaultBuilder()
         .ConfigureServices(ConfigureServices)
@@ -26,6 +27,7 @@ public sealed class FotoContext
     {
         services.AddKeyedSingleton<Collection<(Guid, byte[])>>("main");
         services.AddKeyedSingleton<Collection<(Guid, byte[])>>("thumbnails");
+        services.AddKeyedSingleton<Collection<PhotoId>>("thumbnailsready");
         services.AddSingleton<Collection<PhotoEntity>>();
         services.AddSingleton<OnShouldExtractExifMetadata>();
         services.AddSingleton<OnShouldProduceThumbnail>();
@@ -93,6 +95,13 @@ public sealed class FotoContext
             var thumbnailsStorage = sp.GetRequiredKeyedService<Collection<(Guid, byte[])>>("thumbnails");
             var photo = thumbnailsStorage.Single(x => x.Item1 == photoId.Id);
             thumbnailsStorage.Remove(photo);
+
+            return Task.CompletedTask;
+        });
+        services.AddSingleton<OnThumbnailReady>(sp => photoId =>
+        {
+            var thumbnailsReady = sp.GetRequiredKeyedService<Collection<PhotoId>>("thumbnailsready");
+            thumbnailsReady.Add(photoId);
 
             return Task.CompletedTask;
         });
