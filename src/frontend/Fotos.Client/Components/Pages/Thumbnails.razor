@@ -111,12 +111,25 @@
 
     private async Task PhotoRenamed(string newValue)
     {
-        if(_photo is null || newValue == _photo!.Title) {
+        if (_photo is null || newValue == _photo!.Title)
+        {
             return;
         }
 
         _photo.Title = newValue;
 
         await UpdatePhoto(_photo.FolderId, _photo.AlbumId, _photo.Id, newValue);
+    }
+
+    public async Task OnNewThumbnail(Guid folderId, Guid albumId, Guid id)
+    {
+        var photo = _thumbnails.FirstOrDefault(p => p.FolderId == folderId && p.AlbumId == albumId && p.Id == id);
+        if (photo is null)
+        {
+            return;
+        }
+
+        photo.ThumbnailUri = await GetThumbnailUri(folderId, albumId, id);
+        StateHasChanged();
     }
 }

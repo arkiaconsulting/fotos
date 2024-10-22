@@ -2,10 +2,15 @@
 @using Fotos.Client.Features
 @using Fotos.Client.Features.PhotoFolders
 @using System.Buffers
+@using Fotos.Client.Hubs
+@using Microsoft.AspNetCore.SignalR.Client
 
 @inject NavigationManager NavigationManager
 @inject GetAlbum GetAlbum
 @inject AddPhoto AddPhoto
+@inject RealTimeMessageService RealTimeMessageService
+
+@implements IAsyncDisposable
 
 @if (_album is null)
 {
@@ -20,14 +25,12 @@ else
                 <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" Color="Color.Primary" OnClick="GoParentFolder" />
             </MudStack>
             <MudFileUpload T="IBrowserFile" OnFilesChanged="UploadPhoto" Accept=".jpg, .jpeg, .png" Hidden="@false" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10" InputStyle="opacity:0"
-                           @ondrop="@ClearDragClass"
-                           @ondragenter="@SetDragClass"
-                           @ondragleave="@ClearDragClass"
-                           @ondragend="@ClearDragClass">
+            @ondrop="@ClearDragClass"
+            @ondragenter="@SetDragClass"
+            @ondragleave="@ClearDragClass"
+            @ondragend="@ClearDragClass">
                 <ActivatorContent>
                     <MudPaper Height="75px" Outlined Class="@_dragClass" tabindex="-1">
-                              InputStyle="opacity:0"
-                              tabindex="-1">
                         <MudText Typo="Typo.body1">
                             Drag and drop files here or click
                         </MudText>
@@ -68,10 +71,20 @@ else
     {
         if (firstRender)
         {
+            RealTimeMessageService.OnThumbnailReady += OnThumbnailReady;
+            await RealTimeMessageService.StartAsync();
+
             _album = await GetAlbum(FolderId, AlbumId);
 
             StateHasChanged();
         }
+    }
+
+    private void OnThumbnailReady(object? sender, PhotoId id)
+    {
+        Console.WriteLine($"Thumbnail ready: {id}");
+
+        InvokeAsync(() => _thumbnailsComponent.OnNewThumbnail(id.FolderId, id.AlbumId, id.Id));
     }
 
     private async Task UploadPhoto(InputFileChangeEventArgs e)
@@ -120,4 +133,9 @@ else
 
     private void ClearDragClass()
         => _dragClass = DefaultDragClass;
+
+    public async ValueTask DisposeAsync()
+    {
+        await RealTimeMessageService.DisposeAsync();
+    }
 }

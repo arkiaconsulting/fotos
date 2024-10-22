@@ -1,5 +1,7 @@
 using Fotos.Client.Components;
 using Fotos.Client.Features.PhotoFolders;
+using Fotos.Client.Hubs;
+using Microsoft.AspNetCore.ResponseCompression;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,9 +12,14 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddMudServices();
 
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]));
 builder.Services.AddFotosApi();
+builder.Services.AddTransient<RealTimeMessageService>();
 
 var app = builder.Build();
+
+app.UseResponseCompression();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -29,5 +36,7 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapHub<PhotosHub>("/photoshub");
 
 app.Run();

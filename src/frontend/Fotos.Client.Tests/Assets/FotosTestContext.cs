@@ -1,4 +1,5 @@
 ﻿using Fotos.Client.Features.PhotoFolders;
+using Fotos.Client.Hubs;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -114,5 +115,6 @@ public sealed class FotosTestContext : TestContext
         });
         Services.AddTransient<GetOriginalUri>(_ => (Guid _, Guid _, Guid photoId) => Task.FromResult(new Uri($"http://localhost/photos/{photoId}")));
         Services.AddTransient<GetThumbnailUri>(_ => (Guid _, Guid _, Guid photoId) => Task.FromResult<Uri>(new Uri($"http://localhost/photos/{photoId}")));
+        Services.AddSingleton<RealTimeMessageService, RealTimeServiceFake>();
     }
 }
