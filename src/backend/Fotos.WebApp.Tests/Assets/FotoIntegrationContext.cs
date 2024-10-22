@@ -14,18 +14,18 @@ namespace Fotos.WebApp.Tests.Assets;
 public sealed class FotoIntegrationContext
 {
     internal AddPhotoToMainStorage AddPhotoToMainStorage => _host.Services.GetRequiredService<AddPhotoToMainStorage>();
-    internal GetOriginalUri GetOriginalUri => _host.Services.GetRequiredService<GetOriginalUri>();
-    internal GetThumbnailUri GetThumbnailUri => _host.Services.GetRequiredService<GetThumbnailUri>();
-    internal ReadOriginalPhoto ReadOriginalPhoto => _host.Services.GetRequiredService<ReadOriginalPhoto>();
+    internal GetOriginalStorageUri GetOriginalUri => _host.Services.GetRequiredService<GetOriginalStorageUri>();
+    internal GetThumbnailStorageUri GetThumbnailUri => _host.Services.GetRequiredService<GetThumbnailStorageUri>();
+    internal ReadOriginalPhotoFromStorage ReadOriginalPhoto => _host.Services.GetRequiredService<ReadOriginalPhotoFromStorage>();
     internal CreateThumbnail CreateThumbnail => _host.Services.GetRequiredService<CreateThumbnail>();
     internal AddPhotoToThumbnailStorage AddPhotoToThumbnailStorage => _host.Services.GetRequiredService<AddPhotoToThumbnailStorage>();
-    internal RemovePhotoOriginal RemovePhotoOriginal => _host.Services.GetRequiredService<RemovePhotoOriginal>();
-    internal RemovePhotoThumbnail RemovePhotoThumbnail => _host.Services.GetRequiredService<RemovePhotoThumbnail>();
+    internal RemovePhotoOriginalFromStorage RemovePhotoOriginal => _host.Services.GetRequiredService<RemovePhotoOriginalFromStorage>();
+    internal RemovePhotoThumbnailFromStorage RemovePhotoThumbnail => _host.Services.GetRequiredService<RemovePhotoThumbnailFromStorage>();
     internal ExtractExifMetadata ExtractExifMetadata => _host.Services.GetRequiredService<ExtractExifMetadata>();
-    internal StorePhotoData StorePhotoData => _host.Services.GetRequiredService<StorePhotoData>();
-    internal ListPhotos ListPhotos => _host.Services.GetRequiredService<ListPhotos>();
-    internal RemovePhotoData RemovePhotoData => _host.Services.GetRequiredService<RemovePhotoData>();
-    internal GetPhoto GetPhoto => _host.Services.GetRequiredService<GetPhoto>();
+    internal AddPhotoToStore StorePhotoData => _host.Services.GetRequiredService<AddPhotoToStore>();
+    internal ListPhotosFromStore ListPhotos => _host.Services.GetRequiredService<ListPhotosFromStore>();
+    internal RemovePhotoFromStore RemovePhotoData => _host.Services.GetRequiredService<RemovePhotoFromStore>();
+    internal GetPhotoFromStore GetPhoto => _host.Services.GetRequiredService<GetPhotoFromStore>();
     internal Container PhotosData => _host.Services.GetRequiredService<CosmosClient>().GetDatabase("fotos").GetContainer("photos-test");
 
     internal BlobContainerClient PhotosContainer

@@ -6,7 +6,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" />
-		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="MetadataExtractor" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Microsoft.Azure.Cosmos" />
@@ -14,7 +13,8 @@
 		<PackageReference Include="Microsoft.Extensions.Azure" />
 		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
-		<PackageReference Include="System.Text.Json" />		
+		<PackageReference Include="System.Text.Json" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 	</ItemGroup>
 
 	<ItemGroup>

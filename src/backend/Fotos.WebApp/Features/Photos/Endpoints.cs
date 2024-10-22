@@ -29,16 +29,16 @@ internal static class EndpointExtension
                 return operation;
             });
 
-        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] ListPhotos listPhotos) =>
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] ListPhotosFromStore listPhotos) =>
         {
             var photos = await listPhotos(new(folderId, albumId));
 
-            return Results.Ok(photos.Select(e => new Photo(e.Id.Id, e.Id.FolderId, e.Id.AlbumId, e.Title)));
+            return Results.Ok(photos.Select(p => new PhotoDto(p.Id.Id, p.Id.FolderId, p.Id.AlbumId, p.Title)));
         })
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithSummary("List the photos of an album")
             .WithTags("Photos")
-            .Produces<IEnumerable<Photo>>(StatusCodes.Status200OK)
+            .Produces<IEnumerable<PhotoDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
@@ -55,7 +55,7 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/originaluri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetOriginalUri getOriginalUri) =>
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/originaluri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetOriginalStorageUri getOriginalUri) =>
         {
             var uri = await getOriginalUri(new(folderId, albumId, id));
 
@@ -68,7 +68,7 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/thumbnailuri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetThumbnailUri getThumbnailUri) =>
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/thumbnailuri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetThumbnailStorageUri getThumbnailUri) =>
         {
             var uri = await getThumbnailUri(new(folderId, albumId, id));
 
@@ -97,12 +97,3 @@ internal static class EndpointExtension
         return endpoints;
     }
 }
-
-/// <summary>
-/// A photo in an album.
-/// </summary>
-/// <param name="Id">The ID of the photo</param>
-/// <param name="FolderId">The ID of the folder that contains the album</param>
-/// <param name="AlbumId">The ID of the album that contains the photos</param>
-/// <param name="Title">The title of the photo</param>
-internal readonly record struct Photo(Guid Id, Guid FolderId, Guid AlbumId, string Title);

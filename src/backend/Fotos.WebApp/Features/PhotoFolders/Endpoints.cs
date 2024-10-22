@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using Fotos.WebApp.Features.Shared;
+﻿using Fotos.WebApp.Features.Shared;
 using Fotos.WebApp.Framework;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ internal static class EndpointExtension
 {
     public static IEndpointRouteBuilder MapPhotoFolderEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("api/folders", async ([FromBody] CreateFolder folder, [FromServices] StoreNewFolder storeNewFolder) =>
+        endpoints.MapPost("api/folders", async ([FromBody] CreateFolderDto folder, [FromServices] AddFolderToStore storeNewFolder) =>
         {
             var folderName = Name.Create(folder.Name);
             var id = Guid.NewGuid();
@@ -26,25 +25,25 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapGet("api/folders/{folderId}/children", async (Guid folderId, [FromServices] GetFolders getFolders) =>
+        endpoints.MapGet("api/folders/{folderId}/children", async (Guid folderId, [FromServices] GetFoldersFromStore getFolders) =>
         {
             var folders = await getFolders(folderId);
 
-            return Results.Ok(folders);
+            return Results.Ok(folders.Select(f => new FolderDto(f.Id, f.ParentId, f.Name.Value)));
         })
             .WithTags("Folders")
             .WithSummary("List child folders")
-            .Produces<IEnumerable<Folder>>(StatusCodes.Status200OK)
+            .Produces<IEnumerable<FolderDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapGet("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] GetFolder getFolder) =>
+        endpoints.MapGet("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] GetFolderFromStore getFolder) =>
         {
             try
             {
                 var folder = await getFolder(parentId, folderId);
 
-                return Results.Ok(folder);
+                return Results.Ok(new FolderDto(folder.Id, folder.ParentId, folder.Name.Value));
             }
             catch (InvalidOperationException)
             {
@@ -53,11 +52,11 @@ internal static class EndpointExtension
         })
             .WithTags("Folders")
             .WithSummary("Get an existing folder")
-            .Produces<Folder>(StatusCodes.Status200OK)
+            .Produces<FolderDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapDelete("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] RemoveFolder removeFolder) =>
+        endpoints.MapDelete("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] RemoveFolderFromStore removeFolder) =>
         {
             try
             {
@@ -77,23 +76,5 @@ internal static class EndpointExtension
             .WithOpenApi();
 
         return endpoints;
-    }
-}
-
-/// <summary>
-/// Create a new folder.
-/// </summary>
-/// <param name="ParentId">The ID of the parent folder</param>
-/// <param name="Name" example="Travels">The name of the folder to create</param>
-internal readonly record struct CreateFolder(Guid ParentId, string Name)
-{
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
-    internal sealed class Validator : AbstractValidator<CreateFolder>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.ParentId).NotEmpty();
-            RuleFor(x => x.Name).NotEmpty();
-        }
     }
 }

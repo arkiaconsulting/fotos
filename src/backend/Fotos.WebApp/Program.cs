@@ -3,7 +3,6 @@ using Fotos.WebApp.Adapters;
 using Fotos.WebApp.Features.PhotoAlbums;
 using Fotos.WebApp.Features.PhotoFolders;
 using Fotos.WebApp.Features.Photos;
-using Fotos.WebApp.Features.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +14,6 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("fotos", new() { Title = "Fotos" });
     options.IncludeXmlComments(typeof(Program).Assembly.Location.Replace("dll", "xml", StringComparison.OrdinalIgnoreCase));
     options.NonNullableReferenceTypesAsRequired();
-    options.MapType<Name>(() => new() { Type = "string" });
 });
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 builder.Services.AddProblemDetails();

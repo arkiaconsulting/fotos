@@ -1,15 +1,13 @@
-using Fotos.WebApp.Types;
-
 namespace Fotos.WebApp.Features.Photos;
 
 internal sealed class AddPhotosBusiness
 {
-    private readonly StorePhotoData _storePhotoData;
+    private readonly AddPhotoToStore _storePhotoData;
     private readonly AddPhotoToMainStorage _addPhotoToMainStorage;
     private readonly OnNewPhotoUploaded _onNewPhotoUploaded;
 
     public AddPhotosBusiness(
-        StorePhotoData storePhotoData,
+        AddPhotoToStore storePhotoData,
         AddPhotoToMainStorage addPhotoToMainStorage,
         OnNewPhotoUploaded onNewPhotoUploaded)
     {
@@ -25,7 +23,7 @@ internal sealed class AddPhotosBusiness
 
         await _addPhotoToMainStorage(photoId, photo, contentType);
 
-        var photoData = new PhotoEntity(photoId, fileName);
+        var photoData = new Photo(photoId, fileName);
 
         await _storePhotoData(photoData);
 

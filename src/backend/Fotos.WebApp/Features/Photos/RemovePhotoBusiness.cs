@@ -1,14 +1,12 @@
-﻿using Fotos.WebApp.Types;
-
-namespace Fotos.WebApp.Features.Photos;
+﻿namespace Fotos.WebApp.Features.Photos;
 
 internal sealed class RemovePhotoBusiness
 {
-    private readonly RemovePhotoData _removePhotoData;
+    private readonly RemovePhotoFromStore _removePhotoData;
     private readonly OnPhotoRemoved _onPhotoRemoved;
 
     public RemovePhotoBusiness(
-        RemovePhotoData removePhotoData,
+        RemovePhotoFromStore removePhotoData,
         OnPhotoRemoved onPhotoRemoved)
     {
         _removePhotoData = removePhotoData;

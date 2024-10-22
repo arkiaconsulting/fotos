@@ -2,7 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
-using Fotos.WebApp.Types;
+using Fotos.WebApp.Features.Photos;
 
 namespace Fotos.WebApp.Adapters;
 

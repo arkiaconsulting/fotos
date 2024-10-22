@@ -1,7 +1,7 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
+using Fotos.WebApp.Features.Photos;
 using Fotos.WebApp.Tests.Assets;
-using Fotos.WebApp.Types;
 
 namespace Fotos.WebApp.Tests.Adapters;
 

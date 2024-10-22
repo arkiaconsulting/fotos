@@ -1,17 +1,16 @@
-﻿using Fotos.WebApp.Types;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 
 namespace Fotos.WebApp.Features.Photos;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Required by WebJobs runtime")]
 public sealed class OnShouldRemovePhotoBinaries
 {
-    private readonly RemovePhotoOriginal _removePhotoOriginal;
-    private readonly RemovePhotoThumbnail _removePhotoThumbnail;
+    private readonly RemovePhotoOriginalFromStorage _removePhotoOriginal;
+    private readonly RemovePhotoThumbnailFromStorage _removePhotoThumbnail;
 
     public OnShouldRemovePhotoBinaries(
-        RemovePhotoOriginal removePhotoOriginal,
-        RemovePhotoThumbnail removePhotoThumbnail)
+        RemovePhotoOriginalFromStorage removePhotoOriginal,
+        RemovePhotoThumbnailFromStorage removePhotoThumbnail)
     {
         _removePhotoOriginal = removePhotoOriginal;
         _removePhotoThumbnail = removePhotoThumbnail;

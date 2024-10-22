@@ -1,6 +1,6 @@
 ﻿using Fotos.WebApp.Features.PhotoAlbums;
 using Fotos.WebApp.Features.PhotoFolders;
-using Fotos.WebApp.Types;
+using Fotos.WebApp.Features.Photos;
 using Microsoft.Azure.Cosmos;
 
 namespace Fotos.WebApp.Adapters;
@@ -20,20 +20,20 @@ internal sealed class AzureCosmosDb
         _albumContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
             .GetContainer(configuration["CosmosDb:AlbumsContainerId"]);
     }
-    public async Task SavePhoto(PhotoEntity photo)
+    public async Task SavePhoto(Photo photo)
     {
         var cosmosPhoto = new CosmosPhoto(photo.Id.Id, photo.Id.FolderId, photo.Id.AlbumId, photo.Title, photo.Metadata);
 
         await _photoContainer.UpsertItemAsync(cosmosPhoto, ToPartitionKey(photo.Id));
     }
 
-    public async Task<IReadOnlyCollection<PhotoEntity>> ListPhotos(AlbumId albumId)
+    public async Task<IReadOnlyCollection<Photo>> ListPhotos(AlbumId albumId)
     {
         var query = new QueryDefinition("SELECT * FROM c WHERE c.folderId = @folderId AND c.albumId = @albumId")
             .WithParameter("@folderId", albumId.FolderId)
             .WithParameter("@albumId", albumId.Id);
 
-        var photos = new List<PhotoEntity>();
+        var photos = new List<Photo>();
         var iterator = _photoContainer.GetItemQueryIterator<CosmosPhoto>(query, requestOptions: new() { PartitionKey = ToPartitionKey(albumId) });
 
         while (iterator.HasMoreResults)
@@ -51,7 +51,7 @@ internal sealed class AzureCosmosDb
         await _photoContainer.DeleteItemAsync<CosmosPhoto>(photoId.Id.ToString(), ToPartitionKey(photoId));
     }
 
-    public async Task<PhotoEntity> GetPhoto(PhotoId photoId)
+    public async Task<Photo> GetPhoto(PhotoId photoId)
     {
         var response = await _photoContainer.ReadItemAsync<CosmosPhoto>(photoId.Id.ToString(), ToPartitionKey(photoId));
 
@@ -135,7 +135,7 @@ internal sealed class AzureCosmosDb
 
     private sealed record CosmosPhoto(Guid Id, Guid FolderId, Guid AlbumId, string Title, ExifMetadata? Metadata)
     {
-        public PhotoEntity ToPhotoEntity() => new(
+        public Photo ToPhotoEntity() => new(
                 new PhotoId(FolderId, AlbumId, Id),
                 Title,
                 Metadata);

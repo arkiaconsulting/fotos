@@ -1,7 +1,7 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
+using Fotos.WebApp.Features.Photos;
 using Fotos.WebApp.Tests.Assets;
-using Fotos.WebApp.Types;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -80,7 +80,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     internal async Task Test06(PhotoId photoId, string title)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
+        _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.ListPhotos(photoId.FolderId, photoId.AlbumId);
 
@@ -93,7 +93,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     internal async Task Test07(PhotoId photoId, string title)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
+        _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.RemovePhoto(photoId.FolderId, photoId.AlbumId, photoId.Id);
 
@@ -105,7 +105,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     internal async Task Test08(PhotoId photoId, string title)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
+        _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.GetOriginalUri(photoId.FolderId, photoId.AlbumId, photoId.Id);
 
@@ -116,7 +116,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     internal async Task Test09(PhotoId photoId, string title)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
+        _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.GetThumbnailUri(photoId.FolderId, photoId.AlbumId, photoId.Id);
 
@@ -127,7 +127,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     internal async Task Test10(PhotoId photoId, string title)
     {
         var client = _fotoApi.CreateClient();
-        _fotoApi.Photos.Add(new PhotoEntity(photoId, title));
+        _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.UpdatePhoto(photoId.FolderId, photoId.AlbumId, photoId.Id, title);
 

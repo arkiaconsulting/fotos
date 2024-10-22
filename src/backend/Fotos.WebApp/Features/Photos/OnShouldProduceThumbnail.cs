@@ -1,18 +1,17 @@
-﻿using Fotos.WebApp.Types;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 
 namespace Fotos.WebApp.Features.Photos;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Required by WebJobs runtime")]
 public sealed class OnShouldProduceThumbnail
 {
-    private readonly ReadOriginalPhoto _readOriginalPhoto;
+    private readonly ReadOriginalPhotoFromStorage _readOriginalPhoto;
     private readonly CreateThumbnail _createThumbnail;
     private readonly AddPhotoToThumbnailStorage _addPhotoToThumbnailStorage;
     private readonly OnThumbnailReady _onThumbnailReady;
 
     public OnShouldProduceThumbnail(
-        ReadOriginalPhoto readOriginalPhoto,
+        ReadOriginalPhotoFromStorage readOriginalPhoto,
         CreateThumbnail createThumbnail,
         AddPhotoToThumbnailStorage addPhotoToThumbnailStorage,
         OnThumbnailReady onThumbnailReady)

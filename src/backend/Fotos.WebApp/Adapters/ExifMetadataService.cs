@@ -1,4 +1,4 @@
-﻿using Fotos.WebApp.Types;
+﻿using Fotos.WebApp.Features.Photos;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Jpeg;

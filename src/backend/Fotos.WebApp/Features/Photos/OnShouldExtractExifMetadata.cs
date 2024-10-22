@@ -1,21 +1,20 @@
-﻿using Fotos.WebApp.Types;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 
 namespace Fotos.WebApp.Features.Photos;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Required by WebJobs runtime")]
 public sealed class OnShouldExtractExifMetadata
 {
-    private readonly ReadOriginalPhoto _readOriginalPhoto;
+    private readonly ReadOriginalPhotoFromStorage _readOriginalPhoto;
     private readonly ExtractExifMetadata _extractExifMetadata;
-    private readonly GetPhoto _getPhoto;
-    private readonly StorePhotoData _storePhotoData;
+    private readonly GetPhotoFromStore _getPhoto;
+    private readonly AddPhotoToStore _storePhotoData;
 
     public OnShouldExtractExifMetadata(
-        ReadOriginalPhoto readOriginalPhoto,
+        ReadOriginalPhotoFromStorage readOriginalPhoto,
         ExtractExifMetadata extractExifMetadata,
-        GetPhoto getPhoto,
-        StorePhotoData storePhotoData)
+        GetPhotoFromStore getPhoto,
+        AddPhotoToStore storePhotoData)
     {
         _readOriginalPhoto = readOriginalPhoto;
         _extractExifMetadata = extractExifMetadata;

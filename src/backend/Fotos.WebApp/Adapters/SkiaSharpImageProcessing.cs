@@ -1,4 +1,4 @@
-﻿using Fotos.WebApp.Types;
+﻿using Fotos.WebApp.Features.Photos;
 using SkiaSharp;
 
 namespace Fotos.WebApp.Adapters;

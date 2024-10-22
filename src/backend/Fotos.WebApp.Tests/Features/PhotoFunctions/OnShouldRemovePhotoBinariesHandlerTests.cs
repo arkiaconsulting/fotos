@@ -1,15 +1,15 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
+using Fotos.WebApp.Features.Photos;
 using Fotos.WebApp.Tests.Assets;
-using Fotos.WebApp.Types;
 
-namespace Fotos.WebApp.Tests.Features.Photos;
+namespace Fotos.WebApp.Tests.Features.PhotoFunctions;
 
 [Trait("Category", "Unit")]
-public sealed class OnShouldRemovePhotoBinariesHandlerTests : IClassFixture<FotoContext>
+public sealed class OnShouldRemovePhotoBinariesHandlerTests : IClassFixture<FotoFunctionsContext>
 {
-    private readonly FotoContext _fotoContext;
-    public OnShouldRemovePhotoBinariesHandlerTests(FotoContext fotoContext) => _fotoContext = fotoContext;
+    private readonly FotoFunctionsContext _fotoContext;
+    public OnShouldRemovePhotoBinariesHandlerTests(FotoFunctionsContext fotoContext) => _fotoContext = fotoContext;
 
     [Theory(DisplayName = "When a photo has been removed, its binaries should be removed as well"), AutoData]
     internal async Task Test01(PhotoId photoId, byte[] photoBytes, byte[] thumbnailBytes)

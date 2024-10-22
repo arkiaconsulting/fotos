@@ -25,12 +25,12 @@ internal static class AdaptersConfigurationExtensions
     {
         services.AddSingleton<AzurePhotoStorage>()
         .AddScoped<AddPhotoToMainStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().AddOriginalPhoto)
-        .AddScoped<GetOriginalUri>(sp => sp.GetRequiredService<AzurePhotoStorage>().GetOriginalUri)
-        .AddScoped<GetThumbnailUri>(sp => sp.GetRequiredService<AzurePhotoStorage>().GetThumbnailUri)
-        .AddScoped<ReadOriginalPhoto>(sp => sp.GetRequiredService<AzurePhotoStorage>().ReadOriginalPhoto)
+        .AddScoped<GetOriginalStorageUri>(sp => sp.GetRequiredService<AzurePhotoStorage>().GetOriginalUri)
+        .AddScoped<GetThumbnailStorageUri>(sp => sp.GetRequiredService<AzurePhotoStorage>().GetThumbnailUri)
+        .AddScoped<ReadOriginalPhotoFromStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().ReadOriginalPhoto)
         .AddScoped<AddPhotoToThumbnailStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().AddPhotoToThumbnailStorage)
-        .AddScoped<RemovePhotoOriginal>(sp => sp.GetRequiredService<AzurePhotoStorage>().RemovePhotoOriginal)
-        .AddScoped<RemovePhotoThumbnail>(sp => sp.GetRequiredService<AzurePhotoStorage>().RemovePhotoThumbnail);
+        .AddScoped<RemovePhotoOriginalFromStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().RemovePhotoOriginal)
+        .AddScoped<RemovePhotoThumbnailFromStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().RemovePhotoThumbnail);
 
         services.AddAzureClients(builder =>
         {
@@ -89,17 +89,17 @@ internal static class AdaptersConfigurationExtensions
     public static IServiceCollection AddFotosCosmosDb(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<AzureCosmosDb>()
-        .AddScoped<StorePhotoData>(sp => sp.GetRequiredService<AzureCosmosDb>().SavePhoto)
-        .AddScoped<ListPhotos>(sp => sp.GetRequiredService<AzureCosmosDb>().ListPhotos)
-        .AddScoped<RemovePhotoData>(sp => sp.GetRequiredService<AzureCosmosDb>().RemovePhoto)
-        .AddScoped<GetPhoto>(sp => sp.GetRequiredService<AzureCosmosDb>().GetPhoto)
-        .AddScoped<StoreNewFolder>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreFolder)
-        .AddScoped<GetFolders>(sp => sp.GetRequiredService<AzureCosmosDb>().GetFolders)
-        .AddScoped<GetFolder>(sp => sp.GetRequiredService<AzureCosmosDb>().GetFolder)
-        .AddScoped<RemoveFolder>(sp => sp.GetRequiredService<AzureCosmosDb>().RemoveFolder)
-        .AddScoped<GetFolderAlbums>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbums)
-        .AddScoped<AddAlbum>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreAlbum)
-        .AddScoped<GetAlbum>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbum);
+        .AddScoped<AddPhotoToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().SavePhoto)
+        .AddScoped<ListPhotosFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().ListPhotos)
+        .AddScoped<RemovePhotoFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().RemovePhoto)
+        .AddScoped<GetPhotoFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetPhoto)
+        .AddScoped<AddFolderToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreFolder)
+        .AddScoped<GetFoldersFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetFolders)
+        .AddScoped<GetFolderFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetFolder)
+        .AddScoped<RemoveFolderFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().RemoveFolder)
+        .AddScoped<GetFolderAlbumsFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbums)
+        .AddScoped<AddAlbumToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreAlbum)
+        .AddScoped<GetAlbumFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbum);
 
         services.AddSingleton(sp =>
         {

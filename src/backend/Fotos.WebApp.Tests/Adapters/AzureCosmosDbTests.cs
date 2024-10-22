@@ -1,7 +1,7 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
+using Fotos.WebApp.Features.Photos;
 using Fotos.WebApp.Tests.Assets;
-using Fotos.WebApp.Types;
 using Microsoft.Azure.Cosmos;
 using System.Net;
 using System.Text.Json;
@@ -17,7 +17,7 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
     [Theory(DisplayName = "When adding a new photo should store its data"), AutoData]
     internal async Task Test01(PhotoId photoId, string title, ExifMetadata metadata)
     {
-        var photo = new PhotoEntity(photoId, title, metadata);
+        var photo = new Photo(photoId, title, metadata);
 
         await _context.StorePhotoData(photo);
 
@@ -32,7 +32,7 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "When listing photo data of an album should return data"), AutoData]
-    internal async Task Test02(PhotoEntity photo0, PhotoEntity photo1)
+    internal async Task Test02(Photo photo0, Photo photo1)
     {
         await _context.StorePhotoData(photo0);
         await _context.StorePhotoData(photo1);
@@ -43,7 +43,7 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "When removing an existing photo should remove it"), AutoData]
-    internal async Task Test03(PhotoEntity photo)
+    internal async Task Test03(Photo photo)
     {
         await _context.StorePhotoData(photo);
 
@@ -55,7 +55,7 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "When getting an existing photo should return it"), AutoData]
-    internal async Task Test04(PhotoEntity photo)
+    internal async Task Test04(Photo photo)
     {
         await _context.StorePhotoData(photo);
 

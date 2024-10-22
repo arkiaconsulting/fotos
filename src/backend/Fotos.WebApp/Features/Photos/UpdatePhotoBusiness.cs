@@ -1,15 +1,13 @@
-﻿using Fotos.WebApp.Types;
-
-namespace Fotos.WebApp.Features.Photos;
+﻿namespace Fotos.WebApp.Features.Photos;
 
 internal sealed class UpdatePhotoBusiness
 {
-    private readonly StorePhotoData _storePhotoData;
-    private readonly GetPhoto _getPhoto;
+    private readonly AddPhotoToStore _storePhotoData;
+    private readonly GetPhotoFromStore _getPhoto;
 
     public UpdatePhotoBusiness(
-        StorePhotoData storePhotoData,
-        GetPhoto getPhoto)
+        AddPhotoToStore storePhotoData,
+        GetPhotoFromStore getPhoto)
     {
         _storePhotoData = storePhotoData;
         _getPhoto = getPhoto;

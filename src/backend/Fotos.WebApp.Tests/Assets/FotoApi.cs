@@ -1,7 +1,6 @@
 ﻿using Fotos.WebApp.Features.PhotoAlbums;
 using Fotos.WebApp.Features.PhotoFolders;
 using Fotos.WebApp.Features.Photos;
-using Fotos.WebApp.Types;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +11,7 @@ namespace Fotos.WebApp.Tests.Assets;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
 public sealed class FotoApi : WebApplicationFactory<Program>
 {
-    internal List<PhotoEntity> Photos => Services.GetRequiredService<List<PhotoEntity>>();
+    internal List<Photo> Photos => Services.GetRequiredService<List<Photo>>();
     internal List<PhotoId> PhotoRemovedMessageSink { get; } = [];
     internal List<PhotoId> PhotoUploadedMessageSink { get; } = [];
 
@@ -36,32 +35,32 @@ public sealed class FotoApi : WebApplicationFactory<Program>
 
                 return Task.CompletedTask;
             })
-            .AddScoped<GetOriginalUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
-            .AddScoped<GetThumbnailUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
-            .AddSingleton<List<PhotoEntity>>(_ => [])
-            .AddScoped<StorePhotoData>(_ => entity =>
+            .AddScoped<GetOriginalStorageUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
+            .AddScoped<GetThumbnailStorageUri>((_) => (_) => Task.FromResult(new Uri("https://localhost")))
+            .AddSingleton<List<Photo>>(_ => [])
+            .AddScoped<AddPhotoToStore>(_ => entity =>
             {
                 Photos.Add(entity);
 
                 return Task.CompletedTask;
             })
-            .AddScoped<ListPhotos>(_ => albumId => Task.FromResult<IReadOnlyCollection<PhotoEntity>>(Photos.Where(p => p.Id.FolderId == albumId.FolderId && p.Id.AlbumId == albumId.Id).ToList()))
-            .AddScoped<RemovePhotoData>(sp => (photoId) =>
+            .AddScoped<ListPhotosFromStore>(_ => albumId => Task.FromResult<IReadOnlyCollection<Photo>>(Photos.Where(p => p.Id.FolderId == albumId.FolderId && p.Id.AlbumId == albumId.Id).ToList()))
+            .AddScoped<RemovePhotoFromStore>(sp => (photoId) =>
             {
-                var store = sp.GetRequiredService<List<PhotoEntity>>();
+                var store = sp.GetRequiredService<List<Photo>>();
 
                 store.RemoveAll(photo => photo.Id.Id == photoId.Id);
 
                 return Task.CompletedTask;
             })
-            .AddScoped<GetPhoto>(_ => (photoId) =>
+            .AddScoped<GetPhotoFromStore>(_ => (photoId) =>
             {
-                var store = _.GetRequiredService<List<PhotoEntity>>();
+                var store = _.GetRequiredService<List<Photo>>();
 
                 return Task.FromResult(store.Single(x => x.Id.Id == photoId.Id));
             })
             .AddSingleton<List<Album>>(_ => [])
-            .AddScoped<GetFolderAlbums>(sp =>
+            .AddScoped<GetFolderAlbumsFromStore>(sp =>
             {
                 var store = sp.GetRequiredService<List<Album>>();
 
@@ -72,14 +71,14 @@ public sealed class FotoApi : WebApplicationFactory<Program>
                     return Task.FromResult<IReadOnlyCollection<Album>>(albums);
                 };
             })
-            .AddScoped<AddAlbum>(sp => album =>
+            .AddScoped<AddAlbumToStore>(sp => album =>
             {
                 var store = sp.GetRequiredService<List<Album>>();
                 store.Add(album);
 
                 return Task.CompletedTask;
             })
-            .AddScoped<GetAlbum>(sp =>
+            .AddScoped<GetAlbumFromStore>(sp =>
             {
                 var store = sp.GetRequiredService<List<Album>>();
 
@@ -91,27 +90,27 @@ public sealed class FotoApi : WebApplicationFactory<Program>
                 };
             })
             .AddSingleton<List<Folder>>(_ => [Folder.Create(Guid.NewGuid(), Guid.Empty, "Root")])
-            .AddScoped<StoreNewFolder>(sp => folder =>
+            .AddScoped<AddFolderToStore>(sp => folder =>
             {
                 var store = sp.GetRequiredService<List<Folder>>();
                 store.Add(folder);
 
                 return Task.CompletedTask;
             })
-            .AddScoped<GetFolders>(sp => parentFolderId =>
+            .AddScoped<GetFoldersFromStore>(sp => parentFolderId =>
             {
                 var store = sp.GetRequiredService<List<Folder>>();
                 var folders = store.Where(x => x.ParentId == parentFolderId).ToList();
 
                 return Task.FromResult<IReadOnlyCollection<Folder>>(folders);
             })
-            .AddScoped<GetFolder>(sp => (_, folderId) =>
+            .AddScoped<GetFolderFromStore>(sp => (_, folderId) =>
             {
                 var store = sp.GetRequiredService<List<Folder>>();
 
                 return Task.FromResult(store.First(x => x.Id == folderId));
             })
-            .AddScoped<RemoveFolder>(sp => (_, folderId) =>
+            .AddScoped<RemoveFolderFromStore>(sp => (_, folderId) =>
             {
                 var store = sp.GetRequiredService<List<Folder>>();
                 var folder = store.First(x => x.Id == folderId);

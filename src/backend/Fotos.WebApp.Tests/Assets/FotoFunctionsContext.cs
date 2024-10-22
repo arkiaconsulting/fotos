@@ -1,5 +1,4 @@
 ﻿using Fotos.WebApp.Features.Photos;
-using Fotos.WebApp.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,11 +7,11 @@ using System.Collections.ObjectModel;
 namespace Fotos.WebApp.Tests.Assets;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
-public sealed class FotoContext
+public sealed class FotoFunctionsContext
 {
     internal Collection<(Guid, byte[])> MainStorage => _host.Services.GetRequiredKeyedService<Collection<(Guid, byte[])>>("main");
     internal Collection<(Guid, byte[])> ThumbnailsStorage => _host.Services.GetRequiredKeyedService<Collection<(Guid, byte[])>>("thumbnails");
-    internal Collection<PhotoEntity> Photos => _host.Services.GetRequiredService<Collection<PhotoEntity>>();
+    internal Collection<Photo> Photos => _host.Services.GetRequiredService<Collection<Photo>>();
     internal OnShouldExtractExifMetadata ExifMetadataExtractor => _host.Services.GetRequiredService<OnShouldExtractExifMetadata>();
     internal OnShouldProduceThumbnail OnShouldProduceThumbnail => _host.Services.GetRequiredService<OnShouldProduceThumbnail>();
     internal OnShouldRemovePhotoBinaries OnShouldRemovePhotoBinaries => _host.Services.GetRequiredService<OnShouldRemovePhotoBinaries>();
@@ -28,11 +27,11 @@ public sealed class FotoContext
         services.AddKeyedSingleton<Collection<(Guid, byte[])>>("main");
         services.AddKeyedSingleton<Collection<(Guid, byte[])>>("thumbnails");
         services.AddKeyedSingleton<Collection<PhotoId>>("thumbnailsready");
-        services.AddSingleton<Collection<PhotoEntity>>();
+        services.AddSingleton<Collection<Photo>>();
         services.AddSingleton<OnShouldExtractExifMetadata>();
         services.AddSingleton<OnShouldProduceThumbnail>();
         services.AddSingleton<OnShouldRemovePhotoBinaries>();
-        services.AddSingleton<ReadOriginalPhoto>(sp =>
+        services.AddSingleton<ReadOriginalPhotoFromStorage>(sp =>
         {
             var mainStorage = sp.GetRequiredKeyedService<Collection<(Guid, byte[])>>("main");
 
@@ -44,20 +43,20 @@ public sealed class FotoContext
             };
         });
         services.AddSingleton<ExtractExifMetadata>((_) => (_, _) => Task.FromResult(new ExifMetadata(DateTime.Now)));
-        services.AddSingleton<GetPhoto>(_ => (photoId) =>
+        services.AddSingleton<GetPhotoFromStore>(_ => (photoId) =>
         {
-            var store = _.GetRequiredService<Collection<PhotoEntity>>();
+            var store = _.GetRequiredService<Collection<Photo>>();
 
             return Task.FromResult(store.Single(x => x.Id.Id == photoId.Id));
         });
-        services.AddSingleton<StorePhotoData>(sp =>
+        services.AddSingleton<AddPhotoToStore>(sp =>
         {
-            var store = sp.GetRequiredService<Collection<PhotoEntity>>();
+            var store = sp.GetRequiredService<Collection<Photo>>();
 
             return photo =>
             {
                 var existingPhoto = store.FirstOrDefault(x => x.Id == photo.Id);
-                if (existingPhoto != null)
+                if (existingPhoto != default)
                 {
                     store.Remove(existingPhoto);
                 }
@@ -82,7 +81,7 @@ public sealed class FotoContext
 
             return Task.CompletedTask;
         });
-        services.AddSingleton<RemovePhotoOriginal>(sp => photoId =>
+        services.AddSingleton<RemovePhotoOriginalFromStorage>(sp => photoId =>
         {
             var mainStorage = sp.GetRequiredKeyedService<Collection<(Guid, byte[])>>("main");
             var photo = mainStorage.Single(x => x.Item1 == photoId.Id);
@@ -90,7 +89,7 @@ public sealed class FotoContext
 
             return Task.CompletedTask;
         });
-        services.AddSingleton<RemovePhotoThumbnail>(sp => photoId =>
+        services.AddSingleton<RemovePhotoThumbnailFromStorage>(sp => photoId =>
         {
             var thumbnailsStorage = sp.GetRequiredKeyedService<Collection<(Guid, byte[])>>("thumbnails");
             var photo = thumbnailsStorage.Single(x => x.Item1 == photoId.Id);

@@ -1,4 +1,4 @@
-﻿namespace Fotos.WebApp.Types;
+﻿namespace Fotos.WebApp.Features.Photos;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
-public sealed record ExifMetadata(DateTime? DateTaken = default);
+public readonly record struct PhotoBinary(Stream Content, string MimeType);

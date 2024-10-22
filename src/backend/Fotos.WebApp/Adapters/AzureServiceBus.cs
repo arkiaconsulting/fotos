@@ -1,5 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Fotos.WebApp.Types;
+using Fotos.WebApp.Features.Photos;
 using System.Net.Mime;
 using System.Text.Json;
 
