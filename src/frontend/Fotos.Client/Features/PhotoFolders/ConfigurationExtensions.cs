@@ -1,4 +1,6 @@
-﻿namespace Fotos.Client.Features.PhotoFolders;
+﻿using Fotos.Client.Adapters;
+
+namespace Fotos.Client.Features.PhotoFolders;
 
 internal static class ConfigurationExtensions
 {

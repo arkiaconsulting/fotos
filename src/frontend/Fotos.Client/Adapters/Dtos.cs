@@ -1,4 +1,4 @@
-﻿namespace Fotos.Client.Features.PhotoFolders;
+﻿namespace Fotos.Client.Adapters;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
 public readonly record struct Folder(Guid Id, Guid ParentId, string Name);

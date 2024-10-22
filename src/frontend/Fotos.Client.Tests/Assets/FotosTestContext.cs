@@ -1,4 +1,5 @@
-﻿using Fotos.Client.Features.PhotoFolders;
+﻿using Fotos.Client.Adapters;
+using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Hubs;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;

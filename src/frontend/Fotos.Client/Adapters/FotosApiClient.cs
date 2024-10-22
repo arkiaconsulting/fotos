@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Headers;
 
-namespace Fotos.Client.Features.PhotoFolders;
+namespace Fotos.Client.Adapters;
 
 internal sealed class FotosApiClient
 {

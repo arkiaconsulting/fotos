@@ -1,9 +1,11 @@
 ﻿@page "/album/{ParentId:guid}/{FolderId:guid}/{AlbumId:guid}"
+@using Fotos.Client.Adapters
 @using Fotos.Client.Features
 @using Fotos.Client.Features.PhotoFolders
 @using System.Buffers
 @using Fotos.Client.Hubs
-@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.SignalR.Client;
+    using Fotos.Client.Adapters
 
 @inject NavigationManager NavigationManager
 @inject GetAlbum GetAlbum
@@ -25,10 +27,10 @@ else
                 <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" Color="Color.Primary" OnClick="GoParentFolder" />
             </MudStack>
             <MudFileUpload T="IBrowserFile" OnFilesChanged="UploadPhoto" Accept=".jpg, .jpeg, .png" Hidden="@false" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10" InputStyle="opacity:0"
-            @ondrop="@ClearDragClass"
-            @ondragenter="@SetDragClass"
-            @ondragleave="@ClearDragClass"
-            @ondragend="@ClearDragClass">
+                           @ondrop="@ClearDragClass"
+                           @ondragenter="@SetDragClass"
+                           @ondragleave="@ClearDragClass"
+                           @ondragend="@ClearDragClass">
                 <ActivatorContent>
                     <MudPaper Height="75px" Outlined Class="@_dragClass" tabindex="-1">
                         <MudText Typo="Typo.body1">
