@@ -11,6 +11,7 @@
 	  <PackageReference Include="FluentAssertions.Web" />
 	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
 	  <PackageReference Include="Microsoft.NET.Test.Sdk" />
+	  <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
 	  <PackageReference Include="System.Text.RegularExpressions" />
 	  <PackageReference Include="System.Text.Json" />
 	  <PackageReference Include="xunit" />
@@ -33,6 +34,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Adapters\test-file.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="tests.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

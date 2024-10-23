@@ -4,7 +4,7 @@ using System.Net.Mime;
 
 namespace Fotos.WebApp.Tests.Adapters;
 
-[Trait("Category", "Unit")]
+[Trait("Category", "Integration")]
 public sealed class ExifMetadataTests : IClassFixture<FotoIntegrationContext>
 {
     private readonly FotoIntegrationContext _context;

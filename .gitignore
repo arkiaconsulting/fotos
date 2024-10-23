@@ -399,7 +399,7 @@ FodyWeavers.xsd
 *.sln.iml
 
 .terraform/
-environments/
+terraform/environments/backend.config
 
 appsettings.Development.json
 launchSettings.json

@@ -26,7 +26,17 @@ public sealed class FotoIntegrationContext
     internal ListPhotosFromStore ListPhotos => _host.Services.GetRequiredService<ListPhotosFromStore>();
     internal RemovePhotoFromStore RemovePhotoData => _host.Services.GetRequiredService<RemovePhotoFromStore>();
     internal GetPhotoFromStore GetPhoto => _host.Services.GetRequiredService<GetPhotoFromStore>();
-    internal Container PhotosData => _host.Services.GetRequiredService<CosmosClient>().GetDatabase("fotos").GetContainer("photos-test");
+    internal Container PhotosData
+    {
+        get
+        {
+            var configuration = _host.Services.GetRequiredService<IConfiguration>();
+
+            return _host.Services.GetRequiredService<CosmosClient>()
+                .GetDatabase(configuration["CosmosDb:DatabaseId"])
+                .GetContainer(configuration["CosmosDb:ContainerId"]);
+        }
+    }
 
     internal BlobContainerClient PhotosContainer
     {
@@ -43,25 +53,17 @@ public sealed class FotoIntegrationContext
     internal OnPhotoRemoved OnPhotoRemoved => _host.Services.GetRequiredService<OnPhotoRemoved>();
     internal OnThumbnailReady OnThumbnailReady => _host.Services.GetRequiredService<OnThumbnailReady>();
     internal ServiceBusClient ServiceBusClient => _host.Services.GetRequiredService<ServiceBusClient>();
-    internal string MainTopicName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:MainTopic"]!;
+    internal string TestTopicName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:MainTopic"]!;
+    internal string ProduceThumbnailSubscriptionName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:ProduceThumbnailSubscription"]!;
+    internal string RemovePhotosBinariesSubscriptionName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:RemovePhotoBinariesSubscription"]!;
+    internal string NotifyThumbnailReadySubscriptionName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:ThumbnailReadySubscription"]!;
 
     private readonly IHost _host = Host.CreateDefaultBuilder()
         .ConfigureServices(ConfigureServices)
         .ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["MainStorage:blobServiceUri"] = "UseDevelopmentStorage=true",
-                ["MainStorage:PhotosContainer"] = "fotostests",
-                ["ServiceBus:fullyQualifiedNamespace"] = "arkiabus.servicebus.windows.net",
-                ["ServiceBus:MainTopic"] = "tests-fotos-main",
-                ["CosmosDb:AccountEndpoint"] = "https://localhost:8081",
-                ["CosmosDb:AccountKey"] = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
-                ["CosmosDb:DatabaseId"] = "fotos",
-                ["CosmosDb:ContainerId"] = "photos-test",
-                ["CosmosDb:FoldersContainerId"] = "folders-test",
-                ["CosmosDb:AlbumsContainerId"] = "albums-test",
-            });
+            config.AddJsonFile("tests.settings.json", optional: true);
+            config.AddEnvironmentVariables();
         }).ConfigureLogging(builder => builder
             .AddFilter("Azure.Identity", LogLevel.Warning)
             .AddFilter("Azure.Core", LogLevel.Warning)

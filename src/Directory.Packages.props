@@ -18,6 +18,7 @@
     <PackageVersion Include="Microsoft.Extensions.Azure" Version="1.7.6" />
     <PackageVersion Include="MudBlazor" Version="7.13.0" />
     <PackageVersion Include="SkiaSharp" Version="2.88.8" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="2.88.8" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.8.1" />
     <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />

@@ -1,0 +1,114 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_PATH: src/frontend
+      BACKEND_PATH: src/backend
+      COSMOS_DB_ENDPOINT: https://arkia.documents.azure.com:443/
+      COSMOS_DB_KEY: ${{ secrets.ARKIA_COSMOS_DB_ACCOUNT_KEY }}
+      COSMOS_DB_DATABASE: tests
+      COSMOS_DB_PHOTOS_CONTAINER: photos-test
+      SERVICE_BUS_NAMESPACE_FQDN: arkiabus.servicebus.windows.net
+      SERVICE_BUS_TOPIC: tests-fotos-main
+      SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION: produce-thumbnail
+      SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION: remove-photo-binaries
+      SERVICE_BUS_THUMBNAIL_READY_SUBSCRIPTION: thumbnail-ready
+      SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION: unused
+      AZURE_STORAGE_URI: UseDevelopmentStorage=true
+      AZURE_STORAGE_CONTAINER: fotostests
+
+    steps:
+    - uses: actions/checkout@v4
+        
+    - name: Restore frontend test dependencies
+      run: dotnet restore ${{ env.FRONTEND_PATH }}/Fotos.Client.Tests
+
+    - name: Run frontend tests
+      run: dotnet test ${{ env.FRONTEND_PATH }}/Fotos.Client.Tests --no-restore
+
+    - name: Install Azurite
+      run: npm install -g azurite
+
+    - name: Start azurite
+      run: azurite-blob &
+
+    - name: Create storage test container
+      run: az storage container create -n ${{ env.AZURE_STORAGE_CONTAINER }} --connection-string "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Restore backend test dependencies
+      run: dotnet restore ${{ env.BACKEND_PATH }}/Fotos.WebApp.Tests
+
+    - name: Run backend tests
+      run: dotnet test ${{ env.BACKEND_PATH }}/Fotos.WebApp.Tests --no-restore
+      env:
+        CosmosDb__AccountEndpoint: ${{ env.COSMOS_DB_ENDPOINT }}
+        CosmosDb__AccountKey: ${{ env.COSMOS_DB_KEY }}
+        CosmosDb__DatabaseId: ${{ env.COSMOS_DB_DATABASE }}
+        CosmosDb__ContainerId: ${{ env.COSMOS_DB_PHOTOS_CONTAINER }}
+        CosmosDb__FoldersContainerId: unused
+        CosmosDb__AlbumsContainerId: unused
+        ServiceBus__fullyQualifiedNamespace: ${{ env.SERVICE_BUS_NAMESPACE_FQDN }}
+        ServiceBus__MainTopic: ${{ env.SERVICE_BUS_TOPIC }}
+        ServiceBus__ProduceThumbnailSubscription: ${{ env.SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION }}
+        ServiceBus__RemovePhotoBinariesSubscription: ${{ env.SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION }}
+        ServiceBus__ExtractExifMetadataSubscription: ${{ env.SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION }}
+        ServiceBus__ThumbnailReadySubscription: ${{ env.SERVICE_BUS_THUMBNAIL_READY_SUBSCRIPTION }}
+
+    - name: Publish
+      run: dotnet publish ${{ env.FRONTEND_PATH }}/Fotos.Client -c Release -o publish
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: publish
+
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+    env:
+      TF_RESOURCE_GROUP: common
+      TF_STORAGE_ACCOUNT_NAME: arkia
+      TF_STORAGE_CONTAINER_NAME: tfinfra
+      TF_STORAGE_BLOB_NAME: fotos.terraform.tfstate
+      ARM_CLIENT_ID: ${{ secrets.SP_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.9.8
+
+    - name: Terraform Init
+      run: >
+        terraform init -input=false
+        -backend-config="resource_group_name=${{ env.TF_RESOURCE_GROUP }}"
+        -backend-config="storage_account_name=${{ env.TF_STORAGE_ACCOUNT_NAME }}"
+        -backend-config="container_name=${{ env.TF_STORAGE_CONTAINER_NAME }}"
+        -backend-config="subscription_id=${{ secrets.SUBSCRIPTION_ID }}"
+        -backend-config="tenant_id=${{ secrets.TENANT_ID }}"
+        -backend-config="key=${{ env.TF_STORAGE_BLOB_NAME }}"
+
+    - name: Terraform Plan
+      run: terraform plan -input=false -out=tfplan -var-file="environments/variables.tfvars"
+
+    - name: Terraform Apply
+      run: terraform apply -input=false -auto-approve tfplan

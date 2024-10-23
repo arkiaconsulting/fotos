@@ -18,7 +18,7 @@ public sealed class AzureServiceBusTests : IClassFixture<FotoIntegrationContext>
     {
         await _context.OnNewPhotoUploaded(photoId);
 
-        var receiver = _context.ServiceBusClient.CreateReceiver(_context.MainTopicName, "photo-uploaded", options: new() { ReceiveMode = Azure.Messaging.ServiceBus.ServiceBusReceiveMode.ReceiveAndDelete });
+        var receiver = _context.ServiceBusClient.CreateReceiver(_context.TestTopicName, _context.ProduceThumbnailSubscriptionName, options: new() { ReceiveMode = Azure.Messaging.ServiceBus.ServiceBusReceiveMode.ReceiveAndDelete });
         var messages = await receiver.ReceiveMessagesAsync(1, maxWaitTime: TimeSpan.FromSeconds(2));
         var message = messages.Should().ContainSingle().Subject;
 
@@ -33,7 +33,7 @@ public sealed class AzureServiceBusTests : IClassFixture<FotoIntegrationContext>
     {
         await _context.OnPhotoRemoved(photoId);
 
-        var receiver = _context.ServiceBusClient.CreateReceiver(_context.MainTopicName, "photo-removed", options: new() { ReceiveMode = Azure.Messaging.ServiceBus.ServiceBusReceiveMode.ReceiveAndDelete });
+        var receiver = _context.ServiceBusClient.CreateReceiver(_context.TestTopicName, _context.RemovePhotosBinariesSubscriptionName, options: new() { ReceiveMode = Azure.Messaging.ServiceBus.ServiceBusReceiveMode.ReceiveAndDelete });
         var messages = await receiver.ReceiveMessagesAsync(1, maxWaitTime: TimeSpan.FromSeconds(2));
         var message = messages.Should().ContainSingle().Subject;
 
@@ -48,7 +48,7 @@ public sealed class AzureServiceBusTests : IClassFixture<FotoIntegrationContext>
     {
         await _context.OnThumbnailReady(photoId);
 
-        var receiver = _context.ServiceBusClient.CreateReceiver(_context.MainTopicName, "thumbnail-ready", options: new() { ReceiveMode = Azure.Messaging.ServiceBus.ServiceBusReceiveMode.ReceiveAndDelete });
+        var receiver = _context.ServiceBusClient.CreateReceiver(_context.TestTopicName, _context.NotifyThumbnailReadySubscriptionName, options: new() { ReceiveMode = Azure.Messaging.ServiceBus.ServiceBusReceiveMode.ReceiveAndDelete });
         var messages = await receiver.ReceiveMessagesAsync(1, maxWaitTime: TimeSpan.FromSeconds(2));
         var message = messages.Should().ContainSingle().Subject;
         message.Subject.Should().Be("ThumbnailReady");

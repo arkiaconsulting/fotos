@@ -5,7 +5,7 @@ using Fotos.WebApp.Tests.Assets;
 
 namespace Fotos.WebApp.Tests.Adapters;
 
-[Trait("Category", "Unit")]
+[Trait("Category", "Integration")]
 public sealed class AzurePhotoStorageTests : IClassFixture<FotoIntegrationContext>
 {
     private readonly FotoIntegrationContext _context;

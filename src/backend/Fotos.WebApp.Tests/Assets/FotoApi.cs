@@ -131,4 +131,17 @@ public sealed class FotoApi : WebApplicationFactory<Program>
             ["AzureWebJobs.OnShouldExtractExifMetadata.Disabled"] = "true",
             ["AzureWebJobs.OnThumbnailReady.Disabled"] = "true",
         });
+
+    public override async ValueTask DisposeAsync()
+    {
+        // Due to pipelines runs transient failures
+        try
+        {
+            await base.DisposeAsync();
+        }
+        catch (ObjectDisposedException)
+        {
+            // OK
+        }
+    }
 }
