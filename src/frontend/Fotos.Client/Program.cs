@@ -27,6 +27,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 builder.Services.AddProblemDetails();
+builder.Services.AddMemoryCache();
 
 // Business
 builder.Services.AddPhotosBusiness();

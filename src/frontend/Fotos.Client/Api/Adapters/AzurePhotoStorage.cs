@@ -3,18 +3,23 @@ using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using Fotos.Client.Api.Photos;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Fotos.Client.Api.Adapters;
 
 internal sealed class AzurePhotoStorage
 {
     private readonly BlobServiceClient _blobServiceClient;
+    private readonly IMemoryCache _cache;
     private readonly string? _mainContainer;
-
+    private const string CacheKey = "UserDelegationKey";
     public AzurePhotoStorage(
-        BlobServiceClient blobServiceClient, IConfiguration configuration)
+        BlobServiceClient blobServiceClient,
+        IConfiguration configuration,
+        IMemoryCache cache)
     {
         _blobServiceClient = blobServiceClient;
+        _cache = cache;
         _mainContainer = configuration[$"{Constants.BlobServiceClientName}:PhotosContainer"];
     }
 
@@ -92,11 +97,16 @@ internal sealed class AzurePhotoStorage
         if (!blobClient.CanGenerateSasUri)
         {
             var expiryTime = DateTimeOffset.UtcNow.AddMinutes(5);
-            var userDelegationKey = await _blobServiceClient.GetUserDelegationKeyAsync(null, expiryTime, CancellationToken.None);
+            var userDelegationKey = await _cache.GetOrCreateAsync(CacheKey, async entry =>
+            {
+                entry.AbsoluteExpiration = expiryTime.AddSeconds(-30);
+
+                return await _blobServiceClient.GetUserDelegationKeyAsync(null, expiryTime, CancellationToken.None);
+            });
 
             return new BlobUriBuilder(blobClient.Uri)
             {
-                Sas = sasBuilder.ToSasQueryParameters(userDelegationKey, _blobServiceClient.AccountName),
+                Sas = sasBuilder.ToSasQueryParameters(userDelegationKey!.Value, _blobServiceClient.AccountName),
             }.ToUri();
         }
 
