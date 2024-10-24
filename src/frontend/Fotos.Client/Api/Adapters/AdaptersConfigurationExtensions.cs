@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Fotos.Client.Api.PhotoAlbums;
@@ -13,6 +14,8 @@ internal static class AdaptersConfigurationExtensions
 {
     public static IServiceCollection AddPhotosAdapters(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
+
         services.AddFotosAzureStorage(configuration);
         services.AddFotosServiceBus(configuration);
         services.AddFotosImageProcessing();
@@ -38,7 +41,8 @@ internal static class AdaptersConfigurationExtensions
 
             if (Uri.TryCreate(serviceUriOrConnectionString, UriKind.Absolute, out var serviceUri))
             {
-                builder.AddBlobServiceClient(serviceUri).WithName(Constants.BlobServiceClientName);
+                builder.AddBlobServiceClient(serviceUri).WithName(Constants.BlobServiceClientName)
+                .WithCredential(sp => sp.GetRequiredService<TokenCredential>());
             }
             else
             {
@@ -67,7 +71,9 @@ internal static class AdaptersConfigurationExtensions
         {
             var fqdn = configuration[$"{Constants.ServiceBusClientName}:fullyQualifiedNamespace"];
 
-            builder.AddServiceBusClientWithNamespace(fqdn).WithName(Constants.ServiceBusClientName);
+            builder.AddServiceBusClientWithNamespace(fqdn)
+            .WithName(Constants.ServiceBusClientName)
+            .WithCredential(sp => sp.GetRequiredService<TokenCredential>());
         });
         services.AddSingleton(sp =>
         {

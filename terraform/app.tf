@@ -21,6 +21,7 @@ resource "azurerm_windows_web_app" "main" {
   }
 
   app_settings = {
+    "AZURE_CLIENT_ID"                             = azurerm_user_assigned_identity.main.client_id
     "APPINSIGHTS_INSTRUMENTATIONKEY"              = azurerm_application_insights.main.instrumentation_key
     "APPLICATIONINSIGHTS_CONNECTION_STRING"       = azurerm_application_insights.main.connection_string
     "ApplicationInsightsAgent_EXTENSION_VERSION"  = "~3"
@@ -28,6 +29,7 @@ resource "azurerm_windows_web_app" "main" {
     "Logging:LogLevel:Microsoft.AspNetCore"       = "Warning"
     "Logging:LogLevel:Azure.Messaging.ServiceBus" = "Warning"
     "Logging:LogLevel:Azure.Core"                 = "Warning"
+    "System.Net.Http"                             = "Warning"
     "MainStorage:blobServiceUri"                  = "https://${azurerm_storage_account.photos.name}.blob.core.windows.net/"
     "MainStorage:PhotosContainer"                 = azurerm_storage_container.photos.name
     "CosmosDb:AccountEndpoint"                    = data.azurerm_cosmosdb_account.common.endpoint
@@ -41,6 +43,7 @@ resource "azurerm_windows_web_app" "main" {
     "ServiceBus:ExtractExifMetadataSubscription"  = azurerm_servicebus_subscription.extract_exif_metadata.name
     "ServiceBus:ThumbnailReadySubscription"       = azurerm_servicebus_subscription.notify_thumbnail_ready.name
     "ServiceBus:RemovePhotoBinariesSubscription"  = azurerm_servicebus_subscription.remove_photo_binaries.name
+    "BaseUrl"                                     = "https://${local.web_app_name}.azurewebsites.net"
   }
 
   tags = local.tags

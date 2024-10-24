@@ -1,4 +1,6 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Azure.Core;
+using Azure.Identity;
+using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Fotos.Client.Api.Adapters;
 using Fotos.Client.Api.Photos;
@@ -73,6 +75,8 @@ public sealed class FotoIntegrationContext
 
     private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
+        services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
+
         services.AddFotosAzureStorage(context.Configuration);
         services.AddFotosServiceBus(context.Configuration);
         services.AddFotosImageProcessing();

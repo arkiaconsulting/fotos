@@ -34,19 +34,11 @@ internal sealed class AzurePhotoStorage
         await blobClient.UploadAsync(photo, options);
     }
 
-    public async Task<Uri> GetOriginalUri(PhotoId photoId)
-    {
-        await Task.CompletedTask;
+    public async Task<Uri> GetOriginalUri(PhotoId photoId) =>
+        await GetAuthorizedUri(ComputeOriginalName(photoId))!;
 
-        return GetAuthorizedUri(ComputeOriginalName(photoId))!;
-    }
-
-    public async Task<Uri> GetThumbnailUri(PhotoId photoId)
-    {
-        await Task.CompletedTask;
-
-        return GetAuthorizedUri(ComputeThumbnailName(photoId))!;
-    }
+    public async Task<Uri> GetThumbnailUri(PhotoId photoId) =>
+        await GetAuthorizedUri(ComputeThumbnailName(photoId))!;
 
     public async Task<PhotoBinary> ReadOriginalPhoto(PhotoId photoId)
     {
@@ -84,7 +76,7 @@ internal sealed class AzurePhotoStorage
         await blobClient.DeleteIfExistsAsync();
     }
 
-    private Uri? GetAuthorizedUri(string blobName)
+    private async Task<Uri> GetAuthorizedUri(string blobName)
     {
         var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
         var blobClient = container.GetBlobClient(blobName);
@@ -96,6 +88,18 @@ internal sealed class AzurePhotoStorage
             ExpiresOn = DateTimeOffset.UtcNow.AddSeconds(30),
         };
         sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+        if (!blobClient.CanGenerateSasUri)
+        {
+            var expiryTime = DateTimeOffset.UtcNow.AddMinutes(5);
+            var userDelegationKey = await _blobServiceClient.GetUserDelegationKeyAsync(null, expiryTime, CancellationToken.None);
+
+            return new BlobUriBuilder(blobClient.Uri)
+            {
+                Sas = sasBuilder.ToSasQueryParameters(userDelegationKey, _blobServiceClient.AccountName),
+            }.ToUri();
+        }
+
         return blobClient.GenerateSasUri(sasBuilder);
     }
 
