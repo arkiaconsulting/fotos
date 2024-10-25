@@ -25,7 +25,8 @@ else
                 <MudText id="album-name" Typo="Typo.h5">@_album.Name</MudText>
                 <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" Color="Color.Primary" OnClick="GoParentFolder" />
             </MudStack>
-            <MudFileUpload T="IBrowserFile" OnFilesChanged="UploadPhoto" Accept=".jpg, .jpeg, .png" Hidden="@false" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10" InputStyle="opacity:0"
+            <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadPhotos" Accept=".jpg, .jpeg, .png" Hidden="@false" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
+                           InputStyle="opacity:0" MaximumFileCount="50"
                            @ondrop="@ClearDragClass"
                            @ondragenter="@SetDragClass"
                            @ondragleave="@ClearDragClass"
@@ -77,7 +78,7 @@ else
 
             var album = await GetAlbum(new(FolderId, AlbumId));
             _album = new AlbumModel { Id = album.Id, FolderId = album.FolderId, Name = album.Name };
-        
+
             StateHasChanged();
         }
     }
@@ -89,10 +90,13 @@ else
         InvokeAsync(() => _thumbnailsComponent.OnNewThumbnail(id.FolderId, id.AlbumId, id.Id));
     }
 
-    private async Task UploadPhoto(InputFileChangeEventArgs e)
+    private async Task UploadPhotos(IReadOnlyList<IBrowserFile> files)
     {
-        var file = e.File;
+        await Task.WhenAll(files.Select(UploadSinglePhoto));
+    }
 
+    private async Task UploadSinglePhoto(IBrowserFile file)
+    {
         if (file.Size > Constants.MaxPhotoSize)
         {
             _alertMessage = "The file is too large.";
