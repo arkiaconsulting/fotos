@@ -29,7 +29,7 @@ public sealed class HomePageTests : IDisposable
     {
         var home = _testContext.RenderComponent<Home>();
         var newFolderInput = home.Find("input");
-        newFolderInput.Change(folderName);
+        newFolderInput.Input(folderName);
 
         home.Find("#create-folder").Click();
 
@@ -107,8 +107,8 @@ public sealed class HomePageTests : IDisposable
     {
         var home = _testContext.RenderComponent<Home>();
 
-        var newFolderInput = home.Find("#new-album-name");
-        newFolderInput.Change(albumName);
+        var newAlbumInput = home.Find("#new-album-name");
+        newAlbumInput.Input(albumName);
         home.Find("#create-album").Click();
 
         home.WaitForAssertion(() => home.Find("#albums .title").InnerHtml.MarkupMatches(albumName));
@@ -119,8 +119,8 @@ public sealed class HomePageTests : IDisposable
     {
         var home = _testContext.RenderComponent<Home>();
 
-        var newFolderInput = home.Find("#new-album-name");
-        newFolderInput.Change(albumName);
+        var newAlbumInput = home.Find("#new-album-name");
+        await newAlbumInput.InputAsync(new() { Value = albumName });
         home.Find("#create-album").Click();
 
         await home.WaitForElement("#albums #go").ClickAsync(new());

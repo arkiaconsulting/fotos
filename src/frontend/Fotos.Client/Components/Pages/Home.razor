@@ -25,8 +25,8 @@ else
                 <MudIconButton id="up" Icon="@Icons.Material.Filled.ArrowUpward" Color="Color.Inherit" OnClick="GotToParentFolder" Disabled="@(_currentFolder.ParentId == Guid.Empty)" Size="Size.Small" />
             </MudStack>
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
-                <div><MudTextField @bind-Value="_newFolder" Label="New folder" Variant="Variant.Text" Margin="Margin.Dense" ShrinkLabel /></div>
-                <MudIconButton id="create-folder" Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="CreateNewFolder" Size="Size.Small" />
+                <div><MudTextField @bind-Value="_newFolder" Label="New folder" Variant="Variant.Text" Margin="Margin.Dense" ShrinkLabel Immediate /></div>
+                <MudIconButton id="create-folder" Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="CreateNewFolder" Disabled="@(string.IsNullOrWhiteSpace(_newFolder))" Size="Size.Small" />
             </MudStack>
         </MudStack>
         <MudDivider Class="pa-4 mt-2" />
@@ -51,8 +51,8 @@ else
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mt-8">
             <MudText Typo="Typo.h5">Albums</MudText>
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
-                <div><MudTextField id="new-album-name" @bind-Value="_newAlbumName" Label="New album" Variant="Variant.Text" Margin="Margin.Dense" ShrinkLabel /></div>
-                <MudIconButton id="create-album" Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="CreateNewAlbum" Size="Size.Small" />
+                <div><MudTextField id="new-album-name" @bind-Value="_newAlbumName" Label="New album" Variant="Variant.Text" Margin="Margin.Dense" ShrinkLabel Immediate /></div>
+                <MudIconButton id="create-album" Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="CreateNewAlbum" Size="Size.Small" Disabled="@(string.IsNullOrWhiteSpace(_newAlbumName))" />
             </MudStack>
         </MudStack>
         <MudDivider Class="pa-4 mt-2" />
