@@ -2,7 +2,7 @@
 
 @inject IHostEnvironment HostEnvironment
 
-<MudThemeProvider />
+<MudThemeProvider Theme="FotosTheme" />
 <MudPopoverProvider />
 <MudSnackbarProvider />
 
@@ -11,7 +11,7 @@
         <MudLayout>
             <MudAppBar>
                 <MudNavLink Href="/">
-                    <MudText Typo="Typo.h3" Color="Color.Dark">Fotos</MudText>
+                    <MudText Typo="Typo.h3">Fotos</MudText>
                 </MudNavLink>
             </MudAppBar>
             <MudMainContent>
@@ -36,4 +36,13 @@
 
 @code {
     private ErrorBoundary? errorBoundary = default!;
+    private MudTheme FotosTheme = new()
+        {
+            PaletteLight = new()
+            {
+                AppbarBackground = Colors.BlueGray.Lighten1,
+                AppbarText = Colors.BlueGray.Darken2,
+                Background = Colors.BlueGray.Lighten5
+            },
+        };
 }
