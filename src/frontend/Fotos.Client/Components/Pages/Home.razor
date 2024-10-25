@@ -29,50 +29,48 @@ else
                 <MudIconButton id="create-folder" Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="CreateNewFolder" Size="Size.Small" />
             </MudStack>
         </MudStack>
-        <MudPaper Outlined="true" Class="pa-4 mt-2">
-            <MudStack id="folders" Row="true" Class="mt-4" Spacing="5" Wrap="Wrap.Wrap">
-                @foreach (var folder in _folders)
-                {
-                    <MudCard Class="folder">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Class="title" Typo="Typo.h6">@folder.Name</MudText>
-                            </CardHeaderContent>
-                            <CardHeaderActions>
-                                <MudIconButton id="go" Icon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => GotToFolder(folder))" />
-                            </CardHeaderActions>
-                        </MudCardHeader>
-                        <MudCardActions>
-                            <MudIconButton id="remove" Icon="@Icons.Material.Filled.DeleteForever" Size="Size.Small" OnClick="@(() => RemoveThisFolder(folder))" />
-                        </MudCardActions>
-                    </MudCard>
-                }
-            </MudStack>
-        </MudPaper>
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mt-6">
+        <MudDivider Class="pa-4 mt-2" />
+        <MudStack id="folders" Row="true" Spacing="5" Wrap="Wrap.Wrap">
+            @foreach (var folder in _folders)
+            {
+                <MudCard Class="folder">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Class="title" Typo="Typo.h6">@folder.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton id="go" Icon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => GotToFolder(folder))" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardActions>
+                        <MudIconButton id="remove" Icon="@Icons.Material.Filled.DeleteForever" Size="Size.Small" OnClick="@(() => RemoveThisFolder(folder))" />
+                    </MudCardActions>
+                </MudCard>
+            }
+        </MudStack>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mt-8">
             <MudText Typo="Typo.h5">Albums</MudText>
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
                 <div><MudTextField id="new-album-name" @bind-Value="_newAlbumName" Label="New album" Variant="Variant.Text" Margin="Margin.Dense" ShrinkLabel /></div>
                 <MudIconButton id="create-album" Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="CreateNewAlbum" Size="Size.Small" />
             </MudStack>
         </MudStack>
-        <MudPaper Outlined="true" Class="pa-4 mt-2">
-            <MudStack id="albums" Row="true" Class="mt-4" Spacing="5" Wrap="Wrap.Wrap">
-                @foreach (var album in _albums)
-                {
-                    <MudCard Class="folder">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Class="title" Typo="Typo.h6">@album.Name</MudText>
-                            </CardHeaderContent>
-                            <CardHeaderActions>
-                                <MudIconButton id="go" Icon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => GoToAlbum(album.Id))" />
-                            </CardHeaderActions>
-                        </MudCardHeader>
-                    </MudCard>
-                }
-            </MudStack>
-        </MudPaper>
+        <MudDivider Class="pa-4 mt-2" />
+        <MudStack id="albums" Row="true" Spacing="5" Wrap="Wrap.Wrap">
+            @foreach (var album in _albums)
+            {
+                <MudCard Class="folder">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Class="title" Typo="Typo.h6">@album.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton id="go" Icon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => GoToAlbum(album.Id))" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                </MudCard>
+            }
+        </MudStack>
     </MudContainer>
 }
 
