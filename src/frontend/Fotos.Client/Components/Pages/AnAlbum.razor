@@ -10,8 +10,11 @@
 @inject GetAlbum GetAlbum
 @inject AddPhoto AddPhoto
 @inject RealTimeMessageService RealTimeMessageService
+@inject ISnackbar Snackbar
 
 @implements IAsyncDisposable
+
+<MudSnackbarProvider />
 
 @if (_album is null)
 {
@@ -45,13 +48,6 @@ else
     </MudContainer>
 }
 
-@if (_alertMessage is not null)
-{
-    <div id="alert">
-        <p>@_alertMessage</p>
-    </div>
-}
-
 @code {
     [Parameter]
     public Guid AlbumId { get; set; }
@@ -64,7 +60,6 @@ else
 
     private AlbumModel? _album = default!;
     private Thumbnails _thumbnailsComponent = default!;
-    private string? _alertMessage;
     private string _dragClass = DefaultDragClass;
 
     private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
@@ -99,15 +94,15 @@ else
     {
         if (file.Size > Constants.MaxPhotoSize)
         {
-            _alertMessage = "The file is too large.";
-            StateHasChanged();
+            Snackbar.Add(new MarkupString("<div id='alert'><span>The file is too large.</span></div>"), Severity.Error);
+
             return;
         }
 
         if (!Constants.AllowedPhotoContentTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
         {
-            _alertMessage = "Only photos can be uploaded.";
-            StateHasChanged();
+            Snackbar.Add(new MarkupString("<div id='alert'><span>Only photos can be uploaded.</span></div>"), Severity.Error);
+
             return;
         }
 

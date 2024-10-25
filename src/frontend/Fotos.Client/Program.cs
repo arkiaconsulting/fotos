@@ -7,6 +7,7 @@ using Fotos.Client.Components;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Hubs;
 using Microsoft.AspNetCore.ResponseCompression;
+using MudBlazor;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,7 @@ builder.Host.ConfigureWebJobs(builder => builder.AddServiceBus());
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(options => options.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
