@@ -2,7 +2,7 @@
 
 @inject IHostEnvironment HostEnvironment
 
-<MudThemeProvider Theme="FotosTheme" />
+<MudThemeProvider @ref=@_mudThemeProvider Theme="FotosTheme" @bind-IsDarkMode=@_isDarkMode />
 <MudPopoverProvider />
 <MudSnackbarProvider />
 
@@ -13,6 +13,8 @@
                 <MudNavLink Href="/">
                     <MudText Typo="Typo.h3">Fotos</MudText>
                 </MudNavLink>
+                <MudSpacer />
+                <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Dark Mode" />
             </MudAppBar>
             <MudMainContent>
                 @Body
@@ -36,6 +38,8 @@
 
 @code {
     private ErrorBoundary? errorBoundary = default!;
+    private bool _isDarkMode;
+    private MudThemeProvider _mudThemeProvider = default!;
     private MudTheme FotosTheme = new()
         {
             PaletteLight = new()
@@ -45,4 +49,13 @@
                 Background = Colors.BlueGray.Lighten5
             },
         };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            StateHasChanged();
+        }
+    }
 }
