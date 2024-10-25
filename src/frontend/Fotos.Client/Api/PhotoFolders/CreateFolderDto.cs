@@ -9,7 +9,6 @@ namespace Fotos.Client.Api.PhotoFolders;
 /// <param name="Name" example="Travels">The name of the folder to create</param>
 internal readonly record struct CreateFolderDto(Guid ParentId, string Name)
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
     internal sealed class Validator : AbstractValidator<CreateFolderDto>
     {
         public Validator()

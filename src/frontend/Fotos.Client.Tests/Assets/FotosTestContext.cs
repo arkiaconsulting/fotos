@@ -116,8 +116,8 @@ public sealed class FotosTestContext : TestContext
                 return Task.CompletedTask;
             };
         });
-        Services.AddTransient<GetOriginalUri>(_ => photoId => Task.FromResult(new Uri("/", UriKind.Relative)));
-        Services.AddTransient<GetThumbnailUri>(_ => photoId => Task.FromResult(new Uri("/", UriKind.Relative)));
+        Services.AddTransient<GetOriginalUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
+        Services.AddTransient<GetThumbnailUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
         Services.AddSingleton<RealTimeMessageService, RealTimeServiceFake>();
     }
 }

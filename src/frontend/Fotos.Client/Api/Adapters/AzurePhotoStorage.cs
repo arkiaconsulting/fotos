@@ -13,6 +13,7 @@ internal sealed class AzurePhotoStorage
     private readonly IMemoryCache _cache;
     private readonly string? _mainContainer;
     private const string CacheKey = "UserDelegationKey";
+
     public AzurePhotoStorage(
         BlobServiceClient blobServiceClient,
         IConfiguration configuration,

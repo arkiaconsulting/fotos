@@ -3,7 +3,6 @@ using FluentValidation;
 
 namespace Fotos.Client.Api.Framework;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
 internal sealed class ValidationEndpointFilter : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
