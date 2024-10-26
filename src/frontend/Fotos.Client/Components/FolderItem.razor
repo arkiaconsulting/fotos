@@ -1,0 +1,37 @@
+﻿<MudPaper Class="folder" Style="background-color: transparent; position: relative"
+          @onmouseover="@(() => _isOverlayVisible = true)"
+          @onmouseout="@(() => _isOverlayVisible = false)">
+    <MudStack Spacing="0">
+        <MudButton Size="Size.Small">
+            <MudImage Src="img/folder.svg" Width="200">
+            </MudImage>
+        </MudButton>
+        <MudText Class="title ml-4 mb-2">@Folder.Name</MudText>
+    </MudStack>
+    <MudOverlay id="go" @onclick=FolderClicked Visible="@_isOverlayVisible" DarkBackground Absolute Class="d-flex align-end justify-end">
+        <MudIconButton id="remove" Icon="@Icons.Material.Filled.DeleteForever" Size="Size.Small" OnClick=RemoveThisFolder />
+    </MudOverlay>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public FolderModel Folder { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<FolderModel> OnFolderChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<FolderModel> OnFolderRemoved { get; set; }
+
+    private bool _isOverlayVisible = false;
+
+    private async Task FolderClicked()
+    {
+        await OnFolderChanged.InvokeAsync(Folder);
+    }
+
+    private async Task RemoveThisFolder()
+    {
+        await OnFolderRemoved.InvokeAsync(Folder);
+    }
+}

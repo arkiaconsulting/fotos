@@ -5,8 +5,8 @@
 
 @inject ListFolders ListFolders
 @inject CreateFolder CreateFolder
-@inject GetFolder GetFolder
 @inject RemoveFolder RemoveFolder
+@inject GetFolder GetFolder
 @inject CreateAlbum CreateAlbum
 @inject ListAlbums ListAlbums
 @inject NavigationManager NavigationManager
@@ -33,19 +33,7 @@ else
         <MudStack id="folders" Row="true" Spacing="5" Wrap="Wrap.Wrap">
             @foreach (var folder in _folders)
             {
-                <MudCard Class="folder">
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Class="title" Typo="Typo.h6">@folder.Name</MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <MudIconButton id="go" Icon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => GotToFolder(folder))" />
-                        </CardHeaderActions>
-                    </MudCardHeader>
-                    <MudCardActions>
-                        <MudIconButton id="remove" Icon="@Icons.Material.Filled.DeleteForever" Size="Size.Small" OnClick="@(() => RemoveThisFolder(folder))" />
-                    </MudCardActions>
-                </MudCard>
+                <FolderItem Folder="folder" OnFolderChanged="GoToFolder" OnFolderRemoved="RemoveThisFolder" />
             }
         </MudStack>
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mt-8">
@@ -59,16 +47,7 @@ else
         <MudStack id="albums" Row="true" Spacing="5" Wrap="Wrap.Wrap">
             @foreach (var album in _albums)
             {
-                <MudCard Class="folder">
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Class="title" Typo="Typo.h6">@album.Name</MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <MudIconButton id="go" Icon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => GoToAlbum(album.Id))" />
-                        </CardHeaderActions>
-                    </MudCardHeader>
-                </MudCard>
+                <AlbumItem Album="album" OnAlbumChanged="@(() => GoToAlbum(album.Id))" />
             }
         </MudStack>
     </MudContainer>
@@ -131,14 +110,6 @@ else
         _newFolder = string.Empty;
     }
 
-    private async Task GotToFolder(FolderModel folder)
-    {
-        _parentIdOfParent = _currentFolder.ParentId;
-        _currentFolder = folder;
-
-        await RefreshFoldersAndAlbums();
-    }
-
     private async Task GotToParentFolder()
     {
         var folder = await GetFolder(_parentIdOfParent, _currentFolder.ParentId);
@@ -160,6 +131,14 @@ else
         await CreateAlbum(_currentFolder.Id, _newAlbumName);
         await RefreshFoldersAndAlbums();
         _newAlbumName = string.Empty;
+    }
+
+    private async Task GoToFolder(FolderModel folder)
+    {
+        _parentIdOfParent = _currentFolder.ParentId;
+        _currentFolder = folder;
+
+        await RefreshFoldersAndAlbums();
     }
 
     private void GoToAlbum(Guid albumId)

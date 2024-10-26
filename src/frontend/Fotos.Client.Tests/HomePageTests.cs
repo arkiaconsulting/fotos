@@ -43,6 +43,7 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
+        home.Find("#folders .folder").MouseOver();
         home.Find("#folders .folder #go").Click();
 
         home.WaitForAssertion(() => home.Find("#folders").ChildElementCount.Should().Be(0));
@@ -54,6 +55,7 @@ public sealed class HomePageTests : IDisposable
         _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
 
         var home = _testContext.RenderComponent<Home>();
+        home.Find("#folders .folder").MouseOver();
         home.Find("#folders .folder #go").Click();
 
         home.Find("#up").Click();
@@ -77,6 +79,7 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
+        home.Find("#folders .folder").MouseOver();
         home.Find("#folders .folder #go").Click();
 
         home.Find("#up").GetAttribute("disabled").Should().BeNull();
@@ -97,6 +100,7 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
+        home.Find("#folders .folder").MouseOver();
         home.Find("#folders .folder #remove").Click();
 
         home.WaitForAssertion(() => home.Find("#folders").ChildElementCount.Should().Be(0));
@@ -123,7 +127,7 @@ public sealed class HomePageTests : IDisposable
         await newAlbumInput.InputAsync(new() { Value = albumName });
         home.Find("#create-album").Click();
 
-        await home.WaitForElement("#albums #go").ClickAsync(new());
+        await home.WaitForElement("#albums .album .go").ClickAsync(new());
         _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().StartWith("http://localhost/album/");
     }
 
