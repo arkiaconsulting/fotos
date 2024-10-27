@@ -72,6 +72,7 @@ AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
     {
         await RemovePhoto(new(photo.FolderId, photo.AlbumId, photo.Id));
         _thumbnails.Remove(photo);
+        CloseDetails();
 
         StateHasChanged();
     }
