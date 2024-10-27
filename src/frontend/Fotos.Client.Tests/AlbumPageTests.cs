@@ -55,6 +55,7 @@ public sealed class AlbumPageTests : IDisposable
         _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
         cut.WaitForElement("#album input[type=file]");
         cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], contentType: MediaTypeNames.Image.Jpeg));
 
@@ -69,9 +70,10 @@ public sealed class AlbumPageTests : IDisposable
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
         await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());
 
-        await cut.WaitForElement("#details button.remove").ClickAsync(new());
+        await _testContext.Popover.WaitForElement("#details .remove").ClickAsync(new());
 
         cut.WaitForAssertion(() => cut.Find("#thumbnails").InnerHtml.MarkupMatches(""));
     }
@@ -115,7 +117,7 @@ public sealed class AlbumPageTests : IDisposable
         cut.WaitForElement("#album input[type=file]");
         cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary(new byte[21L * 1024L * 1024L]));
 
-        cut.WaitForAssertion(() => cut.Find("#alert").TextContent.Should().Be("The file is too large."));
+        _testContext.SnackBar.WaitForElement("#alert").TextContent.Should().Be("The file is too large.");
     }
 
     [Theory(DisplayName = "Uploading a photo that has not an allowed type should not be allowed"), AutoData]
@@ -124,10 +126,11 @@ public sealed class AlbumPageTests : IDisposable
         _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
         cut.WaitForElement("#album input[type=file]");
         cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], contentType: MediaTypeNames.Application.Pdf));
 
-        cut.WaitForAssertion(() => cut.Find("#alert").TextContent.Should().Be("Only photos can be uploaded."));
+        _testContext.SnackBar.WaitForElement("#alert").TextContent.Should().Be("Only photos can be uploaded.");
     }
 
     [Theory(DisplayName = "The name of a photo that was just uploaded should be its original file name"), AutoData]
@@ -136,6 +139,7 @@ public sealed class AlbumPageTests : IDisposable
         _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+
         cut.WaitForElement("#album input[type=file]");
         cut.FindComponent<InputFile>().UploadFiles(InputFileContent.CreateFromBinary([0x00], fileName: fileName, contentType: MediaTypeNames.Image.Jpeg));
 
@@ -164,7 +168,7 @@ public sealed class AlbumPageTests : IDisposable
 
         await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());
 
-        cut.WaitForAssertion(() => cut.Find("#details #title").GetAttribute("value").Should().Be(title));
+        _testContext.Popover.WaitForElement("#title").GetAttribute("value").Should().Be(title);
     }
 
     [Theory(DisplayName = "Modifying the title of a photo should update the title"), AutoData]
@@ -177,7 +181,7 @@ public sealed class AlbumPageTests : IDisposable
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());
 
-        cut.Find("#details #title").Change(newTitle);
+        _testContext.Popover.WaitForElement("#details #title").Change(newTitle);
 
         cut.WaitForAssertion(() => _testContext.Photos.Single(p => p.Id == photoId).Title.Should().Be(newTitle));
     }

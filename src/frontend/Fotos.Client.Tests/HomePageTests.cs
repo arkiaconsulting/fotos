@@ -3,8 +3,6 @@ using FluentAssertions;
 using Fotos.Client.Adapters;
 using Fotos.Client.Components.Pages;
 using Fotos.Client.Tests.Assets;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Fotos.Client.Tests;
 
@@ -21,7 +19,7 @@ public sealed class HomePageTests : IDisposable
         _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find("#folders .folder .title").InnerHtml.MarkupMatches(folderName);
+        home.WaitForElement("#folders .folder .title").InnerHtml.MarkupMatches(folderName);
     }
 
     [Theory(DisplayName = "Adding a folder at root should add it to the folders list"), AutoData]
@@ -31,9 +29,9 @@ public sealed class HomePageTests : IDisposable
         var newFolderInput = home.Find("input");
         newFolderInput.Input(folderName);
 
-        home.Find("#create-folder").Click();
+        home.WaitForElement("#create-folder").Click();
 
-        home.WaitForAssertion(() => home.Find($"#folders .folder .title:contains('{folderName}')").InnerHtml.MarkupMatches(folderName));
+        home.WaitForElement($"#folders .folder .title:contains('{folderName}')").InnerHtml.MarkupMatches(folderName);
     }
 
     [Theory(DisplayName = "Clicking on a newly created folder should display its child folders (none in this case)"), AutoData]
@@ -43,10 +41,10 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find("#folders .folder").MouseOver();
-        home.Find("#folders .folder #go").Click();
+        home.WaitForElement("#folders .folder").MouseOver();
+        home.WaitForElement("#folders .folder #go").Click();
 
-        home.WaitForAssertion(() => home.Find("#folders").ChildElementCount.Should().Be(0));
+        home.WaitForElement("#folders").ChildElementCount.Should().Be(0);
     }
 
     [Theory(DisplayName = "Navigating to the parent folder should pass"), AutoData]
@@ -55,13 +53,12 @@ public sealed class HomePageTests : IDisposable
         _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
 
         var home = _testContext.RenderComponent<Home>();
-        home.Find("#folders .folder").MouseOver();
-        home.Find("#folders .folder #go").Click();
+        home.WaitForElement("#folders .folder").MouseOver();
+        home.WaitForElement("#folders .folder #go").Click();
 
-        home.Find("#up").Click();
-        home.WaitForState(() => true, TimeSpan.FromSeconds(1));
+        home.WaitForElement("#up").Click();
 
-        home.WaitForAssertion(() => home.Find($"#folders .folder .title:contains('{folderName}')").InnerHtml.MarkupMatches(folderName));
+        home.WaitForElement($"#folders .folder .title:contains('{folderName}')").InnerHtml.MarkupMatches(folderName);
     }
 
     [Fact(DisplayName = "When at root it should not be possible to go to parent")]
@@ -69,7 +66,7 @@ public sealed class HomePageTests : IDisposable
     {
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find("#up").GetAttribute("disabled").Should().NotBeNull();
+        home.WaitForElement("#up").GetAttribute("disabled").Should().NotBeNull();
     }
 
     [Theory(DisplayName = "When on a child folder, it should be possible to go to parent"), AutoData]
@@ -79,10 +76,10 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find("#folders .folder").MouseOver();
-        home.Find("#folders .folder #go").Click();
+        home.WaitForElement("#folders .folder").MouseOver();
+        home.WaitForElement("#folders .folder #go").Click();
 
-        home.Find("#up").GetAttribute("disabled").Should().BeNull();
+        home.WaitForElement("#up").GetAttribute("disabled").Should().BeNull();
     }
 
     [Fact(DisplayName = "The name of the current folder should be displayed")]
@@ -90,7 +87,7 @@ public sealed class HomePageTests : IDisposable
     {
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find("#current-folder-name").TextContent.MarkupMatches("Root");
+        home.WaitForElement("#current-folder-name").TextContent.MarkupMatches("Root");
     }
 
     [Theory(DisplayName = "Deleting a folder should remove it from list"), AutoData]
@@ -100,10 +97,10 @@ public sealed class HomePageTests : IDisposable
 
         var home = _testContext.RenderComponent<Home>();
 
-        home.Find("#folders .folder").MouseOver();
-        home.Find("#folders .folder #remove").Click();
+        home.WaitForElement("#folders .folder").MouseOver();
+        home.WaitForElement("#folders .folder #remove").Click();
 
-        home.WaitForAssertion(() => home.Find("#folders").ChildElementCount.Should().Be(0));
+        home.WaitForElement("#folders:empty");
     }
 
     [Theory(DisplayName = "Creating an empty album in a folder should display it"), AutoData]
@@ -113,9 +110,9 @@ public sealed class HomePageTests : IDisposable
 
         var newAlbumInput = home.Find("#new-album-name");
         newAlbumInput.Input(albumName);
-        home.Find("#create-album").Click();
+        home.WaitForElement("#create-album").Click();
 
-        home.WaitForAssertion(() => home.Find("#albums .title").InnerHtml.MarkupMatches(albumName));
+        home.WaitForElement("#albums .title").InnerHtml.MarkupMatches(albumName);
     }
 
     [Theory(DisplayName = "Clicking on an album should navigate to the album page"), AutoData]
@@ -125,10 +122,10 @@ public sealed class HomePageTests : IDisposable
 
         var newAlbumInput = home.Find("#new-album-name");
         await newAlbumInput.InputAsync(new() { Value = albumName });
-        home.Find("#create-album").Click();
+        home.WaitForElement("#create-album").Click();
 
         await home.WaitForElement("#albums .album .go").ClickAsync(new());
-        _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().StartWith("http://localhost/album/");
+        _testContext.NavigationManager.Uri.Should().StartWith("http://localhost/album/");
     }
 
     #region IDisposable

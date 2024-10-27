@@ -11,4 +11,7 @@ internal sealed class RealTimeServiceFake : RealTimeMessageService
     }
 
     public override Task StartAsync() => Task.CompletedTask;
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2215:Dispose methods should call base class dispose", Justification = "<Pending>")]
+    public override async ValueTask DisposeAsync() => await ValueTask.CompletedTask;
 }

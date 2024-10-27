@@ -3,6 +3,7 @@ using Fotos.Client.Features.PhotoAlbums;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Features.Photos;
 using Fotos.Client.Hubs;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -13,18 +14,27 @@ namespace Fotos.Client.Tests.Assets;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
 public sealed class FotosTestContext : TestContext
 {
+    internal IRenderedFragment SnackBar => _snackBarComponent!;
+    internal IRenderedFragment Popover => _popoverProvider!;
+    internal NavigationManager NavigationManager => Services.GetRequiredService<NavigationManager>();
+
+    private IRenderedComponent<MudSnackbarProvider>? _snackBarComponent;
+    private IRenderedComponent<MudPopoverProvider>? _popoverProvider;
+
     internal List<FolderDto> Folders => Services.GetRequiredService<List<FolderDto>>();
     internal List<AlbumDto> Albums => Services.GetRequiredService<List<AlbumDto>>();
     internal List<PhotoDto> Photos => Services.GetRequiredService<List<PhotoDto>>();
 
     public Guid RootFolderId { get; } = Guid.NewGuid();
 
-    public FotosTestContext() => ConfigureServices();
+    public FotosTestContext()
+    {
+        ConfigureServices();
+        SetupMudProviders();
+    }
 
     private void ConfigureServices()
     {
-        JSInterop.SetupVoid("mudScrollManager.lockScroll", "body", "scroll-locked");
-        JSInterop.SetupVoid("mudScrollManager.unlockScroll", "body", "scroll-locked");
         Services.AddMudServices();
         Services.AddSingleton<List<FolderDto>>(_ => [new FolderDto(RootFolderId, Guid.Empty, "Root")]);
         Services.AddTransient<ListFolders>(sp =>
@@ -118,6 +128,24 @@ public sealed class FotosTestContext : TestContext
         });
         Services.AddTransient<GetOriginalUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
         Services.AddTransient<GetThumbnailUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
-        Services.AddSingleton<RealTimeMessageService, RealTimeServiceFake>();
+        Services.AddTransient<RealTimeMessageService, RealTimeServiceFake>();
+    }
+
+    private void SetupMudProviders()
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+        _snackBarComponent = RenderComponent<MudSnackbarProvider>();
+        _popoverProvider = RenderComponent<MudPopoverProvider>();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _snackBarComponent?.Dispose();
+            _popoverProvider?.Dispose();
+        }
+
+        base.Dispose(disposing);
     }
 }

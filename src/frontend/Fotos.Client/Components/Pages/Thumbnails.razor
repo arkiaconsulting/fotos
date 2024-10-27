@@ -8,41 +8,35 @@
 @inject GetThumbnailUri GetThumbnailUri
 @inject UpdatePhoto UpdatePhoto
 
-<MudGrid>
-    <MudItem xs="9">
-        <MudStack id="thumbnails" Row Wrap="Wrap.Wrap" Class="mt-12">
-            @foreach (var thumbnail in _thumbnails)
-            {
-                <div class="thumbnail">
-                    <MudButton class="view" ondblclick="@(() => ViewPhoto(thumbnail))" OnClick="@(() => ShowDetails(thumbnail))">
-                        <MudImage src="@thumbnail.ThumbnailUri?.ToString()" alt="@thumbnail.Title" Width="200" Height="133" ObjectFit="ObjectFit.Contain" />
-                    </MudButton>
-                </div>
-            }
+<MudPopover Open=_showDetails Fixed
+Class="pa-4" OverflowBehavior="OverflowBehavior.FlipAlways"
+AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
+    <MudStack id="details" Style="width: 400px">
+        <MudStack Row AlignItems="AlignItems.Start" Class="pt-0">
+            <MudTextField T="string" id="title" Typo="Typo.body2" @bind-Text="@_photo.Title" Margin="Margin.Dense" ValueChanged="PhotoRenamed" TextUpdateSuppression />
+            <MudSpacer />
+            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(() => RemoveAPhoto(_photo))" Class="remove" Size="Size.Medium" />
+            <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick=CloseDetails Size="Size.Medium" />
         </MudStack>
-    </MudItem>
-    <MudItem id="details" xs="3">
-        @if (_photo is not null)
-        {
-            <div class="d-flex justify-end py-0">
-                <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(() => RemoveAPhoto(_photo))" Class="remove" Size="Size.Medium" />
-            </div>
-            <MudPaper Outlined Height="500px" Class="pa-4">
-                <MudStack>
-                    <MudStack Row AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.body2">Title</MudText>
-                        <MudTextField T="string" id="title" Typo="Typo.body2" @bind-Text="@_photo.Title" Margin="Margin.Dense" ValueChanged="PhotoRenamed" TextUpdateSuppression />
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        }
-    </MudItem>
-</MudGrid>
+        <p>
+            other properties
+        </p>
+    </MudStack>
+</MudPopover>
+<MudStack id="thumbnails" Row Wrap="Wrap.Wrap" Class="mt-12">
 
+    @foreach (var thumbnail in _thumbnails)
+    {
+        <div class="thumbnail">
+            <MudButton class="view" ondblclick="@(() => ViewPhoto(thumbnail))" OnClick="@(() => ShowDetails(thumbnail))">
+                <MudImage src="@thumbnail.ThumbnailUri?.ToString()" alt="@thumbnail.Title" Width="200" Height="133" ObjectFit="ObjectFit.Contain" />
+            </MudButton>
+        </div>
+    }
+</MudStack>
 <MudOverlay id="photo" @bind-Visible="_isPhotoDisplayed" DarkBackground AutoClose OnClosed="DismissPhoto">
     <MudImage src="@_photo?.OriginalUri?.ToString()" ObjectFit="ObjectFit.Contain" Style="max-height: 85vh" />
 </MudOverlay>
-
 @code {
     [Parameter]
     public Guid FolderId { get; set; }
@@ -53,7 +47,8 @@
     private bool _isPhotoDisplayed;
 
     private List<PhotoModel> _thumbnails = [];
-    private PhotoModel? _photo = default!;
+    private PhotoModel _photo = default!;
+    private bool _showDetails;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -108,6 +103,7 @@
     private void ShowDetails(PhotoModel photo)
     {
         _photo = photo;
+        _showDetails = true;
     }
 
     private async Task PhotoRenamed(string newValue)
@@ -120,6 +116,11 @@
         _photo.Title = newValue;
 
         await UpdatePhoto(new(_photo.FolderId, _photo.AlbumId, _photo.Id), newValue);
+    }
+
+    private void CloseDetails()
+    {
+        _showDetails = false;
     }
 
     public async Task OnNewThumbnail(Guid folderId, Guid albumId, Guid id)

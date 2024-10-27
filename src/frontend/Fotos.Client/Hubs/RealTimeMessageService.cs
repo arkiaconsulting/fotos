@@ -26,7 +26,7 @@ internal class RealTimeMessageService : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         await _hubConnection.DisposeAsync();
     }
