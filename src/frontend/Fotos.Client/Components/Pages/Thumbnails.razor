@@ -8,8 +8,8 @@
 @inject GetThumbnailUri GetThumbnailUri
 @inject UpdatePhoto UpdatePhoto
 
-<MudPopover Open=_showDetails Class="pa-4" OverflowBehavior="OverflowBehavior.FlipOnOpen"
-AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopCenter">
+<MudPopover Open=_showDetails Class="pa-4" OverflowBehavior="OverflowBehavior.FlipNever" Fixed
+AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
     <MudStack id="details" Style="width: 400px">
         <MudStack Row AlignItems="AlignItems.Start" Class="pt-0">
             <MudTextField T="string" id="title" Typo="Typo.body2" @bind-Text="@_photo.Title" Margin="Margin.Dense" ValueChanged="PhotoRenamed" TextUpdateSuppression />
@@ -36,12 +36,16 @@ AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopCenter">
 <MudOverlay id="photo" @bind-Visible="_isPhotoDisplayed" DarkBackground AutoClose OnClosed="DismissPhoto">
     <MudImage src="@_photo?.OriginalUri?.ToString()" ObjectFit="ObjectFit.Contain" Style="max-height: 85vh" />
 </MudOverlay>
+
 @code {
     [Parameter]
     public Guid FolderId { get; set; }
 
     [Parameter]
     public Guid AlbumId { get; set; }
+
+    [Parameter]
+    public EventCallback OnLoaded { get; set; }
 
     private bool _isPhotoDisplayed;
 
@@ -55,6 +59,8 @@ AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopCenter">
         {
             _thumbnails = (await ListPhotos(new(FolderId, AlbumId))).Select(p => new PhotoModel(p.FolderId, p.AlbumId, p.Id, p.Title)).ToList();
             await SetThumbnailUris();
+
+            await OnLoaded.InvokeAsync(null);
 
             StateHasChanged();
         }

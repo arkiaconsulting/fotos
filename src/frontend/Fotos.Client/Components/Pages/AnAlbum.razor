@@ -17,11 +17,7 @@
 
 <PageTitle>Fotos Albums</PageTitle>
 
-@if (_album is null)
-{
-    <h3>Loading...</h3>
-}
-else
+@if (_album is not null)
 {
     <MudStack id="album" Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
         <MudStack Row AlignItems="AlignItems.Center">
@@ -42,8 +38,11 @@ else
         </MudFileUpload>
     </MudStack>
     <MudDivider Class="mt-4" />
-    <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" />
+    <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" OnLoaded="ThumbnailsLoaded" />
 }
+<MudOverlay Visible="@(!_loaded)">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 
 @code {
     [Parameter]
@@ -55,9 +54,10 @@ else
     [Parameter]
     public Guid ParentId { get; set; }
 
-    private AlbumModel? _album = default!;
-    private Thumbnails _thumbnailsComponent = default!;
+    private AlbumModel _album = default!;
+    private Thumbnails _thumbnailsComponent = new();
     private string _dragClass = DefaultDragClass;
+    private bool _loaded;
 
     private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full align-content-center";
 
@@ -135,5 +135,12 @@ else
     public async ValueTask DisposeAsync()
     {
         await RealTimeMessageService.DisposeAsync();
+    }
+
+    private void ThumbnailsLoaded()
+    {
+        _loaded = true;
+
+        StateHasChanged();
     }
 }
