@@ -1,7 +1,10 @@
 ﻿@using Fotos.Client.Components.Dialogs
 @using Fotos.Client.Features.PhotoFolders
 
+@inject ListFolders ListFolders
+
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <MudPaper Class="folder" Style="background-color: transparent; position: relative"
 @onmouseover="@(() => _isOverlayVisible = true)"
@@ -41,6 +44,14 @@
 
     private async Task RemoveThisFolder()
     {
+        var childFoldersCount = (await ListFolders(Folder.Id)).Count;
+
+        if(childFoldersCount > 0) {
+            Snackbar.Add("This folder contains child folders. Please remove them first.", Severity.Error);
+
+            return;
+        }
+
         await OnFolderRemoved.InvokeAsync(Folder);
     }
 

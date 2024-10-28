@@ -154,6 +154,21 @@ public sealed class HomePageTests : IDisposable
         home.WaitForElement("#current-folder-name").InnerHtml.MarkupMatches(newFolderName);
     }
 
+    [Theory(DisplayName = "Deleting a folder that has child folders should not delete it"), AutoData]
+    public void Test13(string folderName, string childFolderName)
+    {
+        var parentFolder = new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName };
+        _testContext.Folders.Add(parentFolder);
+        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = parentFolder.Id, Name = childFolderName });
+
+        var home = _testContext.RenderComponent<Home>();
+
+        home.WaitForElement("#folders .folder").MouseOver();
+        home.WaitForElement("#folders .folder #remove").Click();
+
+        home.WaitForElement("#folders:not(:empty)");
+    }
+
     #region IDisposable
 
     public void Dispose() => _testContext.Dispose();
