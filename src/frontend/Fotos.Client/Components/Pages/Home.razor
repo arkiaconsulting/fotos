@@ -13,12 +13,9 @@
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 
-<PageTitle>Home</PageTitle>
-@if (!_loaded)
-{
-    <p id="loader">Loading...</p>
-}
-else
+<PageTitle>Fotos Folders</PageTitle>
+
+@if (_loaded)
 {
     <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4" Justify="Justify.SpaceBetween">
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
@@ -53,6 +50,9 @@ else
         }
     </MudStack>
 }
+<MudOverlay Visible="@(!_loaded)">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 
 @code {
     [CascadingParameter]
@@ -85,11 +85,13 @@ else
         }
     }
 
-    private async Task RefreshFolders() {
+    private async Task RefreshFolders()
+    {
         _childFolders = (await ListFolders(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name }).ToList();
     }
 
-    private async Task RefreshAlbums() {
+    private async Task RefreshAlbums()
+    {
         _childAlbums = (await ListAlbums(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name }).ToList();
     }
 
