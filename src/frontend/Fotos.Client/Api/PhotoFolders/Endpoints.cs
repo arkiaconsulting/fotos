@@ -75,6 +75,27 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
+        endpoints.MapPatch("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromBody] UpdateFolderDto folder, [FromServices] UpdateFolderInStore updateFolder) =>
+        {
+            var folderName = Name.Create(folder.Name);
+            try
+            {
+                await updateFolder(parentId, folderId, folderName);
+
+                return Results.NoContent();
+            }
+            catch (InvalidOperationException)
+            {
+                return Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "The given folder does not exist");
+            }
+        })
+            .AddEndpointFilter<ValidationEndpointFilter>()
+            .WithTags("Folders")
+            .WithSummary("Update an existing folder")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
         return endpoints;
     }
 }

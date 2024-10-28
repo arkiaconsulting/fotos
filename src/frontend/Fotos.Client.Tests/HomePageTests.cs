@@ -128,6 +128,32 @@ public sealed class HomePageTests : IDisposable
         _testContext.NavigationManager.Uri.Should().StartWith("http://localhost/album/");
     }
 
+    [Theory(DisplayName = "Opening folder settings should allow changing the folder name"), AutoData]
+    public async Task Test11(string folderName, string newFolderName)
+    {
+        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        var home = _testContext.RenderComponent<Home>();
+        await home.WaitForElement("#folders .folder").MouseOverAsync(new());
+        home.WaitForElement("#folders .folder #settings").Click();
+        var folderSettings = _testContext.Dialog.WaitForElement("#folder-settings input");
+        await folderSettings.InputAsync(new() { Value = newFolderName });
+
+        await _testContext.Dialog.WaitForElement("button#save").ClickAsync(new());
+        home.WaitForElement("#folders .folder .title").InnerHtml.MarkupMatches(newFolderName);
+    }
+
+    [Theory(DisplayName = "Opening the current folder settings should allow changing the folder name"), AutoData]
+    public async Task Test12(string newFolderName)
+    {
+        var home = _testContext.RenderComponent<Home>();
+        home.WaitForElement("#current-folder-settings").Click();
+        var folderSettings = _testContext.Dialog.WaitForElement("#folder-settings input");
+        await folderSettings.InputAsync(new() { Value = newFolderName });
+
+        await _testContext.Dialog.WaitForElement("button#save").ClickAsync(new());
+        home.WaitForElement("#current-folder-name").InnerHtml.MarkupMatches(newFolderName);
+    }
+
     #region IDisposable
 
     public void Dispose() => _testContext.Dispose();

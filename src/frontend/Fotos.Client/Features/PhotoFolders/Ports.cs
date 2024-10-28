@@ -8,6 +8,7 @@ internal delegate Task<IReadOnlyCollection<FolderDto>> ListFolders(Guid parentId
 internal delegate Task CreateFolder(Guid parentId, string folderName);
 internal delegate Task<FolderDto> GetFolder(Guid parentId, Guid folderId);
 internal delegate Task RemoveFolder(Guid parentId, Guid folderId);
+internal delegate Task UpdateFolder(Guid parentId, Guid folderId, string folderName);
 internal delegate Task CreateAlbum(Guid folderId, string albumName);
 internal delegate Task<IReadOnlyCollection<AlbumDto>> ListAlbums(Guid folderId);
 internal delegate Task<AlbumDto> GetAlbum(AlbumId albumId);

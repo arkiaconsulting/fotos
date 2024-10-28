@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Fotos.Client.Adapters
+@using Fotos.Client.Components.Dialogs
 @using Fotos.Client.Features.PhotoFolders
 @using System.Collections.ObjectModel
 
@@ -10,6 +11,7 @@
 @inject CreateAlbum CreateAlbum
 @inject ListAlbums ListAlbums
 @inject NavigationManager NavigationManager
+@inject IDialogService DialogService
 
 <PageTitle>Home</PageTitle>
 @if (!_loaded)
@@ -22,6 +24,7 @@ else
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
             <MudText id="current-folder-name" Typo="Typo.h5">@_currentFolder.Name</MudText>
             <MudIconButton id="up" Icon="@Icons.Material.Filled.ArrowUpward" OnClick="GotToParentFolder" Disabled="@(_currentFolder.ParentId == Guid.Empty)" Size="Size.Small" />
+            <MudIconButton id="current-folder-settings" Icon="@Icons.Material.Filled.Settings" OnClick="OpenCurrentFolderSettings" Size="Size.Small" />
         </MudStack>
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
             <div><MudTextField @bind-Value="_newFolder" Label="New folder" Variant="Variant.Text" Margin="Margin.Dense" ShrinkLabel Immediate /></div>
@@ -142,5 +145,12 @@ else
     private void GoToAlbum(Guid albumId)
     {
         NavigationManager.NavigateTo($"album/{_currentFolder.ParentId}/{_currentFolder.Id}/{albumId}");
+    }
+
+    private async Task OpenCurrentFolderSettings()
+    {
+        var parameters = new DialogParameters<FolderSettingsDialog> { { x => x.Folder, _currentFolder } };
+        var dialog = await DialogService.ShowAsync<FolderSettingsDialog>(default, parameters);
+        _ = await dialog.Result;
     }
 }

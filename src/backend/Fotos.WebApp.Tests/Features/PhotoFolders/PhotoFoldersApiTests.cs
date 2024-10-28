@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Fotos.WebApp.Tests.Assets;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Fotos.WebApp.Tests.Features.PhotoFolders;
 
@@ -91,5 +92,20 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
         response1.Should().Be204NoContent();
         using var response2 = await client.GetFolder(parentId, folderId);
         response2.Should().Be400BadRequest();
+    }
+
+    [Theory(DisplayName = "Renaming a folder should pass"), AutoData]
+    public async Task Test08(Guid parentId, string folderName, string newFolderName)
+    {
+        var client = _fotoApi.CreateClient();
+        using var r0 = await client.CreatePhotoFolder(parentId, folderName);
+        var folderId = await r0.Content.ReadFromJsonAsync<Guid>();
+
+        using var response1 = await client.UpdateFolder(parentId, folderId, newFolderName);
+
+        response1.Should().Be204NoContent();
+        using var response2 = await client.GetFolder(parentId, folderId);
+        var actual = await response2.Content.ReadFromJsonAsync<JsonElement>();
+        actual.GetProperty("name").GetString().Should().Be(newFolderName);
     }
 }

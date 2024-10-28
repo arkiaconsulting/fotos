@@ -103,6 +103,7 @@ internal static class AdaptersConfigurationExtensions
         .AddScoped<GetFoldersFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetFolders)
         .AddScoped<GetFolderFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetFolder)
         .AddScoped<RemoveFolderFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().RemoveFolder)
+        .AddScoped<UpdateFolderInStore>(sp => sp.GetRequiredService<AzureCosmosDb>().UpsertFolder)
         .AddScoped<GetFolderAlbumsFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbums)
         .AddScoped<AddAlbumToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreAlbum)
         .AddScoped<GetAlbumFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbum);

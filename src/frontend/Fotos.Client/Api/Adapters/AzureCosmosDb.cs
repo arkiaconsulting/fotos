@@ -1,6 +1,7 @@
 ﻿using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
+using Fotos.Client.Api.Shared;
 using Microsoft.Azure.Cosmos;
 
 namespace Fotos.Client.Api.Adapters;
@@ -91,6 +92,13 @@ internal sealed class AzureCosmosDb
     public async Task RemoveFolder(Guid parentId, Guid folderId)
     {
         await _folderContainer.DeleteItemAsync<CosmosFolder>(folderId.ToString(), new PartitionKey(parentId.ToString()));
+    }
+
+    public async Task UpsertFolder(Guid parentId, Guid folderId, Name name)
+    {
+        var folder = new CosmosFolder(folderId, parentId, name.Value);
+
+        await _folderContainer.UpsertItemAsync(folder, new PartitionKey(parentId.ToString()));
     }
 
     public async Task<IReadOnlyCollection<Album>> GetAlbums(Guid folderId)

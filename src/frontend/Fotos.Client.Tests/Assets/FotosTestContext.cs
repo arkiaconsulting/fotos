@@ -16,10 +16,12 @@ public sealed class FotosTestContext : TestContext
 {
     internal IRenderedFragment SnackBar => _snackBarComponent!;
     internal IRenderedFragment Popover => _popoverProvider!;
+    internal IRenderedFragment Dialog => _dialogProvider!;
     internal NavigationManager NavigationManager => Services.GetRequiredService<NavigationManager>();
 
     private IRenderedComponent<MudSnackbarProvider>? _snackBarComponent;
     private IRenderedComponent<MudPopoverProvider>? _popoverProvider;
+    private IRenderedComponent<MudDialogProvider>? _dialogProvider;
 
     internal List<FolderDto> Folders => Services.GetRequiredService<List<FolderDto>>();
     internal List<AlbumDto> Albums => Services.GetRequiredService<List<AlbumDto>>();
@@ -64,6 +66,17 @@ public sealed class FotosTestContext : TestContext
                 var folder = folders.First(f => f.Id == folderId);
 
                 folders.Remove(folder);
+            });
+        });
+        Services.AddTransient<UpdateFolder>(sp =>
+        {
+            var folders = sp.GetRequiredService<List<FolderDto>>();
+
+            return (_, folderId, name) => Task.Run(() =>
+            {
+                var folder = folders.Single(f => f.Id == folderId);
+                folders.Remove(folder);
+                folders.Add(new FolderDto(folderId, folder.ParentId, name));
             });
         });
         Services.AddSingleton<List<AlbumDto>>(_ => []);
@@ -136,6 +149,7 @@ public sealed class FotosTestContext : TestContext
         JSInterop.Mode = JSRuntimeMode.Loose;
         _snackBarComponent = RenderComponent<MudSnackbarProvider>();
         _popoverProvider = RenderComponent<MudPopoverProvider>();
+        _dialogProvider = RenderComponent<MudDialogProvider>();
     }
 
     protected override void Dispose(bool disposing)
@@ -144,6 +158,7 @@ public sealed class FotosTestContext : TestContext
         {
             _snackBarComponent?.Dispose();
             _popoverProvider?.Dispose();
+            _dialogProvider?.Dispose();
         }
 
         base.Dispose(disposing);

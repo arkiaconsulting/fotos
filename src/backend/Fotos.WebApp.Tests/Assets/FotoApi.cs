@@ -118,6 +118,16 @@ public sealed class FotoApi : WebApplicationFactory<Program>
 
                 return Task.CompletedTask;
             })
+            .AddScoped<UpdateFolderInStore>(sp => (parent, id, name) =>
+            {
+                var store = sp.GetRequiredService<List<Folder>>();
+                var existing = store.First(x => x.Id == id);
+                store.Remove(existing);
+
+                store.Add(new(id, parent, name));
+
+                return Task.CompletedTask;
+            })
         );
 
         builder.ConfigureAppConfiguration(ConfigureAppConfiguration);

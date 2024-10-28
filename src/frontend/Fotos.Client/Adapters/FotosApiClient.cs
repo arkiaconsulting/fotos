@@ -44,6 +44,16 @@ internal sealed class FotosApiClient
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task UpdateFolder(Guid parentId, Guid folderId, string name)
+    {
+        using var response = await _httpClient.PatchAsJsonAsync(new Uri($"api/folders/{parentId}/{folderId}", UriKind.Relative), new
+        {
+            name
+        });
+
+        response.EnsureSuccessStatusCode();
+    }
+
     internal async Task<IReadOnlyCollection<AlbumDto>> GetAlbums(Guid folderId)
     {
         var albums = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<AlbumDto>>($"api/folders/{folderId}/albums");

@@ -47,6 +47,17 @@ internal static class FotoClient
         return await client.DeleteAsync(new Uri($"api/folders/{parentId}/{folderId}", UriKind.Relative));
     }
 
+    public static async Task<HttpResponseMessage> UpdateFolder(this HttpClient client, Guid parentId, Guid folderId, string name)
+    {
+        var body = $$"""
+        {
+            "name":"{{name}}"
+        }
+        """;
+        using var content = new StringContent(body, Encoding.UTF8, MediaTypeNames.Application.Json);
+        return await client.PatchAsync(new Uri($"api/folders/{parentId}/{folderId}", UriKind.Relative), content);
+    }
+
     public static async Task<HttpResponseMessage> CreatePhotoAlbum(this HttpClient client, Guid folderId, string name)
     {
         var body = $$"""
