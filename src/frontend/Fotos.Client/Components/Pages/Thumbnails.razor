@@ -8,9 +8,8 @@
 @inject GetThumbnailUri GetThumbnailUri
 @inject UpdatePhoto UpdatePhoto
 
-<MudPopover Open=_showDetails Fixed
-Class="pa-4" OverflowBehavior="OverflowBehavior.FlipAlways"
-AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
+<MudPopover Open=_showDetails Class="pa-4" OverflowBehavior="OverflowBehavior.FlipOnOpen"
+AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopCenter">
     <MudStack id="details" Style="width: 400px">
         <MudStack Row AlignItems="AlignItems.Start" Class="pt-0">
             <MudTextField T="string" id="title" Typo="Typo.body2" @bind-Text="@_photo.Title" Margin="Margin.Dense" ValueChanged="PhotoRenamed" TextUpdateSuppression />

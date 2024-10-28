@@ -15,10 +15,12 @@
                     <MudText Typo="Typo.h3">Fotos</MudText>
                 </MudNavLink>
                 <MudSpacer />
-                <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Dark Mode" />
+                <MudSwitch @bind-Value="_isDarkMode" Class="ma-4" T="bool" Label="Dark Mode" />
             </MudAppBar>
             <MudMainContent>
-                @Body
+                <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                    @Body
+                </MudContainer>
             </MudMainContent>
         </MudLayout>
     </ChildContent>
@@ -46,9 +48,21 @@
             PaletteLight = new()
             {
                 AppbarBackground = Colors.BlueGray.Lighten1,
-                AppbarText = Colors.BlueGray.Darken2,
-                Background = Colors.BlueGray.Lighten5
+                AppbarText = Colors.BlueGray.Lighten3,
+                Background = Colors.BlueGray.Lighten5,
+                Primary = Colors.Gray.Darken4,
+                Secondary = Colors.Teal.Lighten1,
+                Surface = Colors.BlueGray.Lighten4,
+                TextPrimary = Colors.BlueGray.Darken1,
             },
+            PaletteDark = new()
+            {
+                AppbarBackground = Colors.Gray.Darken4,
+                Background = Colors.Gray.Darken3,
+                Primary = Colors.Gray.Darken4,
+                Secondary = Colors.Teal.Darken1,
+                Surface = Colors.Gray.Darken4,
+            }
         };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
