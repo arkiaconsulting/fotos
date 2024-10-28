@@ -22,8 +22,8 @@ else
 {
     <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4" Justify="Justify.SpaceBetween">
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
-            <MudText id="current-folder-name" Typo="Typo.h5">@_currentFolder.Name</MudText>
-            <MudIconButton id="up" Icon="@Icons.Material.Filled.ArrowUpward" OnClick="GotToParentFolder" Disabled="@(_currentFolder.ParentId == Guid.Empty)" Size="Size.Small" />
+            <MudText id="current-folder-name" Typo="Typo.h5">@CurrentFolder.Name</MudText>
+            <MudIconButton id="up" Icon="@Icons.Material.Filled.ArrowUpward" OnClick="GotToParentFolder" Disabled="@(CurrentFolder.ParentId == Guid.Empty)" Size="Size.Small" />
             <MudIconButton id="current-folder-settings" Icon="@Icons.Material.Filled.Settings" OnClick="OpenCurrentFolderSettings" Size="Size.Small" />
         </MudStack>
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
@@ -33,7 +33,7 @@ else
     </MudStack>
     <MudDivider Class="pa-4 mt-2" />
     <MudStack id="folders" Row="true" Spacing="5" Wrap="Wrap.Wrap">
-        @foreach (var folder in _folders)
+        @foreach (var folder in _childFolders)
         {
             <FolderItem Folder="folder" OnFolderChanged="GoToFolder" OnFolderRemoved="RemoveThisFolder" />
         }
@@ -47,7 +47,7 @@ else
     </MudStack>
     <MudDivider Class="pa-4 mt-2" />
     <MudStack id="albums" Row="true" Spacing="5" Wrap="Wrap.Wrap">
-        @foreach (var album in _albums)
+        @foreach (var album in _childAlbums)
         {
             <AlbumItem Album="album" OnAlbumChanged="@(() => GoToAlbum(album.Id))" />
         }
@@ -55,40 +55,28 @@ else
 }
 
 @code {
-    [SupplyParameterFromQuery]
-    public Guid FolderId { get; set; } = Guid.Empty;
+    [CascadingParameter]
+    private Stack<FolderModel> FolderStack { get; set; } = new();
 
-    [SupplyParameterFromQuery]
-    public Guid ParentId { get; set; }
+    public FolderModel CurrentFolder => FolderStack.Peek();
 
-    private List<FolderModel> _folders = [];
-    private List<AlbumModel> _albums = [];
-    private FolderModel _currentFolder = new();
+    private List<FolderModel> _childFolders = [];
+    private List<AlbumModel> _childAlbums = [];
+
     private string _newFolder = string.Empty;
     private string _newAlbumName = string.Empty;
     private bool _loaded = false;
-    private Guid _parentIdOfParent = Guid.Empty;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await Task.CompletedTask;
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var folder = default(FolderDto);
-            if (FolderId == Guid.Empty)
+            if (FolderStack.Count == 0)
             {
-                folder = (await ListFolders(FolderId)).Single();
+                // We're at root
+                var folder = (await ListFolders(Guid.Empty)).Single();
+                FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name });
             }
-            else
-            {
-                folder = await GetFolder(ParentId, FolderId);
-            }
-
-            _currentFolder = new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name };
 
             await RefreshFoldersAndAlbums();
 
@@ -97,25 +85,30 @@ else
         }
     }
 
+    private async Task RefreshFolders() {
+        _childFolders = (await ListFolders(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name }).ToList();
+    }
+
+    private async Task RefreshAlbums() {
+        _childAlbums = (await ListAlbums(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name }).ToList();
+    }
+
     private async Task RefreshFoldersAndAlbums()
     {
-        _folders = (await ListFolders(_currentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name }).ToList();
-        _albums = (await ListAlbums(_currentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name }).ToList();
+        await Task.WhenAll(RefreshFolders(), RefreshAlbums());
     }
 
     private async Task CreateNewFolder()
     {
-        await CreateFolder(_currentFolder.Id, _newFolder);
+        await CreateFolder(CurrentFolder.Id, _newFolder);
 
-        await RefreshFoldersAndAlbums();
+        await RefreshFolders();
         _newFolder = string.Empty;
     }
 
     private async Task GotToParentFolder()
     {
-        var folder = await GetFolder(_parentIdOfParent, _currentFolder.ParentId);
-        _currentFolder = new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name };
-        _parentIdOfParent = _currentFolder.ParentId;
+        _ = FolderStack.Pop();
 
         await RefreshFoldersAndAlbums();
     }
@@ -124,32 +117,31 @@ else
     {
         await RemoveFolder(folder.ParentId, folder.Id);
 
-        _folders.Remove(folder);
+        _childFolders.Remove(folder);
     }
 
     private async Task CreateNewAlbum()
     {
-        await CreateAlbum(_currentFolder.Id, _newAlbumName);
-        await RefreshFoldersAndAlbums();
+        await CreateAlbum(CurrentFolder.Id, _newAlbumName);
+        await RefreshAlbums();
         _newAlbumName = string.Empty;
     }
 
     private async Task GoToFolder(FolderModel folder)
     {
-        _parentIdOfParent = _currentFolder.ParentId;
-        _currentFolder = folder;
+        FolderStack.Push(folder);
 
         await RefreshFoldersAndAlbums();
     }
 
     private void GoToAlbum(Guid albumId)
     {
-        NavigationManager.NavigateTo($"album/{_currentFolder.ParentId}/{_currentFolder.Id}/{albumId}");
+        NavigationManager.NavigateTo($"album/{CurrentFolder.ParentId}/{CurrentFolder.Id}/{albumId}");
     }
 
     private async Task OpenCurrentFolderSettings()
     {
-        var parameters = new DialogParameters<FolderSettingsDialog> { { x => x.Folder, _currentFolder } };
+        var parameters = new DialogParameters<FolderSettingsDialog> { { x => x.Folder, CurrentFolder } };
         var dialog = await DialogService.ShowAsync<FolderSettingsDialog>(default, parameters);
         _ = await dialog.Result;
     }

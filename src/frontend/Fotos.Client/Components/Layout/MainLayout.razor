@@ -18,9 +18,11 @@
                 <MudSwitch @bind-Value="_isDarkMode" Class="ma-4" T="bool" Label="Dark Mode" />
             </MudAppBar>
             <MudMainContent>
-                <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-                    @Body
-                </MudContainer>
+                <CascadingValue Value="_folderStack">
+                    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                        @Body
+                    </MudContainer>
+                </CascadingValue>
             </MudMainContent>
         </MudLayout>
     </ChildContent>
@@ -43,6 +45,7 @@
     private ErrorBoundary? errorBoundary = default!;
     private bool _isDarkMode;
     private MudThemeProvider _mudThemeProvider = default!;
+    private Stack<FolderModel> _folderStack = new();
     private MudTheme FotosTheme = new()
         {
             PaletteLight = new()
