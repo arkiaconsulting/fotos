@@ -142,6 +142,7 @@ public sealed class FotoApi : WebApplicationFactory<Program>
             ["AzureWebJobs.OnShouldRemovePhotoBinaries.Disabled"] = "true",
             ["AzureWebJobs.OnShouldExtractExifMetadata.Disabled"] = "true",
             ["AzureWebJobs.OnThumbnailReady.Disabled"] = "true",
+            ["Instrumentation:ServiceName"] = "tests-fotos-app",
         });
 
     public override async ValueTask DisposeAsync()

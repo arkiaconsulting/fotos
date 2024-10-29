@@ -45,6 +45,7 @@ resource "azurerm_windows_web_app" "main" {
     "ServiceBus:ThumbnailReadySubscription"       = azurerm_servicebus_subscription.notify_thumbnail_ready.name
     "ServiceBus:RemovePhotoBinariesSubscription"  = azurerm_servicebus_subscription.remove_photo_binaries.name
     "BaseUrl"                                     = "https://${local.web_app_name}.azurewebsites.net"
+    "Instrumentation:ServiceName"                 = "fotos-app"
   }
 
   tags = local.tags
