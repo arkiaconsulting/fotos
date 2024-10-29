@@ -16,6 +16,9 @@
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="Microsoft.Azure.Cosmos" />
 		<PackageReference Include="MetadataExtractor" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
 		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
 	</ItemGroup>

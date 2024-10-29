@@ -1,4 +1,5 @@
 using FluentValidation;
+using Fotos.Client;
 using Fotos.Client.Adapters;
 using Fotos.Client.Api.Adapters;
 using Fotos.Client.Api.PhotoAlbums;
@@ -11,6 +12,10 @@ using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.ResponseCompression;
 using MudBlazor;
 using MudBlazor.Services;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +57,43 @@ builder.Services.AddScoped<SessionDataStorage>();
 builder.Services.AddScoped<CustomCircuitHandler>();
 builder.Services.AddScoped<CircuitHandler>(sp => sp.GetRequiredService<CustomCircuitHandler>());
 builder.Services.AddScoped<SessionData>(sp => sp.GetRequiredService<CustomCircuitHandler>().SessionData);
+
+// Logging
+var useOtlpExporter = builder.Configuration.GetValue<bool>("UseOtlpExporter");
+var otlpEndpoint = new Uri("http://localhost:4317");
+builder.Logging.ClearProviders();
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => r
+        .AddService(
+        serviceName: "fotos-app",
+        serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
+        serviceInstanceId: Environment.MachineName)
+    ).WithTracing(builder =>
+    {
+        builder.AddSource(InstrumentationConfig.ActivitySourceName)
+                .SetSampler<AlwaysOnSampler>()
+                .AddAspNetCoreInstrumentation(options => options.RecordException = true);
+        if (useOtlpExporter)
+        {
+            builder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
+        }
+    })
+    .WithMetrics(builder =>
+    {
+        builder.AddMeter(InstrumentationConfig.MeterName)
+                .SetExemplarFilter(ExemplarFilterType.TraceBased)
+                .AddAspNetCoreInstrumentation();
+        if (useOtlpExporter)
+        {
+            builder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
+        }
+    }).WithLogging(builder =>
+    {
+        if (useOtlpExporter)
+        {
+            builder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
+        }
+    });
 
 var app = builder.Build();
 
