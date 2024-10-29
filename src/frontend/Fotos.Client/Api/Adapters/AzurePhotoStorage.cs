@@ -5,6 +5,7 @@ using Azure.Storage.Sas;
 using Fotos.Client.Api.Photos;
 using Fotos.Client.Features.Photos;
 using Microsoft.Extensions.Caching.Memory;
+using System.Diagnostics;
 
 namespace Fotos.Client.Api.Adapters;
 
@@ -13,20 +14,25 @@ internal sealed class AzurePhotoStorage
     private readonly BlobServiceClient _blobServiceClient;
     private readonly IMemoryCache _cache;
     private readonly string? _mainContainer;
+    private readonly ActivitySource _activitySource;
     private const string CacheKey = "UserDelegationKey";
 
     public AzurePhotoStorage(
         BlobServiceClient blobServiceClient,
         IConfiguration configuration,
-        IMemoryCache cache)
+        IMemoryCache cache,
+        InstrumentationConfig instrumentation)
     {
         _blobServiceClient = blobServiceClient;
         _cache = cache;
         _mainContainer = configuration[$"{Constants.BlobServiceClientName}:PhotosContainer"];
+        _activitySource = instrumentation.ActivitySource;
     }
 
     public async Task AddOriginalPhoto(PhotoId photoId, Stream photo, string contentType)
     {
+        using var activity = _activitySource.StartActivity("store photo original in storage");
+
         var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
         var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
 
@@ -39,25 +45,51 @@ internal sealed class AzurePhotoStorage
         };
 
         await blobClient.UploadAsync(photo, options);
+
+        activity?.AddEvent(new ActivityEvent("photo original stored", tags: new(new Dictionary<string, object?> { ["blobName"] = blobClient.Name })));
     }
 
-    public async Task<Uri> GetOriginalUri(PhotoId photoId) =>
-        await GetAuthorizedUri(ComputeOriginalName(photoId))!;
+    public async Task<Uri> GetOriginalUri(PhotoId photoId)
+    {
+        using var activity = _activitySource.StartActivity("get original photo uri from storage");
 
-    public async Task<Uri> GetThumbnailUri(PhotoId photoId) =>
-        await GetAuthorizedUri(ComputeThumbnailName(photoId))!;
+        var blobName = ComputeOriginalName(photoId);
+        var uri = await GetAuthorizedUri(blobName)!;
+
+        activity?.AddEvent(new ActivityEvent("original photo uri retrieved", tags: new(new Dictionary<string, object?> { ["blobName"] = blobName })));
+
+        return uri;
+    }
+
+    public async Task<Uri> GetThumbnailUri(PhotoId photoId)
+    {
+        using var activity = _activitySource.StartActivity("get thumbnail photo uri from storage");
+
+        var blobName = ComputeThumbnailName(photoId);
+        var uri = await GetAuthorizedUri(blobName)!;
+
+        activity?.AddEvent(new ActivityEvent("thumbnail photo uri retrieved", tags: new(new Dictionary<string, object?> { ["blobName"] = blobName })));
+
+        return uri;
+    }
 
     public async Task<PhotoBinary> ReadOriginalPhoto(PhotoId photoId)
     {
+        using var activity = _activitySource.StartActivity("read photo original from storage");
+
         var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
         var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
         var blobDownloadInfo = await blobClient.DownloadContentAsync();
+
+        activity?.AddEvent(new ActivityEvent("photo original read", tags: new(new Dictionary<string, object?> { ["blobName"] = blobClient.Name, ["size"] = blobDownloadInfo.Value.Details.ContentLength })));
 
         return new(blobDownloadInfo.Value.Content.ToStream(), blobDownloadInfo.Value.Details.ContentType);
     }
 
     public async Task AddPhotoToThumbnailStorage(PhotoId photoId, PhotoBinary photo)
     {
+        using var activity = _activitySource.StartActivity("store photo thumbnail in storage");
+
         var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
         var blobClient = container.GetBlobClient(ComputeThumbnailName(photoId));
 
@@ -70,11 +102,29 @@ internal sealed class AzurePhotoStorage
         };
 
         await blobClient.UploadAsync(photo.Content, options);
+
+        activity?.AddEvent(new ActivityEvent("photo thumbnail stored", tags: new(new Dictionary<string, object?> { ["blobName"] = blobClient.Name })));
     }
 
-    public async Task RemovePhotoOriginal(PhotoId photoId) => await RemoveBlob(ComputeOriginalName(photoId));
+    public async Task RemovePhotoOriginal(PhotoId photoId)
+    {
+        using var activity = _activitySource.StartActivity("remove photo original from storage");
 
-    public async Task RemovePhotoThumbnail(PhotoId photoId) => await RemoveBlob(ComputeThumbnailName(photoId));
+        var blobName = ComputeOriginalName(photoId);
+        await RemoveBlob(blobName);
+
+        activity?.AddEvent(new ActivityEvent("photo original removed", tags: new(new Dictionary<string, object?> { ["blobName"] = blobName })));
+    }
+
+    public async Task RemovePhotoThumbnail(PhotoId photoId)
+    {
+        using var activity = _activitySource.StartActivity("remove photo thumbnail from storage");
+
+        var blobName = ComputeThumbnailName(photoId);
+        await RemoveBlob(ComputeThumbnailName(photoId));
+
+        activity?.AddEvent(new ActivityEvent("photo thumbnail removed", tags: new(new Dictionary<string, object?> { ["blobName"] = blobName })));
+    }
 
     private async Task RemoveBlob(string blobName)
     {
