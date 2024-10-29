@@ -1,4 +1,5 @@
 using FluentValidation;
+using Fotos.Client.Adapters;
 using Fotos.Client.Api.Adapters;
 using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
@@ -6,6 +7,7 @@ using Fotos.Client.Api.Photos;
 using Fotos.Client.Components;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Hubs;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.ResponseCompression;
 using MudBlazor;
 using MudBlazor.Services;
@@ -43,6 +45,13 @@ builder.Services.AddSignalR();
 builder.Services.AddResponseCompression(options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]));
 builder.Services.AddFotosApi(builder.Configuration);
 builder.Services.AddTransient<RealTimeMessageService>();
+
+// Blazor features
+builder.Services.AddSingleton<List<SessionData>>(_ => []);
+builder.Services.AddScoped<SessionDataStorage>();
+builder.Services.AddScoped<CustomCircuitHandler>();
+builder.Services.AddScoped<CircuitHandler>(sp => sp.GetRequiredService<CustomCircuitHandler>());
+builder.Services.AddScoped<SessionData>(sp => sp.GetRequiredService<CustomCircuitHandler>().SessionData);
 
 var app = builder.Build();
 

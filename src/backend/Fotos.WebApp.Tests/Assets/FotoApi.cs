@@ -22,6 +22,7 @@ public sealed class FotoApi : WebApplicationFactory<Program>
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.ConfigureServices(services =>
+        {
             services.AddScoped<AddPhotoToMainStorage>(_ => (_, _, _) => Task.CompletedTask)
             .AddScoped<OnNewPhotoUploaded>((_) => (id) =>
             {
@@ -127,8 +128,8 @@ public sealed class FotoApi : WebApplicationFactory<Program>
                 store.Add(new(id, parent, name));
 
                 return Task.CompletedTask;
-            })
-        );
+            });
+        });
 
         builder.ConfigureAppConfiguration(ConfigureAppConfiguration);
     }

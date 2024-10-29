@@ -1,6 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using Fotos.Client.Adapters
+@using Microsoft.AspNetCore.Components.Server.Circuits
+@inherits LayoutComponentBase
 
 @inject IHostEnvironment HostEnvironment
+@inject CustomCircuitHandler CircuitHandler
 
 <MudThemeProvider @ref=@_mudThemeProvider Theme="FotosTheme" @bind-IsDarkMode=@_isDarkMode />
 <MudPopoverProvider />
@@ -18,11 +21,9 @@
                 <MudSwitch @bind-Value="_isDarkMode" Class="ma-4" T="bool" Label="Dark Mode" />
             </MudAppBar>
             <MudMainContent>
-                <CascadingValue Value="_folderStack">
-                    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-                        @Body
-                    </MudContainer>
-                </CascadingValue>
+                <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                    @Body
+                </MudContainer>
             </MudMainContent>
         </MudLayout>
     </ChildContent>
@@ -45,7 +46,6 @@
     private ErrorBoundary? errorBoundary = default!;
     private bool _isDarkMode;
     private MudThemeProvider _mudThemeProvider = default!;
-    private Stack<FolderModel> _folderStack = new();
     private MudTheme FotosTheme = new()
         {
             PaletteLight = new()
@@ -73,6 +73,7 @@
         if (firstRender)
         {
             _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+
             StateHasChanged();
         }
     }

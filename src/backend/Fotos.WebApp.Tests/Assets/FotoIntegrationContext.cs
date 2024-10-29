@@ -28,6 +28,8 @@ public sealed class FotoIntegrationContext
     internal ListPhotosFromStore ListPhotos => _host.Services.GetRequiredService<ListPhotosFromStore>();
     internal RemovePhotoFromStore RemovePhotoData => _host.Services.GetRequiredService<RemovePhotoFromStore>();
     internal GetPhotoFromStore GetPhoto => _host.Services.GetRequiredService<GetPhotoFromStore>();
+    internal AddSessionDataToStore StoreSessionData => _host.Services.GetRequiredService<AddSessionDataToStore>();
+    internal GetSessionDataFromStore GetSessionData => _host.Services.GetRequiredService<GetSessionDataFromStore>();
     internal Container PhotosData
     {
         get
@@ -48,6 +50,18 @@ public sealed class FotoIntegrationContext
             var containerName = _host.Services.GetRequiredService<IConfiguration>()["MainStorage:PhotosContainer"];
 
             return storage.GetBlobContainerClient(containerName);
+        }
+    }
+
+    internal Container SessionData
+    {
+        get
+        {
+            var configuration = _host.Services.GetRequiredService<IConfiguration>();
+
+            return _host.Services.GetRequiredService<CosmosClient>()
+                .GetDatabase(configuration["CosmosDb:DatabaseId"])
+                .GetContainer(configuration["CosmosDb:SessionDataContainerId"]);
         }
     }
 

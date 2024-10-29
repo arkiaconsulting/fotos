@@ -16,6 +16,7 @@
     "DatabaseId": "fotos",
     "ContainerId": "photos-test",
     "FoldersContainerId": "folders-test",
-    "AlbumsContainerId": "albums-test"
+    "AlbumsContainerId": "albums-test",
+    "SessionDataContainerId": "session-data-test"
   }
 }

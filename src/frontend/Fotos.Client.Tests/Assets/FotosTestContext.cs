@@ -4,6 +4,7 @@ using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Features.Photos;
 using Fotos.Client.Hubs;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -142,6 +143,11 @@ public sealed class FotosTestContext : TestContext
         Services.AddTransient<GetOriginalUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
         Services.AddTransient<GetThumbnailUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
         Services.AddTransient<RealTimeMessageService, RealTimeServiceFake>();
+        Services.AddScoped<SessionDataStorage, LocalStorageServiceFake>();
+        Services.AddSingleton<SessionData>(_ => new SessionData([]));
+        Services.AddScoped<List<SessionData>>();
+        Services.AddScoped<CustomCircuitHandler>();
+        Services.AddScoped<CircuitHandler>(sp => sp.GetRequiredService<CustomCircuitHandler>());
     }
 
     private void SetupMudProviders()

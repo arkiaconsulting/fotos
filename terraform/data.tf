@@ -36,3 +36,12 @@ resource "azurerm_cosmosdb_sql_container" "photos" {
   partition_key_version = 2
   partition_key_kind    = "MultiHash"
 }
+
+resource "azurerm_cosmosdb_sql_container" "session_data" {
+  name                = "session-data"
+  resource_group_name = data.azurerm_cosmosdb_account.common.resource_group_name
+  account_name        = data.azurerm_cosmosdb_account.common.name
+  database_name       = azurerm_cosmosdb_sql_database.main.name
+
+  partition_key_paths = ["/id"]
+}

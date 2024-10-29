@@ -3,6 +3,7 @@
 @using Fotos.Client.Components.Dialogs
 @using Fotos.Client.Features.PhotoFolders
 @using System.Collections.ObjectModel
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 
 @inject ListFolders ListFolders
 @inject CreateFolder CreateFolder
@@ -12,6 +13,7 @@
 @inject ListAlbums ListAlbums
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
+@inject SessionData SessionData
 
 <PageTitle>Fotos Folders</PageTitle>
 
@@ -55,10 +57,7 @@
 </MudOverlay>
 
 @code {
-    [CascadingParameter]
-    private Stack<FolderModel> FolderStack { get; set; } = new();
-
-    public FolderModel CurrentFolder => FolderStack.Peek();
+    public FolderModel CurrentFolder => SessionData.FolderStack.Peek();
 
     private List<FolderModel> _childFolders = [];
     private List<AlbumModel> _childAlbums = [];
@@ -71,11 +70,11 @@
     {
         if (firstRender)
         {
-            if (FolderStack.Count == 0)
+            if (SessionData.FolderStack.Count == 0)
             {
                 // We're at root
                 var folder = (await ListFolders(Guid.Empty)).Single();
-                FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name });
+                SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name });
             }
 
             await RefreshFoldersAndAlbums();
@@ -110,7 +109,7 @@
 
     private async Task GotToParentFolder()
     {
-        _ = FolderStack.Pop();
+        _ = SessionData.FolderStack.Pop();
 
         await RefreshFoldersAndAlbums();
     }
@@ -131,7 +130,7 @@
 
     private async Task GoToFolder(FolderModel folder)
     {
-        FolderStack.Push(folder);
+        SessionData.FolderStack.Push(folder);
 
         await RefreshFoldersAndAlbums();
     }

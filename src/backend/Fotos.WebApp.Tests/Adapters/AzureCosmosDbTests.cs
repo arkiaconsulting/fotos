@@ -1,6 +1,8 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
+using Fotos.Client.Adapters;
 using Fotos.Client.Api.Photos;
+using Fotos.Client.Components.Models;
 using Fotos.WebApp.Tests.Assets;
 using Microsoft.Azure.Cosmos;
 using System.Net;
@@ -62,5 +64,42 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
         var actualPhoto = await _context.GetPhoto(photo.Id);
 
         actualPhoto.Should().BeEquivalentTo(photo);
+    }
+
+    [Theory(DisplayName = "When storing session data should effectively store it"), AutoData]
+    internal async Task Test54(SessionData sessionData, FolderModel folder1, FolderModel folder2, Guid userId)
+    {
+        sessionData.FolderStack.Push(folder1);
+        sessionData.FolderStack.Push(folder2);
+
+        await _context.StoreSessionData(userId, sessionData);
+
+        var queryDefinition = new QueryDefinition("select * from c where c.id = @userId").WithParameter("@userId", userId.ToString());
+        var iterator = _context.SessionData.GetItemQueryStreamIterator(queryDefinition, requestOptions: new() { PartitionKey = new(userId.ToString()) });
+        var result = default(JsonElement);
+        while (iterator.HasMoreResults)
+        {
+            using var response = await iterator.ReadNextAsync();
+            result = (await BinaryData.FromStreamAsync(response.Content)).ToObjectFromJson<JsonElement>().GetProperty("Documents");
+        }
+
+        result.ValueKind.Should().Be(JsonValueKind.Array);
+        result.GetArrayLength().Should().Be(1);
+        result.EnumerateArray().Single().GetProperty("folderStack").EnumerateArray().Select(x => x.GetProperty("id").GetGuid())
+            .Should().BeEquivalentTo(new[] { folder1.Id, folder2.Id }, config => config.WithStrictOrdering());
+        result.EnumerateArray().Single().GetProperty("folderStack").EnumerateArray().Select(x => x.GetProperty("parentId").GetGuid())
+            .Should().BeEquivalentTo(new[] { folder1.ParentId, folder2.ParentId }, config => config.WithStrictOrdering());
+    }
+
+    [Theory(DisplayName = "When fetching stored session data should pass"), AutoData]
+    internal async Task Test55(SessionData sessionData, FolderModel folder1, FolderModel folder2, Guid userId)
+    {
+        sessionData.FolderStack.Push(folder1);
+        sessionData.FolderStack.Push(folder2);
+        await _context.StoreSessionData(userId, sessionData);
+
+        var actualSessionData = await _context.GetSessionData(userId);
+
+        actualSessionData!.FolderStack.Should().BeEquivalentTo(sessionData.FolderStack, config => config.WithStrictOrdering());
     }
 }

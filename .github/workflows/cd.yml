@@ -14,6 +14,7 @@ jobs:
       COSMOS_DB_KEY: ${{ secrets.ARKIA_COSMOS_DB_ACCOUNT_KEY }}
       COSMOS_DB_DATABASE: tests
       COSMOS_DB_PHOTOS_CONTAINER: photos-test
+      COSMOS_DB_SESSION_DATA_CONTAINER: session-data-test
       SERVICE_BUS_NAMESPACE_FQDN: arkiabus.servicebus.windows.net
       SERVICE_BUS_TOPIC: tests-fotos-main
       SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION: produce-thumbnail
@@ -56,6 +57,7 @@ jobs:
         CosmosDb__AccountKey: ${{ env.COSMOS_DB_KEY }}
         CosmosDb__DatabaseId: ${{ env.COSMOS_DB_DATABASE }}
         CosmosDb__ContainerId: ${{ env.COSMOS_DB_PHOTOS_CONTAINER }}
+        CosmosDb__SessionDataContainerId: ${{ env.COSMOS_DB_SESSION_DATA_CONTAINER }}
         CosmosDb__FoldersContainerId: unused
         CosmosDb__AlbumsContainerId: unused
         ServiceBus__fullyQualifiedNamespace: ${{ env.SERVICE_BUS_NAMESPACE_FQDN }}

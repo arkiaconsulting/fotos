@@ -1,4 +1,5 @@
-﻿using Fotos.Client.Api.PhotoAlbums;
+﻿using Fotos.Client.Adapters;
+using Fotos.Client.Api.PhotoAlbums;
 
 namespace Fotos.Client.Api.Photos;
 
@@ -8,6 +9,8 @@ internal delegate Task<IReadOnlyCollection<Photo>> ListPhotosFromStore(AlbumId i
 internal delegate Task RemovePhotoFromStore(PhotoId photoId);
 public delegate Task AddPhotoToStore(Photo photo);
 public delegate Task<Photo> GetPhotoFromStore(PhotoId photoId);
+internal delegate Task AddSessionDataToStore(Guid userId, SessionData sessionData);
+internal delegate Task<SessionData?> GetSessionDataFromStore(Guid userId);
 
 // Storage
 public delegate Task AddPhotoToMainStorage(PhotoId photoId, Stream photo, string contentType);

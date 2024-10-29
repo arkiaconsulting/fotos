@@ -1,4 +1,5 @@
-﻿using Fotos.Client.Api.PhotoAlbums;
+﻿using Fotos.Client.Adapters;
+using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
 using Fotos.Client.Api.Shared;
@@ -11,6 +12,7 @@ internal sealed class AzureCosmosDb
     private readonly Container _photoContainer;
     private readonly Container _folderContainer;
     private readonly Container _albumContainer;
+    private readonly Container _sessionDataContainer;
 
     public AzureCosmosDb(CosmosClient client, IConfiguration configuration)
     {
@@ -20,6 +22,8 @@ internal sealed class AzureCosmosDb
             .GetContainer(configuration["CosmosDb:FoldersContainerId"]);
         _albumContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
             .GetContainer(configuration["CosmosDb:AlbumsContainerId"]);
+        _sessionDataContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
+            .GetContainer(configuration["CosmosDb:SessionDataContainerId"]);
     }
     public async Task SavePhoto(Photo photo)
     {
@@ -131,6 +135,27 @@ internal sealed class AzureCosmosDb
         return new Album(response.Resource.Id, response.Resource.FolderId, new(response.Resource.Name));
     }
 
+    public async Task StoreSessionData(Guid userId, SessionData sessionData)
+    {
+        var cosmosSessionData = new CosmosSessionData(userId, sessionData.FolderStack.Select(x => new CosmosFolder(x.Id, x.ParentId, x.Name)).Reverse().ToArray());
+
+        await _sessionDataContainer.UpsertItemAsync(cosmosSessionData, new PartitionKey(userId.ToString()));
+    }
+
+    public async Task<SessionData?> GetSessionData(Guid userId)
+    {
+        try
+        {
+            var response = await _sessionDataContainer.ReadItemAsync<CosmosSessionData>(userId.ToString(), new PartitionKey(userId.ToString()));
+
+            return new SessionData(new Stack<Components.Models.FolderModel>(response.Resource.FolderStack.Select(x => new Components.Models.FolderModel { Id = x.Id, ParentId = x.ParentId, Name = x.Name })));
+        }
+        catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return default;
+        }
+    }
+
     private static PartitionKey ToPartitionKey(PhotoId photoId) => new PartitionKeyBuilder()
             .Add(photoId.FolderId.ToString())
             .Add(photoId.AlbumId.ToString())
@@ -152,4 +177,6 @@ internal sealed class AzureCosmosDb
     private sealed record CosmosFolder(Guid Id, Guid ParentId, string Name);
 
     private sealed record CosmosAlbum(Guid Id, Guid FolderId, string Name);
+
+    private sealed record CosmosSessionData(Guid Id, CosmosFolder[] FolderStack);
 }

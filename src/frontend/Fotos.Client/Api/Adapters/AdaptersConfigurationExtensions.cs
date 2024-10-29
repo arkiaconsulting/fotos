@@ -106,7 +106,9 @@ internal static class AdaptersConfigurationExtensions
         .AddScoped<UpdateFolderInStore>(sp => sp.GetRequiredService<AzureCosmosDb>().UpsertFolder)
         .AddScoped<GetFolderAlbumsFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbums)
         .AddScoped<AddAlbumToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreAlbum)
-        .AddScoped<GetAlbumFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbum);
+        .AddScoped<GetAlbumFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbum)
+        .AddScoped<AddSessionDataToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreSessionData)
+        .AddScoped<GetSessionDataFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetSessionData);
 
         services.AddSingleton(sp =>
         {
