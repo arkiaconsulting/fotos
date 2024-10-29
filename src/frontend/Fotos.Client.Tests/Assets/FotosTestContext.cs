@@ -112,7 +112,7 @@ public sealed class FotosTestContext : TestContext
 
             return (AlbumId albumId, PhotoBinary _) => Task.Run(() =>
             {
-                photos.Add(new(Guid.NewGuid(), albumId.FolderId, albumId.Id, default!));
+                photos.Add(new(Guid.NewGuid(), albumId.FolderId, albumId.Id, default!, new()));
 
                 return Guid.NewGuid();
             });
@@ -135,7 +135,7 @@ public sealed class FotosTestContext : TestContext
             {
                 var photo = photos.Single(p => p.Id == photoId.Id);
                 photos.Remove(photo);
-                photos.Add(new PhotoDto(photo.Id, photo.FolderId, photo.AlbumId, title));
+                photos.Add(new PhotoDto(photo.Id, photo.FolderId, photo.AlbumId, title, new()));
 
                 return Task.CompletedTask;
             };

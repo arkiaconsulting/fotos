@@ -1,4 +1,6 @@
-﻿namespace Fotos.Client.Components.Models;
+﻿using Fotos.Client.Api.Photos;
+
+namespace Fotos.Client.Components.Models;
 
 internal sealed class PhotoModel
 {
@@ -8,13 +10,17 @@ internal sealed class PhotoModel
     public Guid AlbumId { get; }
     public Guid Id { get; }
     public string Title { get; set; }
+    public ExifMetadata Metadata { get; set; }
 
-    public PhotoModel(Guid folderId, Guid albumId, Guid id, string title)
+    public PhotoModel(Guid folderId, Guid albumId, Guid id, string title, ExifMetadata metadata)
     {
         FolderId = folderId;
         AlbumId = albumId;
         Id = id;
         Title = title;
+        Metadata = metadata;
         ThumbnailUri = new Uri("img/new.png", UriKind.Relative);
     }
+
+    public static PhotoModel Default() => new(Guid.Empty, Guid.Empty, Guid.Empty, string.Empty, new());
 }

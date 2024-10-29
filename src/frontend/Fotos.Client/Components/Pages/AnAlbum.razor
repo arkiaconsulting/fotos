@@ -117,7 +117,7 @@
 
         var id = await AddPhoto(new(FolderId, AlbumId), new(ms.ToArray(), file.ContentType, file.Name));
 
-        var photo = new PhotoModel(FolderId, AlbumId, id, file.Name);
+        var photo = new PhotoModel(FolderId, AlbumId, id, file.Name, new());
         _thumbnailsComponent.AddPhoto(photo);
     }
 

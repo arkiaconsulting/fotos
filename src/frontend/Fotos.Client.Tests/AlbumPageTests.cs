@@ -66,7 +66,7 @@ public sealed class AlbumPageTests : IDisposable
     public async Task Test05(Guid folderId, Guid albumId, string albumName)
     {
         _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId });
+        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId, Metadata = new() });
 
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
@@ -162,7 +162,7 @@ public sealed class AlbumPageTests : IDisposable
     public async Task Test12(Guid folderId, Guid albumId, string albumName, string title)
     {
         _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
-        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId, Title = title });
+        _testContext.Photos.Add(new PhotoDto { Id = Guid.NewGuid(), AlbumId = albumId, Title = title, Metadata = new() });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
 
@@ -176,7 +176,7 @@ public sealed class AlbumPageTests : IDisposable
     {
         _testContext.Albums.Add(new AlbumDto { Id = albumId, FolderId = folderId, Name = albumName });
         var photoId = Guid.NewGuid();
-        _testContext.Photos.Add(new PhotoDto { Id = photoId, AlbumId = albumId, Title = title });
+        _testContext.Photos.Add(new PhotoDto { Id = photoId, AlbumId = albumId, Title = title, Metadata = new() });
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
         await cut.WaitForElement("#thumbnails .thumbnail button.view").ClickAsync(new());

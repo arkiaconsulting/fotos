@@ -33,7 +33,7 @@ internal static class EndpointExtension
         {
             var photos = await listPhotos(new(folderId, albumId));
 
-            return Results.Ok(photos.Select(p => new PhotoDto(p.Id.Id, p.Id.FolderId, p.Id.AlbumId, p.Title)));
+            return Results.Ok(photos.Select(p => new PhotoDto(p.Id.Id, p.Id.FolderId, p.Id.AlbumId, p.Title, p.Metadata ?? new())));
         })
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithSummary("List the photos of an album")
