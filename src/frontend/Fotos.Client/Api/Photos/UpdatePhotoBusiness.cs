@@ -1,4 +1,6 @@
-﻿namespace Fotos.Client.Api.Photos;
+﻿using Fotos.Client.Features.Photos;
+
+namespace Fotos.Client.Api.Photos;
 
 internal sealed class UpdatePhotoBusiness
 {

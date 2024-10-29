@@ -1,4 +1,7 @@
-﻿using Fotos.Client.Features.PhotoAlbums;
+﻿using Fotos.Client.Api.PhotoAlbums;
+using Fotos.Client.Api.PhotoFolders;
+using Fotos.Client.Api.Photos;
+using Fotos.Client.Features.PhotoAlbums;
 using Fotos.Client.Features.Photos;
 using System.Net.Http.Headers;
 
@@ -85,14 +88,14 @@ internal sealed class FotosApiClient
         return photos!;
     }
 
-    internal async Task<Guid> AddPhoto(AlbumId albumId, PhotoBinary photoBinary)
+    internal async Task<Guid> AddPhoto(AlbumId albumId, PhotoToUpload photo)
     {
-        await using var ms = new MemoryStream(photoBinary.Buffer.ToArray());
+        await using var ms = new MemoryStream(photo.Buffer.ToArray());
         using var streamContent = new StreamContent(ms);
-        streamContent.Headers.ContentType = new MediaTypeHeaderValue(photoBinary.ContentType);
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(photo.ContentType);
         using var content = new MultipartFormDataContent()
         {
-            { streamContent, "photo", photoBinary.FileName }
+            { streamContent, "photo", photo.FileName }
         };
 
         using var response = await _httpClient.PostAsync(new Uri($"api/folders/{albumId.FolderId}/albums/{albumId.Id}/photos", UriKind.Relative), content);

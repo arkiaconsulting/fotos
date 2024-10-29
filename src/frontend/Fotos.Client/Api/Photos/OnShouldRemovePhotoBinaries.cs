@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using Fotos.Client.Features.Photos;
+using Microsoft.Azure.WebJobs;
 
 namespace Fotos.Client.Api.Photos;
 

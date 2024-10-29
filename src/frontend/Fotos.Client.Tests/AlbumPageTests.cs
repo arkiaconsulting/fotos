@@ -1,6 +1,7 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
-using Fotos.Client.Adapters;
+using Fotos.Client.Api.PhotoAlbums;
+using Fotos.Client.Api.Photos;
 using Fotos.Client.Components.Pages;
 using Fotos.Client.Tests.Assets;
 using Microsoft.AspNetCore.Components;

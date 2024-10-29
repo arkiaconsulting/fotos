@@ -1,4 +1,7 @@
 ﻿using Fotos.Client.Adapters;
+using Fotos.Client.Api.PhotoAlbums;
+using Fotos.Client.Api.PhotoFolders;
+using Fotos.Client.Api.Photos;
 using Fotos.Client.Features.PhotoAlbums;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Features.Photos;
@@ -110,7 +113,7 @@ public sealed class FotosTestContext : TestContext
         {
             var photos = sp.GetRequiredService<List<PhotoDto>>();
 
-            return (AlbumId albumId, PhotoBinary _) => Task.Run(() =>
+            return (AlbumId albumId, PhotoToUpload _) => Task.Run(() =>
             {
                 photos.Add(new(Guid.NewGuid(), albumId.FolderId, albumId.Id, default!, new()));
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Fotos.Client.Features.Photos;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Fotos.Client.Hubs;

@@ -3,6 +3,7 @@ using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using Fotos.Client.Api.Photos;
+using Fotos.Client.Features.Photos;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Fotos.Client.Api.Adapters;

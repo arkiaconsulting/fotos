@@ -1,5 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Fotos.Client.Api.Photos;
+using Fotos.Client.Features.Photos;
 using System.Net.Mime;
 using System.Text.Json;
 

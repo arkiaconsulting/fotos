@@ -3,6 +3,7 @@ using FluentAssertions;
 using Fotos.Client.Adapters;
 using Fotos.Client.Api.Photos;
 using Fotos.Client.Components.Models;
+using Fotos.Client.Features.Photos;
 using Fotos.WebApp.Tests.Assets;
 using Microsoft.Azure.Cosmos;
 using System.Net;

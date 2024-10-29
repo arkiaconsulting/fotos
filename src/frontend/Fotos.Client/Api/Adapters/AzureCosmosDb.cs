@@ -3,6 +3,8 @@ using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
 using Fotos.Client.Api.Shared;
+using Fotos.Client.Features.PhotoAlbums;
+using Fotos.Client.Features.Photos;
 using Microsoft.Azure.Cosmos;
 
 namespace Fotos.Client.Api.Adapters;

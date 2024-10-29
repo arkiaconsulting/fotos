@@ -1,5 +1,6 @@
 ﻿using Fotos.Client.Adapters;
-using Fotos.Client.Api.PhotoAlbums;
+using Fotos.Client.Features.PhotoAlbums;
+using Fotos.Client.Features.Photos;
 
 namespace Fotos.Client.Api.Photos;
 

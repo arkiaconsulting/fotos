@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Fotos.Client.Features.Photos;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Fotos.Client.Hubs;
 
@@ -10,6 +11,3 @@ public sealed class PhotosHub : Hub
         await Clients.All.SendAsync("ThumbnailReady", id);
     }
 }
-
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Required by Function runtime")]
-public readonly record struct PhotoId(Guid FolderId, Guid AlbumId, Guid Id);

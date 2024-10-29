@@ -1,4 +1,5 @@
 ﻿using Fotos.Client.Api.Photos;
+using Fotos.Client.Features.Photos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -97,7 +98,7 @@ public sealed class FotoFunctionsContext
 
             return Task.CompletedTask;
         });
-        services.AddSingleton<OnThumbnailReady>(sp => photoId =>
+        services.AddSingleton<Client.Api.Photos.OnThumbnailReady>(sp => photoId =>
         {
             var thumbnailsReady = sp.GetRequiredKeyedService<Collection<PhotoId>>("thumbnailsready");
             thumbnailsReady.Add(photoId);

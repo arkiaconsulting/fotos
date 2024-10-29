@@ -1,6 +1,7 @@
 ﻿using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
+using Fotos.Client.Features.Photos;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
