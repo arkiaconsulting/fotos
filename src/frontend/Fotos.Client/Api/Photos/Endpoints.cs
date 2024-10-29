@@ -19,6 +19,8 @@ internal static class EndpointExtension
 
             activity?.AddEvent(new System.Diagnostics.ActivityEvent("photo uploaded", tags: new(new Dictionary<string, object?> { ["id"] = id })));
 
+            instrumentation.PhotoUploadCounter.Add(1);
+
             return Results.Accepted(value: id.ToString());
         })
             .DisableAntiforgery()

@@ -11,6 +11,7 @@ internal static class InstrumentationConfigurationExtensions
     public static void AddFotosInstrumentation(this WebApplicationBuilder builder)
     {
         var useOtlpExporter = builder.Configuration.GetValue<bool>("Instrumentation:UseOtlpExporter");
+        var azureMonitorConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
         var otlpEndpoint = new Uri("http://localhost:4317");
         builder.Services.AddSingleton<InstrumentationConfig>();
         builder.Logging.ClearProviders();
@@ -29,9 +30,9 @@ internal static class InstrumentationConfigurationExtensions
                 {
                     traceBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
                 }
-                else
+                else if (!string.IsNullOrWhiteSpace(azureMonitorConnectionString))
                 {
-                    traceBuilder.AddAzureMonitorTraceExporter(options => options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
+                    traceBuilder.AddAzureMonitorTraceExporter(options => options.ConnectionString = azureMonitorConnectionString);
                 }
             })
             .WithMetrics(metricsBuilder =>
@@ -43,9 +44,9 @@ internal static class InstrumentationConfigurationExtensions
                 {
                     metricsBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
                 }
-                else
+                else if (!string.IsNullOrWhiteSpace(azureMonitorConnectionString))
                 {
-                    metricsBuilder.AddAzureMonitorMetricExporter(options => options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
+                    metricsBuilder.AddAzureMonitorMetricExporter(options => options.ConnectionString = azureMonitorConnectionString);
                 }
             }).WithLogging(loggingBuilder =>
             {
@@ -55,9 +56,9 @@ internal static class InstrumentationConfigurationExtensions
                 }
             });
 
-        if (!useOtlpExporter)
+        if (!(useOtlpExporter || string.IsNullOrWhiteSpace(azureMonitorConnectionString)))
         {
-            builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.AddAzureMonitorLogExporter(options => options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]));
+            builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.AddAzureMonitorLogExporter(options => options.ConnectionString = azureMonitorConnectionString));
         }
     }
 }
