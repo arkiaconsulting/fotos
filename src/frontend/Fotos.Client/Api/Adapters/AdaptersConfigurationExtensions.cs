@@ -87,7 +87,8 @@ internal static class AdaptersConfigurationExtensions
     public static IServiceCollection AddFotosImageProcessing(this IServiceCollection services)
     {
         services.AddScoped<CreateThumbnail>(_ => SkiaSharpImageProcessing.CreateThumbnail);
-        services.AddScoped<ExtractExifMetadata>(_ => ExifMetadataService.Extract);
+        services.AddSingleton<ExifMetadataService>();
+        services.AddScoped<ExtractExifMetadata>(sp => sp.GetRequiredService<ExifMetadataService>().Extract);
 
         return services;
     }
