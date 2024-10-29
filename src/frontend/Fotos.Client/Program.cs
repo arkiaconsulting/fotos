@@ -61,6 +61,7 @@ builder.Services.AddScoped<SessionData>(sp => sp.GetRequiredService<CustomCircui
 // Logging
 var useOtlpExporter = builder.Configuration.GetValue<bool>("UseOtlpExporter");
 var otlpEndpoint = new Uri("http://localhost:4317");
+builder.Services.AddSingleton<InstrumentationConfig>();
 builder.Logging.ClearProviders();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(r => r

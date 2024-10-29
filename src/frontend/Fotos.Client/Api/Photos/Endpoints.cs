@@ -7,11 +7,17 @@ internal static class EndpointExtension
 {
     public static IEndpointRouteBuilder MapPhotosEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, IFormFile photo, [FromServices] AddPhotosBusiness business) =>
+        endpoints.MapPost("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, IFormFile photo, [FromServices] AddPhotosBusiness business, [FromServices] InstrumentationConfig instrumentation) =>
         {
+            using var activity = instrumentation.ActivitySource.StartActivity("upload photo", System.Diagnostics.ActivityKind.Server);
+            activity?.SetTag("folderId", folderId);
+            activity?.SetTag("albumId", albumId);
+
             await using var stream = photo.OpenReadStream();
 
             var id = await business.Process(folderId, albumId, stream, photo.ContentType, photo.FileName);
+
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photo uploaded", tags: new(new Dictionary<string, object?> { ["id"] = id })));
 
             return Results.Accepted(value: id.ToString());
         })
@@ -29,9 +35,15 @@ internal static class EndpointExtension
                 return operation;
             });
 
-        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] ListPhotosFromStore listPhotos) =>
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] ListPhotosFromStore listPhotos, [FromServices] InstrumentationConfig instrumentation) =>
         {
+            using var activity = instrumentation.ActivitySource.StartActivity("list photos", System.Diagnostics.ActivityKind.Server);
+            activity?.SetTag("folderId", folderId);
+            activity?.SetTag("albumId", albumId);
+
             var photos = await listPhotos(new(folderId, albumId));
+
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photos listed", tags: new(new Dictionary<string, object?> { ["count"] = photos.Count })));
 
             return Results.Ok(photos.Select(p => new PhotoDto(p.Id.Id, p.Id.FolderId, p.Id.AlbumId, p.Title, p.Metadata ?? new())));
         })
@@ -42,9 +54,16 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapDelete("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] RemovePhotoBusiness business) =>
+        endpoints.MapDelete("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] RemovePhotoBusiness business, [FromServices] InstrumentationConfig instrumentation) =>
         {
+            using var activity = instrumentation.ActivitySource.StartActivity("remove photo", System.Diagnostics.ActivityKind.Server);
+            activity?.SetTag("folderId", folderId);
+            activity?.SetTag("albumId", albumId);
+            activity?.SetTag("photoId", id);
+
             await business.Process(new(folderId, albumId, id));
+
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photo removed"));
 
             return Results.NoContent();
         })
@@ -55,9 +74,16 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/originaluri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetOriginalStorageUri getOriginalUri) =>
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/originaluri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetOriginalStorageUri getOriginalUri, [FromServices] InstrumentationConfig instrumentation) =>
         {
+            using var activity = instrumentation.ActivitySource.StartActivity("get original photo URI", System.Diagnostics.ActivityKind.Server);
+            activity?.SetTag("folderId", folderId);
+            activity?.SetTag("albumId", albumId);
+            activity?.SetTag("photoId", id);
+
             var uri = await getOriginalUri(new(folderId, albumId, id));
+
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("original photo URI retrieved"));
 
             return Results.Ok(uri);
         })
@@ -68,9 +94,16 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/thumbnailuri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetThumbnailStorageUri getThumbnailUri) =>
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}/thumbnailuri", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetThumbnailStorageUri getThumbnailUri, [FromServices] InstrumentationConfig instrumentation) =>
         {
+            using var activity = instrumentation.ActivitySource.StartActivity("get thumbnail photo URI", System.Diagnostics.ActivityKind.Server);
+            activity?.SetTag("folderId", folderId);
+            activity?.SetTag("albumId", albumId);
+            activity?.SetTag("photoId", id);
+
             var uri = await getThumbnailUri(new(folderId, albumId, id));
+
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("thumbnail photo URI retrieved"));
 
             return Results.Ok(uri);
         })
@@ -81,9 +114,16 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-        endpoints.MapPatch("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromBody] Photo photo, [FromServices] UpdatePhotoBusiness business) =>
+        endpoints.MapPatch("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromBody] Photo photo, [FromServices] UpdatePhotoBusiness business, [FromServices] InstrumentationConfig instrumentation) =>
         {
+            using var activity = instrumentation.ActivitySource.StartActivity("update photo", System.Diagnostics.ActivityKind.Server);
+            activity?.SetTag("folderId", folderId);
+            activity?.SetTag("albumId", albumId);
+            activity?.SetTag("photoId", id);
+
             await business.Process(new(folderId, albumId, id), photo.Title);
+
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photo updated"));
 
             return Results.NoContent();
         })
