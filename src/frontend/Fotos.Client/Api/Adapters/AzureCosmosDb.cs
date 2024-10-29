@@ -6,6 +6,7 @@ using Fotos.Client.Api.Shared;
 using Fotos.Client.Features.PhotoAlbums;
 using Fotos.Client.Features.Photos;
 using Microsoft.Azure.Cosmos;
+using System.Diagnostics;
 
 namespace Fotos.Client.Api.Adapters;
 
@@ -15,8 +16,9 @@ internal sealed class AzureCosmosDb
     private readonly Container _folderContainer;
     private readonly Container _albumContainer;
     private readonly Container _sessionDataContainer;
+    private readonly ActivitySource _activitySource;
 
-    public AzureCosmosDb(CosmosClient client, IConfiguration configuration)
+    public AzureCosmosDb(CosmosClient client, IConfiguration configuration, InstrumentationConfig instrumentation)
     {
         _photoContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
             .GetContainer(configuration["CosmosDb:ContainerId"]);
@@ -26,16 +28,23 @@ internal sealed class AzureCosmosDb
             .GetContainer(configuration["CosmosDb:AlbumsContainerId"]);
         _sessionDataContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
             .GetContainer(configuration["CosmosDb:SessionDataContainerId"]);
+        _activitySource = instrumentation.ActivitySource;
     }
     public async Task SavePhoto(Photo photo)
     {
+        using var activity = _activitySource.StartActivity("store photo data in database");
+
         var cosmosPhoto = new CosmosPhoto(photo.Id.Id, photo.Id.FolderId, photo.Id.AlbumId, photo.Title, photo.Metadata);
 
         await _photoContainer.UpsertItemAsync(cosmosPhoto, ToPartitionKey(photo.Id));
+
+        activity?.AddEvent(new ActivityEvent("photo data stored in database"));
     }
 
     public async Task<IReadOnlyCollection<Photo>> ListPhotos(AlbumId albumId)
     {
+        using var activity = _activitySource.StartActivity("retrieving photos from database");
+
         var query = new QueryDefinition("SELECT * FROM c WHERE c.folderId = @folderId AND c.albumId = @albumId")
             .WithParameter("@folderId", albumId.FolderId)
             .WithParameter("@albumId", albumId.Id);
@@ -50,30 +59,46 @@ internal sealed class AzureCosmosDb
             photos.AddRange(response.Select(x => x.ToPhotoEntity()));
         }
 
+        activity?.AddEvent(new ActivityEvent("photos retrieved from database"));
+
         return photos;
     }
 
     public async Task RemovePhoto(PhotoId photoId)
     {
+        using var activity = _activitySource.StartActivity("removing photo from database");
+
         await _photoContainer.DeleteItemAsync<CosmosPhoto>(photoId.Id.ToString(), ToPartitionKey(photoId));
+
+        activity?.AddEvent(new ActivityEvent("photo removed from database"));
     }
 
     public async Task<Photo> GetPhoto(PhotoId photoId)
     {
+        using var activity = _activitySource.StartActivity("retrieving photo from database");
+
         var response = await _photoContainer.ReadItemAsync<CosmosPhoto>(photoId.Id.ToString(), ToPartitionKey(photoId));
+
+        activity?.AddEvent(new ActivityEvent("photo retrieved from database"));
 
         return response.Resource.ToPhotoEntity();
     }
 
     public async Task StoreFolder(Folder folder)
     {
+        using var activity = _activitySource.StartActivity("store folder in database");
+
         var cosmosFolder = new CosmosFolder(folder.Id, folder.ParentId, folder.Name.Value);
 
         await _folderContainer.CreateItemAsync(cosmosFolder, new(folder.ParentId.ToString()));
+
+        activity?.AddEvent(new ActivityEvent("folder stored in database"));
     }
 
     public async Task<IReadOnlyCollection<Folder>> GetFolders(Guid parentId)
     {
+        using var activity = _activitySource.StartActivity("retrieving folders from database");
+
         var query = new QueryDefinition("SELECT * FROM c WHERE c.parentId = @parentId")
             .WithParameter("@parentId", parentId);
         var folders = new List<Folder>();
@@ -85,30 +110,46 @@ internal sealed class AzureCosmosDb
             folders.AddRange(response.Select(x => new Folder(x.Id, x.ParentId, new(x.Name))));
         }
 
+        activity?.AddEvent(new ActivityEvent("folders retrieved from database"));
+
         return folders;
     }
 
     public async Task<Folder> GetFolder(Guid parentId, Guid folderId)
     {
+        using var activity = _activitySource.StartActivity("retrieving folder from database");
+
         var response = await _folderContainer.ReadItemAsync<CosmosFolder>(folderId.ToString(), new PartitionKey(parentId.ToString()));
+
+        activity?.AddEvent(new ActivityEvent("folder retrieved from database"));
 
         return new Folder(response.Resource.Id, response.Resource.ParentId, new(response.Resource.Name));
     }
 
     public async Task RemoveFolder(Guid parentId, Guid folderId)
     {
+        using var activity = _activitySource.StartActivity("removing folder from database");
+
         await _folderContainer.DeleteItemAsync<CosmosFolder>(folderId.ToString(), new PartitionKey(parentId.ToString()));
+
+        activity?.AddEvent(new ActivityEvent("folder removed from database"));
     }
 
     public async Task UpsertFolder(Guid parentId, Guid folderId, Name name)
     {
+        using var activity = _activitySource.StartActivity("upsert folder in database");
+
         var folder = new CosmosFolder(folderId, parentId, name.Value);
 
         await _folderContainer.UpsertItemAsync(folder, new PartitionKey(parentId.ToString()));
+
+        activity?.AddEvent(new ActivityEvent("folder upserted in database"));
     }
 
     public async Task<IReadOnlyCollection<Album>> GetAlbums(Guid folderId)
     {
+        using var activity = _activitySource.StartActivity("retrieving albums from database");
+
         var query = new QueryDefinition("SELECT * FROM c WHERE c.folderId = @folderId")
             .WithParameter("@folderId", folderId);
         var albums = new List<Album>();
@@ -120,40 +161,60 @@ internal sealed class AzureCosmosDb
             albums.AddRange(response.Select(x => new Album(x.Id, x.FolderId, new(x.Name))));
         }
 
+        activity?.AddEvent(new ActivityEvent("albums retrieved from database"));
+
         return albums;
     }
 
     public async Task StoreAlbum(Album album)
     {
+        using var activity = _activitySource.StartActivity("store album in database");
+
         var cosmosAlbum = new CosmosAlbum(album.Id, album.FolderId, album.Name.Value);
 
         await _albumContainer.CreateItemAsync(cosmosAlbum, new(album.FolderId.ToString()));
+
+        activity?.AddEvent(new ActivityEvent("album stored in database"));
     }
 
     public async Task<Album> GetAlbum(AlbumId albumId)
     {
+        using var activity = _activitySource.StartActivity("retrieving album from database");
+
         var response = await _albumContainer.ReadItemAsync<CosmosAlbum>(albumId.Id.ToString(), new PartitionKey(albumId.FolderId.ToString()));
+
+        activity?.AddEvent(new ActivityEvent("album retrieved from database"));
 
         return new Album(response.Resource.Id, response.Resource.FolderId, new(response.Resource.Name));
     }
 
     public async Task StoreSessionData(Guid userId, SessionData sessionData)
     {
+        using var activity = _activitySource.StartActivity("store session data in database");
+
         var cosmosSessionData = new CosmosSessionData(userId, sessionData.FolderStack.Select(x => new CosmosFolder(x.Id, x.ParentId, x.Name)).Reverse().ToArray());
 
         await _sessionDataContainer.UpsertItemAsync(cosmosSessionData, new PartitionKey(userId.ToString()));
+
+        activity?.AddEvent(new ActivityEvent("session data stored in database"));
     }
 
     public async Task<SessionData?> GetSessionData(Guid userId)
     {
+        using var activity = _activitySource.StartActivity("retrieving session data from database");
+
         try
         {
             var response = await _sessionDataContainer.ReadItemAsync<CosmosSessionData>(userId.ToString(), new PartitionKey(userId.ToString()));
+
+            activity?.AddEvent(new ActivityEvent("session data retrieved from database"));
 
             return new SessionData(new Stack<Components.Models.FolderModel>(response.Resource.FolderStack.Select(x => new Components.Models.FolderModel { Id = x.Id, ParentId = x.ParentId, Name = x.Name })));
         }
         catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
+            activity?.AddEvent(new ActivityEvent("session data not found"));
+
             return default;
         }
     }
