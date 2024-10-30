@@ -1,12 +1,21 @@
 ﻿using Fotos.Client.Api.Photos;
 using SkiaSharp;
+using System.Diagnostics;
 
 namespace Fotos.Client.Api.Adapters;
 
 internal sealed class SkiaSharpImageProcessing
 {
-    public static async Task<Stream> CreateThumbnail(PhotoBinary photo)
+    private readonly ActivitySource _activitySource;
+
+    public SkiaSharpImageProcessing(InstrumentationConfig instrumentation) => _activitySource = instrumentation.ActivitySource;
+
+    public async Task<Stream> CreateThumbnail(PhotoBinary photo)
     {
+        using var activity = _activitySource.StartActivity("creating thumbnail", ActivityKind.Internal);
+        activity?.SetTag("mimeType", photo.MimeType);
+        activity?.SetTag("size", photo.Content.Length);
+
         await Task.CompletedTask;
 
         using var originalStream = new SKManagedStream(photo.Content);
@@ -44,6 +53,9 @@ internal sealed class SkiaSharpImageProcessing
         var thumbnailStream = new MemoryStream();
         data.SaveTo(thumbnailStream);
         thumbnailStream.Position = 0;
+
+        activity?.SetTag("thumbnailSize", thumbnailStream.Length);
+        activity?.AddEvent(new ActivityEvent("thumbnail created"));
 
         return thumbnailStream;
     }
