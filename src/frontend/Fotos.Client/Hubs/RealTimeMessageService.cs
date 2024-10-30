@@ -7,6 +7,7 @@ namespace Fotos.Client.Hubs;
 internal class RealTimeMessageService : IAsyncDisposable
 {
     public event EventHandler<PhotoId>? OnThumbnailReady;
+    public event EventHandler<PhotoId>? OnMetadataReady;
 
     private readonly HubConnection _hubConnection;
 
@@ -17,6 +18,7 @@ internal class RealTimeMessageService : IAsyncDisposable
         .Build();
 
         _hubConnection.On<PhotoId>("ThumbnailReady", id => OnThumbnailReady?.Invoke(this, id));
+        _hubConnection.On<PhotoId>("MetadataReady", id => OnMetadataReady?.Invoke(this, id));
     }
 
     public virtual async Task StartAsync()

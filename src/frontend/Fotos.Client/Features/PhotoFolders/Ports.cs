@@ -20,3 +20,4 @@ internal delegate Task RemovePhoto(PhotoId photoId);
 internal delegate Task<Uri> GetOriginalUri(PhotoId photoId);
 internal delegate Task<Uri> GetThumbnailUri(PhotoId photoId);
 internal delegate Task UpdatePhoto(PhotoId photoId, string title);
+internal delegate Task<PhotoDto> GetPhoto(PhotoId photoId);

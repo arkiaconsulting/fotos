@@ -22,6 +22,7 @@ internal static class ConfigurationExtensions
         services.RegisterImplementation<GetOriginalUri, FotosApiClient>(c => c.GetOriginalUri);
         services.RegisterImplementation<GetThumbnailUri, FotosApiClient>(c => c.GetThumbnailUri);
         services.RegisterImplementation<UpdatePhoto, FotosApiClient>(c => c.UpdatePhoto);
+        services.RegisterImplementation<GetPhoto, FotosApiClient>(c => c.GetPhoto);
 
         return services;
     }

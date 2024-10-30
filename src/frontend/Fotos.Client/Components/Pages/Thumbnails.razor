@@ -7,6 +7,7 @@
 @inject GetOriginalUri GetOriginalUri
 @inject GetThumbnailUri GetThumbnailUri
 @inject UpdatePhoto UpdatePhoto
+@inject GetPhoto GetPhoto
 
 <MudPopover Open=_showDetails Class="pa-4" OverflowBehavior="OverflowBehavior.FlipNever" Fixed
 AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopRight">
@@ -160,6 +161,19 @@ AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopRight">
         }
 
         photo.ThumbnailUri = await GetThumbnailUri(new(folderId, albumId, id));
+        StateHasChanged();
+    }
+
+    public async Task OnMetadataReady(Guid folderId, Guid albumId, Guid id)
+    {
+        var photo = _thumbnails.FirstOrDefault(p => p.FolderId == folderId && p.AlbumId == albumId && p.Id == id);
+        if (photo is null) {
+            return;
+        }
+        
+        var actualPhoto = await GetPhoto(new(folderId, albumId, id));
+
+        photo.Metadata = actualPhoto.Metadata;
         StateHasChanged();
     }
 }

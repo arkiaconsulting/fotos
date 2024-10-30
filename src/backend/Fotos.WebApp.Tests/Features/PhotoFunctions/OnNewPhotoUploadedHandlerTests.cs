@@ -45,4 +45,15 @@ public sealed class OnNewPhotoUploadedHandlerTests : IClassFixture<FotoFunctions
 
         _fotoContext.ThumbnailsReady.Should().ContainSingle(p => p == photoId);
     }
+
+    [Theory(DisplayName = "When EXIF metadata has been extracted should inform by using a message"), AutoData]
+    internal async Task Test04(PhotoId photoId, byte[] photoBytes, string title)
+    {
+        _fotoContext.Photos.Add(new Photo(photoId, title));
+        _fotoContext.MainStorage.Add((photoId.Id, photoBytes));
+
+        await _fotoContext.ExifMetadataExtractor.Handle(photoId);
+
+        _fotoContext.MetadataReady.Should().ContainSingle(p => p == photoId);
+    }
 }

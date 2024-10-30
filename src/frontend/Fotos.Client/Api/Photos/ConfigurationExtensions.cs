@@ -7,6 +7,7 @@ internal static class ConfigurationExtensions
         services.AddScoped<AddPhotosBusiness>();
         services.AddScoped<RemovePhotoBusiness>();
         services.AddScoped<UpdatePhotoBusiness>();
+        services.AddScoped<GetPhotoBusiness>();
 
         return services;
     }

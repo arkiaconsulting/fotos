@@ -58,7 +58,7 @@ internal sealed class AzureServiceBus
         activity?.AddEvent(new ActivityEvent("photo removed message published"));
     }
 
-    internal async Task OnThumbnailReady(PhotoId photoId)
+    public async Task OnThumbnailReady(PhotoId photoId)
     {
         using var activity = _activitySource.StartActivity("publishing thumbnail ready", ActivityKind.Producer);
         activity?.SetTag("photoId", photoId.Id);
@@ -74,5 +74,23 @@ internal sealed class AzureServiceBus
         await _mainTopicSender.SendMessageAsync(message);
 
         activity?.AddEvent(new ActivityEvent("thumbnail ready message published"));
+    }
+
+    public async Task OnMetadataReady(PhotoId photoId)
+    {
+        using var activity = _activitySource.StartActivity("publishing metadata ready", ActivityKind.Producer);
+        activity?.SetTag("photoId", photoId.Id);
+        activity?.SetTag("messageName", "MetadataReady");
+
+        var message = new ServiceBusMessage
+        {
+            Subject = "MetadataReady",
+            ContentType = MediaTypeNames.Application.Json,
+            Body = new BinaryData(JsonSerializer.Serialize(photoId, options: Constants.JsonSerializerOptions)),
+        };
+
+        await _mainTopicSender.SendMessageAsync(message);
+
+        activity?.AddEvent(new ActivityEvent("metadata ready message published"));
     }
 }

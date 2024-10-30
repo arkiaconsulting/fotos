@@ -135,4 +135,11 @@ internal sealed class FotosApiClient
 
         response.EnsureSuccessStatusCode();
     }
+
+    internal async Task<PhotoDto> GetPhoto(PhotoId photoId)
+    {
+        var photo = await _httpClient.GetFromJsonAsync<PhotoDto>($"api/folders/{photoId.FolderId}/albums/{photoId.AlbumId}/photos/{photoId.Id}");
+
+        return photo!;
+    }
 }

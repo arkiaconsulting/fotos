@@ -8,7 +8,8 @@
     "MainTopic": "tests-fotos-main",
     "ProduceThumbnailSubscription": "produce-thumbnail",
     "RemovePhotoBinariesSubscription": "remove-photo-binaries",
-    "ThumbnailReadySubscription": "thumbnail-ready"
+    "ThumbnailReadySubscription": "thumbnail-ready",
+    "MetadataReadySubscription": "metadata-ready"
   },
   "CosmosDb": {
     "AccountEndpoint": "https://localhost:8081",

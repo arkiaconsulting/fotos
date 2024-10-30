@@ -143,6 +143,12 @@ public sealed class FotosTestContext : TestContext
                 return Task.CompletedTask;
             };
         });
+        Services.AddTransient<GetPhoto>(sp =>
+        {
+            var photos = sp.GetRequiredService<List<PhotoDto>>();
+
+            return photoId => Task.Run(() => photos.Single(p => p.Id == photoId.Id));
+        });
         Services.AddTransient<GetOriginalUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
         Services.AddTransient<GetThumbnailUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
         Services.AddTransient<RealTimeMessageService, RealTimeServiceFake>();

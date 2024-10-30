@@ -141,4 +141,9 @@ internal static class FotoClient
         using var content = new StringContent(body, Encoding.UTF8, MediaTypeNames.Application.Json);
         return await client.PatchAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative), content);
     }
+
+    public static async Task<HttpResponseMessage> GetPhoto(this HttpClient client, Guid folderId, Guid albumId, Guid photoId)
+    {
+        return await client.GetAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative));
+    }
 }

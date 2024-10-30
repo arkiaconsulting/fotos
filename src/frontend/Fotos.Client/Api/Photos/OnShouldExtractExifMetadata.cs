@@ -10,17 +10,20 @@ public sealed class OnShouldExtractExifMetadata
     private readonly ExtractExifMetadata _extractExifMetadata;
     private readonly GetPhotoFromStore _getPhoto;
     private readonly AddPhotoToStore _storePhotoData;
+    private readonly OnMetadataReady _onMetadataReady;
 
     public OnShouldExtractExifMetadata(
         ReadOriginalPhotoFromStorage readOriginalPhoto,
         ExtractExifMetadata extractExifMetadata,
         GetPhotoFromStore getPhoto,
-        AddPhotoToStore storePhotoData)
+        AddPhotoToStore storePhotoData,
+        OnMetadataReady onMetadataReady)
     {
         _readOriginalPhoto = readOriginalPhoto;
         _extractExifMetadata = extractExifMetadata;
         _getPhoto = getPhoto;
         _storePhotoData = storePhotoData;
+        _onMetadataReady = onMetadataReady;
     }
 
     [FunctionName("OnShouldExtractExifMetadata")]
@@ -38,6 +41,8 @@ public sealed class OnShouldExtractExifMetadata
             await _storePhotoData(photo = photo.WithMetadata(metadata));
 
             await stream.DisposeAsync();
+
+            await _onMetadataReady(photoId);
         }
         catch (NotSupportedException)
         {

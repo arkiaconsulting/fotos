@@ -65,7 +65,8 @@ internal static class AdaptersConfigurationExtensions
         services.AddSingleton<AzureServiceBus>()
         .AddScoped<OnNewPhotoUploaded>(sp => sp.GetRequiredService<AzureServiceBus>().OnNewPhotoUploaded)
         .AddScoped<OnPhotoRemoved>(sp => sp.GetRequiredService<AzureServiceBus>().OnPhotoRemoved)
-        .AddScoped<OnThumbnailReady>(sp => sp.GetRequiredService<AzureServiceBus>().OnThumbnailReady);
+        .AddScoped<OnThumbnailReady>(sp => sp.GetRequiredService<AzureServiceBus>().OnThumbnailReady)
+        .AddScoped<OnMetadataReady>(sp => sp.GetRequiredService<AzureServiceBus>().OnMetadataReady);
 
         services.AddAzureClients(builder =>
         {

@@ -67,6 +67,7 @@
         if (firstRender)
         {
             RealTimeMessageService.OnThumbnailReady += OnThumbnailReady;
+            RealTimeMessageService.OnMetadataReady += OnMetadataReady;
             await RealTimeMessageService.StartAsync();
 
             var album = await GetAlbum(new(FolderId, AlbumId));
@@ -78,9 +79,12 @@
 
     private void OnThumbnailReady(object? sender, PhotoId id)
     {
-        Console.WriteLine($"Thumbnail ready: {id}");
-
         InvokeAsync(() => _thumbnailsComponent.OnNewThumbnail(id.FolderId, id.AlbumId, id.Id));
+    }
+
+    private void OnMetadataReady(object? sender, PhotoId id)
+    {
+        InvokeAsync(() => _thumbnailsComponent.OnMetadataReady(id.FolderId, id.AlbumId, id.Id));
     }
 
     private async Task UploadPhotos(IReadOnlyList<IBrowserFile> files)

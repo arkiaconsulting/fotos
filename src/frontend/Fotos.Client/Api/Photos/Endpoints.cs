@@ -136,6 +136,26 @@ internal static class EndpointExtension
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
+        endpoints.MapGet("api/folders/{folderId:guid}/albums/{albumId:guid}/photos/{id:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromRoute] Guid id, [FromServices] GetPhotoBusiness business, [FromServices] InstrumentationConfig instrumentation) =>
+        {
+            using var activity = instrumentation.ActivitySource.StartActivity("retrieve a photo", System.Diagnostics.ActivityKind.Server);
+            activity?.SetTag("folderId", folderId);
+            activity?.SetTag("albumId", albumId);
+            activity?.SetTag("photoId", id);
+
+            var photo = await business.Process(new(folderId, albumId, id));
+
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photo retrieved"));
+
+            return Results.Ok(new PhotoDto(photo.Id.Id, photo.Id.FolderId, photo.Id.AlbumId, photo.Title, photo.Metadata ?? new()));
+        })
+            .AddEndpointFilter<ValidationEndpointFilter>()
+            .WithSummary("Remove a photo from an album")
+            .WithTags("Photos")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithOpenApi();
+
         return endpoints;
     }
 }

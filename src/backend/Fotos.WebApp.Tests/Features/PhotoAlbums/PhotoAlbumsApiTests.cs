@@ -134,4 +134,15 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
 
         response.Should().Be204NoContent();
     }
+
+    [Theory(DisplayName = "Getting a photo should pass"), AutoData]
+    internal async Task Test11(PhotoId photoId, string title)
+    {
+        var client = _fotoApi.CreateClient();
+        _fotoApi.Photos.Add(new Photo(photoId, title));
+
+        using var response = await client.GetPhoto(photoId.FolderId, photoId.AlbumId, photoId.Id);
+
+        response.Should().Be200Ok();
+    }
 }
