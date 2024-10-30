@@ -9,7 +9,7 @@
 @inject UpdatePhoto UpdatePhoto
 
 <MudPopover Open=_showDetails Class="pa-4" OverflowBehavior="OverflowBehavior.FlipNever" Fixed
-AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
+AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopRight">
     <MudStack id="details" Style="width: 400px">
         <MudStack Row AlignItems="AlignItems.Start" Class="pt-0">
             <MudTextField T="string" id="title" Typo="Typo.body2" @bind-Text="@_photo.Title" Margin="Margin.Dense" ValueChanged="PhotoRenamed" TextUpdateSuppression />
@@ -20,8 +20,26 @@ AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
         <MudGrid>
             <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full"  Typo="Typo.body2">Date taken</MudText></MudItem>
             <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.DateTaken</MudText></MudItem>
-            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Device</MudText></MudItem>
-            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">Sais pas</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Camera Brand</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.CameraBrand</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Camera Model</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.CameraModel</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Dimensions</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@($"{_photo.Metadata.Width}x{_photo.Metadata.Height}")</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Flash</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@(_photo.Metadata.IsFlash ? "Yes" : "No")</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Iso</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.Iso</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Quality</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.Quality</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Aperture</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.Aperture</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Focal Length</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@(_photo.Metadata.FocalLength) mm</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Exposure Time</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.ExposureTime</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Lens</MudText></MudItem>
+            <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.Lens</MudText></MudItem>
         </MudGrid>
     </MudStack>
 </MudPopover>
@@ -92,6 +110,7 @@ AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
         photo.OriginalUri = originalUri;
         _photo = photo;
         _isPhotoDisplayed = true;
+        _showDetails = false;
 
         StateHasChanged();
     }
