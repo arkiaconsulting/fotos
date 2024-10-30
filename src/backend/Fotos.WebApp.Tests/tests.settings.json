@@ -7,9 +7,7 @@
     "fullyQualifiedNamespace": "arkiabus.servicebus.windows.net",
     "MainTopic": "tests-fotos-main",
     "ProduceThumbnailSubscription": "produce-thumbnail",
-    "RemovePhotoBinariesSubscription": "remove-photo-binaries",
-    "ThumbnailReadySubscription": "thumbnail-ready",
-    "MetadataReadySubscription": "metadata-ready"
+    "RemovePhotoBinariesSubscription": "remove-photo-binaries"
   },
   "CosmosDb": {
     "AccountEndpoint": "https://localhost:8081",

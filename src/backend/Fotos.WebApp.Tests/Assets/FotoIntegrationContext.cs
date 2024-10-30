@@ -68,14 +68,10 @@ public sealed class FotoIntegrationContext
 
     internal OnNewPhotoUploaded OnNewPhotoUploaded => _host.Services.GetRequiredService<OnNewPhotoUploaded>();
     internal OnPhotoRemoved OnPhotoRemoved => _host.Services.GetRequiredService<OnPhotoRemoved>();
-    internal OnThumbnailReady OnThumbnailReady => _host.Services.GetRequiredService<OnThumbnailReady>();
-    internal OnMetadataReady OnMetadataReady => _host.Services.GetRequiredService<OnMetadataReady>();
     internal ServiceBusClient ServiceBusClient => _host.Services.GetRequiredService<ServiceBusClient>();
     internal string TestTopicName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:MainTopic"]!;
     internal string ProduceThumbnailSubscriptionName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:ProduceThumbnailSubscription"]!;
     internal string RemovePhotosBinariesSubscriptionName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:RemovePhotoBinariesSubscription"]!;
-    internal string NotifyThumbnailReadySubscriptionName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:ThumbnailReadySubscription"]!;
-    internal string NotifyMetadataReadySubscriptionName => _host.Services.GetRequiredService<IConfiguration>()["ServiceBus:MetadataReadySubscription"]!;
 
     private readonly IHost _host = Host.CreateDefaultBuilder()
         .ConfigureServices(ConfigureServices)

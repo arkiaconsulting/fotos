@@ -156,7 +156,7 @@ public sealed class AlbumPageTests : IDisposable
 
         await cut.WaitForElement("#go-parent-folder").ClickAsync(new());
 
-        _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().Be($"http://localhost/");
+        _testContext.Services.GetRequiredService<NavigationManager>().Uri.Should().Be("http://localhost/");
     }
 
     [Theory(DisplayName = "Clicking on a photo should display its title"), AutoData]

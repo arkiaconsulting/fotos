@@ -1,4 +1,6 @@
 ﻿using Fotos.Client.Features.Photos;
+using Fotos.Client.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.WebJobs;
 
 namespace Fotos.Client.Api.Photos;
@@ -9,18 +11,18 @@ public sealed class OnShouldProduceThumbnail
     private readonly ReadOriginalPhotoFromStorage _readOriginalPhoto;
     private readonly CreateThumbnail _createThumbnail;
     private readonly AddPhotoToThumbnailStorage _addPhotoToThumbnailStorage;
-    private readonly OnThumbnailReady _onThumbnailReady;
+    private readonly IHubContext<PhotosHub> _hubContext;
 
     public OnShouldProduceThumbnail(
         ReadOriginalPhotoFromStorage readOriginalPhoto,
         CreateThumbnail createThumbnail,
         AddPhotoToThumbnailStorage addPhotoToThumbnailStorage,
-        OnThumbnailReady onThumbnailReady)
+        IHubContext<PhotosHub> hubContext)
     {
         _readOriginalPhoto = readOriginalPhoto;
         _createThumbnail = createThumbnail;
         _addPhotoToThumbnailStorage = addPhotoToThumbnailStorage;
-        _onThumbnailReady = onThumbnailReady;
+        _hubContext = hubContext;
     }
 
     [FunctionName("OnShouldProduceThumbnail")]
@@ -35,6 +37,6 @@ public sealed class OnShouldProduceThumbnail
 
         await photo.Content.DisposeAsync();
 
-        await _onThumbnailReady(photoId);
+        await _hubContext.Clients.All.SendAsync("ThumbnailReady", photoId);
     }
 }

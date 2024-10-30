@@ -25,8 +25,6 @@ public delegate Task RemovePhotoThumbnailFromStorage(PhotoId photoId);
 // Messaging
 internal delegate Task OnNewPhotoUploaded(PhotoId photoId);
 internal delegate Task OnPhotoRemoved(PhotoId photoId);
-public delegate Task OnThumbnailReady(PhotoId photoId);
-public delegate Task OnMetadataReady(PhotoId photoId);
 
 // Various
 public delegate Task<Stream> CreateThumbnail(PhotoBinary photo);

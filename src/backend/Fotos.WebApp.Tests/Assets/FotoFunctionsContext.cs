@@ -1,6 +1,7 @@
 ﻿using Fotos.Client.Api.Photos;
 using Fotos.Client.Features.Photos;
-using Microsoft.Extensions.Configuration;
+using Fotos.Client.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Collections.ObjectModel;
@@ -16,20 +17,22 @@ public sealed class FotoFunctionsContext
     internal OnShouldExtractExifMetadata ExifMetadataExtractor => _host.Services.GetRequiredService<OnShouldExtractExifMetadata>();
     internal OnShouldProduceThumbnail OnShouldProduceThumbnail => _host.Services.GetRequiredService<OnShouldProduceThumbnail>();
     internal OnShouldRemovePhotoBinaries OnShouldRemovePhotoBinaries => _host.Services.GetRequiredService<OnShouldRemovePhotoBinaries>();
-    internal Collection<PhotoId> ThumbnailsReady => _host.Services.GetRequiredKeyedService<Collection<PhotoId>>("thumbnailsready");
-    internal Collection<PhotoId> MetadataReady => _host.Services.GetRequiredKeyedService<Collection<PhotoId>>("metadataready");
+    internal IEnumerable<PhotoId> ThumbnailsReady => _host.Services.GetRequiredKeyedService<Collection<(string, PhotoId)>>("hubmessages")
+        .Where(x => x.Item1.Equals("thumbnailready", StringComparison.OrdinalIgnoreCase))
+        .Select(x => x.Item2);
+    internal IEnumerable<PhotoId> MetadataReady => _host.Services.GetRequiredKeyedService<Collection<(string, PhotoId)>>("hubmessages")
+        .Where(x => x.Item1.Equals("metadataready", StringComparison.OrdinalIgnoreCase))
+        .Select(x => x.Item2);
 
     private readonly IHost _host = Host.CreateDefaultBuilder()
         .ConfigureServices(ConfigureServices)
-        .ConfigureAppConfiguration(ConfigureAppConfiguration)
         .Build();
 
     private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         services.AddKeyedSingleton<Collection<(Guid, byte[])>>("main");
         services.AddKeyedSingleton<Collection<(Guid, byte[])>>("thumbnails");
-        services.AddKeyedSingleton<Collection<PhotoId>>("thumbnailsready");
-        services.AddKeyedSingleton<Collection<PhotoId>>("metadataready");
+        services.AddKeyedSingleton<Collection<(string, PhotoId)>>("hubmessages");
         services.AddSingleton<Collection<Photo>>();
         services.AddSingleton<OnShouldExtractExifMetadata>();
         services.AddSingleton<OnShouldProduceThumbnail>();
@@ -100,25 +103,6 @@ public sealed class FotoFunctionsContext
 
             return Task.CompletedTask;
         });
-        services.AddSingleton<Client.Api.Photos.OnThumbnailReady>(sp => photoId =>
-        {
-            var thumbnailsReady = sp.GetRequiredKeyedService<Collection<PhotoId>>("thumbnailsready");
-            thumbnailsReady.Add(photoId);
-
-            return Task.CompletedTask;
-        });
-        services.AddSingleton<Client.Api.Photos.OnMetadataReady>(sp => photoId =>
-        {
-            var metadataReady = sp.GetRequiredKeyedService<Collection<PhotoId>>("metadataready");
-            metadataReady.Add(photoId);
-
-            return Task.CompletedTask;
-        });
+        services.AddSingleton<IHubContext<PhotosHub>>(sp => new FakeHubContext(sp.GetRequiredKeyedService<Collection<(string, PhotoId)>>("hubmessages")));
     }
-
-    private static void ConfigureAppConfiguration(HostBuilderContext context, IConfigurationBuilder builder) =>
-        builder.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true"
-        });
 }

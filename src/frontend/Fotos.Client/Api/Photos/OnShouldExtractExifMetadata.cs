@@ -1,4 +1,6 @@
 ﻿using Fotos.Client.Features.Photos;
+using Fotos.Client.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.WebJobs;
 
 namespace Fotos.Client.Api.Photos;
@@ -10,20 +12,20 @@ public sealed class OnShouldExtractExifMetadata
     private readonly ExtractExifMetadata _extractExifMetadata;
     private readonly GetPhotoFromStore _getPhoto;
     private readonly AddPhotoToStore _storePhotoData;
-    private readonly OnMetadataReady _onMetadataReady;
+    private readonly IHubContext<PhotosHub> _hubContext;
 
     public OnShouldExtractExifMetadata(
         ReadOriginalPhotoFromStorage readOriginalPhoto,
         ExtractExifMetadata extractExifMetadata,
         GetPhotoFromStore getPhoto,
         AddPhotoToStore storePhotoData,
-        OnMetadataReady onMetadataReady)
+        IHubContext<PhotosHub> hubContext)
     {
         _readOriginalPhoto = readOriginalPhoto;
         _extractExifMetadata = extractExifMetadata;
         _getPhoto = getPhoto;
         _storePhotoData = storePhotoData;
-        _onMetadataReady = onMetadataReady;
+        _hubContext = hubContext;
     }
 
     [FunctionName("OnShouldExtractExifMetadata")]
@@ -42,7 +44,7 @@ public sealed class OnShouldExtractExifMetadata
 
             await stream.DisposeAsync();
 
-            await _onMetadataReady(photoId);
+            await _hubContext.Clients.All.SendAsync("MetadataReady", photoId);
         }
         catch (NotSupportedException)
         {
