@@ -1,9 +1,10 @@
 resource "azurerm_windows_web_app" "main" {
-  name                = local.web_app_name
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  service_plan_id     = data.azurerm_service_plan.common.id
-  https_only          = true
+  name                    = local.web_app_name
+  resource_group_name     = azurerm_resource_group.main.name
+  location                = azurerm_resource_group.main.location
+  service_plan_id         = data.azurerm_service_plan.common.id
+  https_only              = true
+  client_affinity_enabled = true
 
   identity {
     type         = "UserAssigned"
@@ -14,6 +15,7 @@ resource "azurerm_windows_web_app" "main" {
     always_on           = true
     http2_enabled       = true
     minimum_tls_version = 1.2
+    websockets_enabled  = true
 
     application_stack {
       dotnet_version = "v8.0"
