@@ -3,6 +3,7 @@ using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
 using Fotos.Client.Api.Shared;
+using Fotos.Client.Api.Types;
 using Fotos.Client.Features.PhotoAlbums;
 using Fotos.Client.Features.Photos;
 using Microsoft.Azure.Cosmos;
@@ -16,6 +17,7 @@ internal sealed class AzureCosmosDb
     private readonly Container _folderContainer;
     private readonly Container _albumContainer;
     private readonly Container _sessionDataContainer;
+    private readonly Container _userContainer;
     private readonly ActivitySource _activitySource;
 
     public AzureCosmosDb(CosmosClient client, IConfiguration configuration, InstrumentationConfig instrumentation)
@@ -28,6 +30,8 @@ internal sealed class AzureCosmosDb
             .GetContainer(configuration["CosmosDb:AlbumsContainerId"]);
         _sessionDataContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
             .GetContainer(configuration["CosmosDb:SessionDataContainerId"]);
+        _userContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
+            .GetContainer(configuration["CosmosDb:UsersContainerId"]);
         _activitySource = instrumentation.ActivitySource;
     }
     public async Task SavePhoto(Photo photo)
@@ -219,6 +223,37 @@ internal sealed class AzureCosmosDb
         }
     }
 
+    public async Task<FotoUser?> FindUser(FotoUserId userId)
+    {
+        using var activity = _activitySource.StartActivity("retrieving user from database");
+
+        try
+        {
+            var response = await _userContainer.ReadItemAsync<CosmosUser>(userId.Value, new PartitionKey(userId.Value));
+
+            activity?.AddEvent(new ActivityEvent("user retrieved from database"));
+
+            return new(new FotoUserId(response.Resource.Id), Name.Create(response.Resource.GivenName));
+        }
+        catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            activity?.AddEvent(new ActivityEvent("user not found"));
+
+            return default;
+        }
+    }
+
+    public async Task StoreUser(FotoUser user)
+    {
+        using var activity = _activitySource.StartActivity("add user to database");
+
+        var cosmosUser = new CosmosUser(user.Id.Value, user.GivenName.Value);
+
+        await _userContainer.UpsertItemAsync(cosmosUser, new PartitionKey(user.Id.Value));
+
+        activity?.AddEvent(new ActivityEvent("user added to database"));
+    }
+
     private static PartitionKey ToPartitionKey(PhotoId photoId) => new PartitionKeyBuilder()
             .Add(photoId.FolderId.ToString())
             .Add(photoId.AlbumId.ToString())
@@ -242,4 +277,6 @@ internal sealed class AzureCosmosDb
     private sealed record CosmosAlbum(Guid Id, Guid FolderId, string Name);
 
     private sealed record CosmosSessionData(Guid Id, CosmosFolder[] FolderStack);
+
+    private sealed record CosmosUser(string Id, string GivenName);
 }

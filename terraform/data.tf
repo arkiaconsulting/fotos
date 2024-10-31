@@ -45,3 +45,13 @@ resource "azurerm_cosmosdb_sql_container" "session_data" {
 
   partition_key_paths = ["/id"]
 }
+
+resource "azurerm_cosmosdb_sql_container" "users" {
+  name                = "users"
+  resource_group_name = data.azurerm_cosmosdb_account.common.resource_group_name
+  account_name        = data.azurerm_cosmosdb_account.common.name
+  database_name       = azurerm_cosmosdb_sql_database.main.name
+
+  partition_key_paths = ["/id"]
+}
+

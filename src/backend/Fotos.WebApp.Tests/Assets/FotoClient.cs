@@ -146,4 +146,29 @@ internal static class FotoClient
     {
         return await client.GetAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative));
     }
+
+    public static async Task<HttpResponseMessage> AddUser(this HttpClient client, string provider, string providerId, string givenName)
+    {
+        var body = $$"""
+{
+    "provider":"{{provider}}",
+    "providerUserId":"{{providerId}}",
+    "givenName":"{{givenName}}"
+}
+""";
+
+        return await client.AddUserWithBody(body);
+    }
+
+    public static async Task<HttpResponseMessage> AddUserWithBody(this HttpClient client, string body)
+    {
+        if (body is null)
+        {
+            return await client.PostAsync(new Uri("api/users", UriKind.Relative), default);
+        }
+
+        using var content = new StringContent(body, Encoding.UTF8, MediaTypeNames.Application.Json);
+
+        return await client.PostAsync(new Uri("api/users", UriKind.Relative), content);
+    }
 }

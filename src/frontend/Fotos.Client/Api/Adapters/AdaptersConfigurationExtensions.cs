@@ -2,6 +2,7 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
+using Fotos.Client.Api.Account;
 using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
@@ -109,7 +110,9 @@ internal static class AdaptersConfigurationExtensions
         .AddScoped<AddAlbumToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreAlbum)
         .AddScoped<GetAlbumFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbum)
         .AddScoped<AddSessionDataToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreSessionData)
-        .AddScoped<GetSessionDataFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetSessionData);
+        .AddScoped<GetSessionDataFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetSessionData)
+        .AddScoped<FindUserInStore>(sp => sp.GetRequiredService<AzureCosmosDb>().FindUser)
+        .AddScoped<AddUserToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreUser);
 
         services.AddSingleton(sp =>
         {

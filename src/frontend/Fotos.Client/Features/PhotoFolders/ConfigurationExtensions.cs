@@ -1,4 +1,5 @@
 ﻿using Fotos.Client.Adapters;
+using Fotos.Client.Features.Account;
 
 namespace Fotos.Client.Features.PhotoFolders;
 
@@ -23,6 +24,7 @@ internal static class ConfigurationExtensions
         services.RegisterImplementation<GetThumbnailUri, FotosApiClient>(c => c.GetThumbnailUri);
         services.RegisterImplementation<UpdatePhoto, FotosApiClient>(c => c.UpdatePhoto);
         services.RegisterImplementation<GetPhoto, FotosApiClient>(c => c.GetPhoto);
+        services.RegisterImplementation<SaveUser, FotosApiClient>(c => c.SaveUser);
 
         return services;
     }

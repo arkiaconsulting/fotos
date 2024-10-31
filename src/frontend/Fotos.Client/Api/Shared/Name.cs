@@ -1,6 +1,6 @@
 ﻿namespace Fotos.Client.Api.Shared;
 
-internal readonly record struct Name(string Value)
+public readonly record struct Name(string Value)
 {
     public static Name Create(string value)
     {

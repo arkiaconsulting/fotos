@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Fotos.Client.Adapters;
 using Fotos.Client.Api.Photos;
+using Fotos.Client.Api.Types;
 using Fotos.Client.Components.Models;
 using Fotos.Client.Features.Photos;
 using Fotos.WebApp.Tests.Assets;
@@ -68,7 +69,7 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "When storing session data should effectively store it"), AutoData]
-    internal async Task Test54(SessionData sessionData, FolderModel folder1, FolderModel folder2, Guid userId)
+    internal async Task Test05(SessionData sessionData, FolderModel folder1, FolderModel folder2, Guid userId)
     {
         sessionData.FolderStack.Push(folder1);
         sessionData.FolderStack.Push(folder2);
@@ -93,7 +94,7 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "When fetching stored session data should pass"), AutoData]
-    internal async Task Test55(SessionData sessionData, FolderModel folder1, FolderModel folder2, Guid userId)
+    internal async Task Test06(SessionData sessionData, FolderModel folder1, FolderModel folder2, Guid userId)
     {
         sessionData.FolderStack.Push(folder1);
         sessionData.FolderStack.Push(folder2);
@@ -102,5 +103,16 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
         var actualSessionData = await _context.GetSessionData(userId);
 
         actualSessionData!.FolderStack.Should().BeEquivalentTo(sessionData.FolderStack, config => config.WithStrictOrdering());
+    }
+
+    [Theory(DisplayName = "Add user to store should pass"), AutoData]
+    internal async Task Test07(FotoUser user)
+    {
+        await _context.AddUserToStore(user);
+
+        var response = await _context.UsersData.ReadItemStreamAsync(user.Id.Value, new(user.Id.Value));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var item = await JsonSerializer.DeserializeAsync<JsonElement>(response.Content, options: new(JsonSerializerDefaults.Web));
+        item.GetProperty("givenName").GetString().Should().Be(user.GivenName.Value);
     }
 }

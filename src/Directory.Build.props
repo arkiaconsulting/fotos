@@ -11,7 +11,7 @@
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);CS1591</NoWarn>
+		<NoWarn>$(NoWarn);CS1591;CA1716</NoWarn>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Authors>Louis GERARD</Authors>
 		<Company>Arkia Consulting</Company>

@@ -41,6 +41,7 @@ resource "azurerm_windows_web_app" "main" {
     "CosmosDb:FoldersContainerId"                 = azurerm_cosmosdb_sql_container.folders.name
     "CosmosDb:AlbumsContainerId"                  = azurerm_cosmosdb_sql_container.albums.name
     "CosmosDb:SessionDataContainerId"             = azurerm_cosmosdb_sql_container.session_data.name
+    "CosmosDb:UsersContainerId"                   = azurerm_cosmosdb_sql_container.users.name
     "ServiceBus:fullyQualifiedNamespace"          = "${data.azurerm_servicebus_namespace.common.name}.servicebus.windows.net"
     "ServiceBus:MainTopic"                        = azurerm_servicebus_topic.fotos.name
     "ServiceBus:ProduceThumbnailSubscription"     = azurerm_servicebus_subscription.produce_thumbnail.name

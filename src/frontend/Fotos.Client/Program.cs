@@ -43,6 +43,7 @@ builder.Services.AddFotosAuthentication(builder.Configuration);
 
 // Business
 builder.Services.AddPhotosBusiness();
+builder.Services.AddAccountBusiness();
 
 // Adapters
 builder.Services.AddPhotosAdapters(builder.Configuration);
@@ -84,6 +85,7 @@ app.MapPhotoFolderEndpoints();
 app.MapPhotoAlbumEndpoints();
 app.MapPhotosEndpoints();
 app.MapAccountEndpoints(Fotos.Client.Authentication.Constants.AuthenticationScheme);
+app.MapUserEndpoints();
 
 app.UseStaticFiles();
 app.UseAntiforgery();

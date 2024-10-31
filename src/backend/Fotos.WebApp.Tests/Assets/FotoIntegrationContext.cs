@@ -3,6 +3,7 @@ using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Fotos.Client;
+using Fotos.Client.Api.Account;
 using Fotos.Client.Api.Adapters;
 using Fotos.Client.Api.Photos;
 using Microsoft.Azure.Cosmos;
@@ -31,6 +32,7 @@ public sealed class FotoIntegrationContext
     internal GetPhotoFromStore GetPhoto => _host.Services.GetRequiredService<GetPhotoFromStore>();
     internal AddSessionDataToStore StoreSessionData => _host.Services.GetRequiredService<AddSessionDataToStore>();
     internal GetSessionDataFromStore GetSessionData => _host.Services.GetRequiredService<GetSessionDataFromStore>();
+    internal AddUserToStore AddUserToStore => _host.Services.GetRequiredService<AddUserToStore>();
     internal Container PhotosData
     {
         get
@@ -63,6 +65,18 @@ public sealed class FotoIntegrationContext
             return _host.Services.GetRequiredService<CosmosClient>()
                 .GetDatabase(configuration["CosmosDb:DatabaseId"])
                 .GetContainer(configuration["CosmosDb:SessionDataContainerId"]);
+        }
+    }
+
+    internal Container UsersData
+    {
+        get
+        {
+            var configuration = _host.Services.GetRequiredService<IConfiguration>();
+
+            return _host.Services.GetRequiredService<CosmosClient>()
+                .GetDatabase(configuration["CosmosDb:DatabaseId"])
+                .GetContainer(configuration["CosmosDb:UsersContainerId"]);
         }
     }
 

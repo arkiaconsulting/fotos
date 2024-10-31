@@ -1,4 +1,5 @@
-﻿using Fotos.Client.Api.PhotoAlbums;
+﻿using Fotos.Client.Api.Account;
+using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
 using Fotos.Client.Features.Photos;
@@ -129,7 +130,8 @@ public sealed class FotoApi : WebApplicationFactory<Program>
                 store.Add(new(id, parent, name));
 
                 return Task.CompletedTask;
-            });
+            })
+            .AddScoped<AddUserToStore>(sp => (_) => Task.CompletedTask);
         });
 
         builder.ConfigureAppConfiguration(ConfigureAppConfiguration);
