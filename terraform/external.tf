@@ -49,3 +49,18 @@ data "azurerm_servicebus_namespace" "common" {
   name                = element(data.azurerm_resources.common_service_bus_namespace.resources.*.name, 0)
   resource_group_name = element(data.azurerm_resources.common_service_bus_namespace.resources.*.resource_group_name, 0)
 }
+
+data "azurerm_resources" "common_key_vault" {
+  type = "Microsoft.KeyVault/vaults"
+
+  required_tags = {
+    layer = "common"
+  }
+}
+
+
+data "azurerm_key_vault" "common" {
+  name                = element(data.azurerm_resources.common_key_vault.resources.*.name, 0)
+  resource_group_name = element(data.azurerm_resources.common_key_vault.resources.*.resource_group_name, 0)
+}
+

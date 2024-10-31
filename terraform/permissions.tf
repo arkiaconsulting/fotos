@@ -54,3 +54,10 @@ resource "azurerm_role_assignment" "identity_servicebus_data_receiver" {
   role_definition_name = "Azure Service Bus Data Receiver"
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
+
+resource "azurerm_role_assignment" "identity_key_vault_secrets_user" {
+  scope                = data.azurerm_key_vault.common.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.main.principal_id
+}
+

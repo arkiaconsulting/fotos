@@ -64,6 +64,8 @@ jobs:
         ServiceBus__ProduceThumbnailSubscription: ${{ env.SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION }}
         ServiceBus__RemovePhotoBinariesSubscription: ${{ env.SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION }}
         ServiceBus__ExtractExifMetadataSubscription: ${{ env.SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION }}
+        Google__ClientId: any
+        Google__ClientSecret: any
 
     - name: Publish
       run: dotnet publish ${{ env.FRONTEND_PATH }}/Fotos.Client -c Release -o publish

@@ -11,4 +11,9 @@ locals {
 
   storage_account_name_prefix = "${local.prefix}photos"
   storage_account_name        = "${local.storage_account_name_prefix}${random_string.storage_suffix.result}"
+
+  google = {
+    client_id     = "https://arkia.vault.azure.net/secrets/fotos-google-client-id"
+    client_secret = "https://arkia.vault.azure.net/secrets/fotos-google-client-secret"
+  }
 }

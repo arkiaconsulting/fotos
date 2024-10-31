@@ -1,5 +1,6 @@
 ﻿@using Fotos.Client.Adapters
 @using Microsoft.AspNetCore.Components.Server.Circuits
+@using System.Security.Claims
 @inherits LayoutComponentBase
 
 @inject IHostEnvironment HostEnvironment
@@ -14,11 +15,29 @@
     <ChildContent>
         <MudLayout>
             <MudAppBar>
-                <MudNavLink Href="/">
-                    <MudText Typo="Typo.h3">Fotos</MudText>
-                </MudNavLink>
+                <MudIconButton Icon="@Icons.Material.Filled.Home" Size="Size.Large" Href="/" />
+                <MudText Typo="Typo.h3">Fotos</MudText>
                 <MudSpacer />
                 <MudSwitch @bind-Value="_isDarkMode" Class="ma-4" T="bool" Label="Dark Mode" />
+                <AuthorizeView>
+                    <Authorized>
+                        <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
+                            <ActivatorContent>
+                                <MudChip T="string" Icon="@Icons.Material.Filled.AccountCircle">@context.User.FindFirst(ClaimTypes.GivenName)?.Value</MudChip>
+                            </ActivatorContent>
+                            <ChildContent>
+                                <form id="logout" method="post" action="/account/logout?returnUrl=/">
+                                    <MudButton ButtonType="ButtonType.Submit">
+                                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Logout">
+                                            <input type="hidden" name="returnUrl" value="/account/signin" />
+                                            Logout
+                                        </MudMenuItem>
+                                    </MudButton>
+                                </form>
+                            </ChildContent>
+                        </MudMenu>
+                    </Authorized>
+                </AuthorizeView>
             </MudAppBar>
             <MudMainContent>
                 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
@@ -31,8 +50,7 @@
         <div class="alert alert-danger" role="alert">
             <p class="fs-3 fw-bold">😈 A rotten gremlin got us. Sorry!</p>
             <p>@context.Message</p>
-            @if (HostEnvironment.IsDevelopment())
-            {
+            @if (HostEnvironment.IsDevelopment()) {
                 <p>@context.StackTrace</p>
             }
             <button class="btn btn-info" @onclick="_ => errorBoundary?.Recover()">
@@ -70,8 +88,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
+        if (firstRender) {
             _isDarkMode = await _mudThemeProvider.GetSystemPreference();
 
             StateHasChanged();

@@ -1,0 +1,18 @@
+﻿@page "/account/signin"
+
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authentication
+
+<PageTitle>Sign In</PageTitle>
+
+<MudPaper MaxWidth="200px">
+    <form id="google-login" method="post" action="/account/login?returnurl=@ReturnUrl">
+        <input type="hidden" name="provider" value="google" />
+        <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Custom.Brands.Google">Google</MudButton>
+    </form>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public string ReturnUrl { get; set; } = "/";
+}

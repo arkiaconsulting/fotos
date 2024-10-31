@@ -1,10 +1,12 @@
 using FluentValidation;
 using Fotos.Client;
 using Fotos.Client.Adapters;
+using Fotos.Client.Api.Account;
 using Fotos.Client.Api.Adapters;
 using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
+using Fotos.Client.Authentication;
 using Fotos.Client.Components;
 using Fotos.Client.Features.PhotoFolders;
 using Fotos.Client.Hubs;
@@ -25,7 +27,6 @@ builder.Services.AddMudServices(options =>
     options.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
     options.PopoverOptions.ThrowOnDuplicateProvider = false;
 });
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -36,6 +37,9 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 builder.Services.AddProblemDetails();
 builder.Services.AddMemoryCache();
+
+// Authentication
+builder.Services.AddFotosAuthentication(builder.Configuration);
 
 // Business
 builder.Services.AddPhotosBusiness();
@@ -79,6 +83,7 @@ app.UseHttpsRedirection();
 app.MapPhotoFolderEndpoints();
 app.MapPhotoAlbumEndpoints();
 app.MapPhotosEndpoints();
+app.MapAccountEndpoints(Fotos.Client.Authentication.Constants.AuthenticationScheme);
 
 app.UseStaticFiles();
 app.UseAntiforgery();

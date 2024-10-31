@@ -1,10 +1,11 @@
 resource "azurerm_windows_web_app" "main" {
-  name                    = local.web_app_name
-  resource_group_name     = azurerm_resource_group.main.name
-  location                = azurerm_resource_group.main.location
-  service_plan_id         = data.azurerm_service_plan.common.id
-  https_only              = true
-  client_affinity_enabled = true
+  name                            = local.web_app_name
+  resource_group_name             = azurerm_resource_group.main.name
+  location                        = azurerm_resource_group.main.location
+  service_plan_id                 = data.azurerm_service_plan.common.id
+  https_only                      = true
+  client_affinity_enabled         = true
+  key_vault_reference_identity_id = azurerm_user_assigned_identity.main.id
 
   identity {
     type         = "UserAssigned"
@@ -47,6 +48,8 @@ resource "azurerm_windows_web_app" "main" {
     "ServiceBus:RemovePhotoBinariesSubscription"  = azurerm_servicebus_subscription.remove_photo_binaries.name
     "BaseUrl"                                     = "https://${local.web_app_name}.azurewebsites.net"
     "Instrumentation:ServiceName"                 = "fotos-app"
+    "Google:ClientId"                             = "@Microsoft.KeyVault(SecretUri=${local.google.client_id})"
+    "Google:ClientSecret"                         = "@Microsoft.KeyVault(SecretUri=${local.google.client_secret})"
   }
 
   tags = local.tags
