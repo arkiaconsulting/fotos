@@ -25,7 +25,8 @@ internal static class InstrumentationConfigurationExtensions
             {
                 traceBuilder.AddSource(InstrumentationConfig.ActivitySourceName)
                         .SetSampler<AlwaysOnSampler>()
-                        .AddAspNetCoreInstrumentation(options => options.RecordException = true);
+                        .AddAspNetCoreInstrumentation(options => options.RecordException = true)
+                        .AddHttpClientInstrumentation();
                 if (useOtlpExporter)
                 {
                     traceBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
@@ -39,7 +40,8 @@ internal static class InstrumentationConfigurationExtensions
             {
                 metricsBuilder.AddMeter(InstrumentationConfig.MeterName)
                         .SetExemplarFilter(ExemplarFilterType.TraceBased)
-                        .AddAspNetCoreInstrumentation();
+                        .AddAspNetCoreInstrumentation()
+                        .AddHttpClientInstrumentation();
                 if (useOtlpExporter)
                 {
                     metricsBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
