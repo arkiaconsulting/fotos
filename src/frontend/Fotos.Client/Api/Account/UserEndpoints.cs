@@ -1,5 +1,7 @@
 ﻿using Fotos.Client.Api.Framework;
+using Fotos.Client.Api.Types;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Fotos.Client.Api.Account;
 
@@ -9,7 +11,7 @@ internal static class UserEndpoints
     {
         var group = endpoints.MapGroup("api/users");
 
-        group.MapPost("/", async ([FromBody] FotoUserDto user, [FromServices] AddUserBusiness business, [FromServices] InstrumentationConfig instrumentation) =>
+        group.MapPut("/", async ([FromBody] CreateFotoUserDto user, [FromServices] AddUserBusiness business, [FromServices] InstrumentationConfig instrumentation) =>
         {
             using var activity = instrumentation.ActivitySource.StartActivity("add user", System.Diagnostics.ActivityKind.Server);
 
@@ -25,7 +27,27 @@ internal static class UserEndpoints
             return TypedResults.NoContent();
         }).AddEndpointFilter<ValidationEndpointFilter>()
         .AllowAnonymous()
+        .WithSummary("Create or update a user")
+        .WithTags("Account")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .WithOpenApi()
         .DisableAntiforgery();
+
+        group.MapGet("/me", async (ClaimsPrincipal principal, [FromServices] FindUserInStore findUserInStore) =>
+        {
+            var provider = principal.Identity?.AuthenticationType ?? throw new InvalidOperationException("user not authenticated");
+            var providerId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var user = (await findUserInStore(FotoUserId.Create(provider, providerId))).Value;
+
+            return TypedResults.Ok(new FotoUserDto(user.GivenName.Value, user.RootFolderId));
+        }).RequireAuthorization()
+        .WithSummary("Get my user details")
+        .WithTags("Account")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .WithOpenApi();
 
         return endpoints;
     }

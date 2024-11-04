@@ -164,11 +164,16 @@ internal static class FotoClient
     {
         if (body is null)
         {
-            return await client.PostAsync(new Uri("api/users", UriKind.Relative), default);
+            return await client.PutAsync(new Uri("api/users", UriKind.Relative), default);
         }
 
         using var content = new StringContent(body, Encoding.UTF8, MediaTypeNames.Application.Json);
 
-        return await client.PostAsync(new Uri("api/users", UriKind.Relative), content);
+        return await client.PutAsync(new Uri("api/users", UriKind.Relative), content);
+    }
+
+    public static async Task<HttpResponseMessage> GetMe(this HttpClient client)
+    {
+        return await client.GetAsync(new Uri($"api/users/me", UriKind.Relative));
     }
 }

@@ -7,6 +7,7 @@ using Fotos.Client.Tests.Assets;
 namespace Fotos.Client.Tests;
 
 [Trait("Category", "Unit")]
+[Trait("Category", "Blazor")]
 public sealed class HomePageTests : IDisposable
 {
     private readonly FotosTestContext _testContext;
@@ -26,7 +27,7 @@ public sealed class HomePageTests : IDisposable
     public void Test02(string folderName)
     {
         var home = _testContext.RenderComponent<Home>();
-        var newFolderInput = home.Find("input");
+        var newFolderInput = home.WaitForElement("input");
         newFolderInput.Input(folderName);
 
         home.WaitForElement("#create-folder").Click();
@@ -108,7 +109,7 @@ public sealed class HomePageTests : IDisposable
     {
         var home = _testContext.RenderComponent<Home>();
 
-        var newAlbumInput = home.Find("#new-album-name");
+        var newAlbumInput = home.WaitForElement("#new-album-name");
         newAlbumInput.Input(albumName);
         home.WaitForElement("#create-album").Click();
 
@@ -120,7 +121,7 @@ public sealed class HomePageTests : IDisposable
     {
         var home = _testContext.RenderComponent<Home>();
 
-        var newAlbumInput = home.Find("#new-album-name");
+        var newAlbumInput = home.WaitForElement("#new-album-name");
         await newAlbumInput.InputAsync(new() { Value = albumName });
         home.WaitForElement("#create-album").Click();
 

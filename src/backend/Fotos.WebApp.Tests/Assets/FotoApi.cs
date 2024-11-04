@@ -2,7 +2,9 @@
 using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
+using Fotos.Client.Api.Types;
 using Fotos.Client.Features.Photos;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -131,7 +133,37 @@ public sealed class FotoApi : WebApplicationFactory<Program>
 
                 return Task.CompletedTask;
             })
-            .AddScoped<AddUserToStore>(sp => (_) => Task.CompletedTask);
+            .AddSingleton<List<FotoUser>>([])
+            .AddScoped<AddUserToStore>(sp =>
+            {
+                var users = sp.GetRequiredService<List<FotoUser>>();
+
+                return user =>
+                {
+                    users.Add(user);
+
+                    return Task.CompletedTask;
+                };
+            })
+            .AddScoped<FindUserInStore>(sp =>
+            {
+                var users = sp.GetRequiredService<List<FotoUser>>();
+
+                return userId =>
+                {
+                    var filtered = users.Where(x => x.Id == userId);
+
+                    if (filtered.Any())
+                    {
+                        return Task.FromResult<FotoUser?>(users.First());
+                    }
+
+                    return Task.FromResult<FotoUser?>(default);
+                };
+            });
+
+            services.AddAuthentication(TestAuthHandler.AuthenticationScheme)
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.AuthenticationScheme, _ => { });
         });
 
         builder.ConfigureAppConfiguration(ConfigureAppConfiguration);

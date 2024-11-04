@@ -1,6 +1,8 @@
-﻿using Fotos.Client.Api.PhotoAlbums;
+﻿using Fotos.Client.Api.Account;
+using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
+using Fotos.Client.Features;
 using Fotos.Client.Features.PhotoAlbums;
 using Fotos.Client.Features.Photos;
 using System.Net.Http.Headers;
@@ -11,7 +13,7 @@ internal sealed class FotosApiClient
 {
     private readonly HttpClient _httpClient;
 
-    public FotosApiClient(HttpClient httpClient) => _httpClient = httpClient;
+    public FotosApiClient(IHttpClientFactory httpClientFactory) => _httpClient = httpClientFactory.CreateClient(Constants.HttpClientName);
 
     public async Task<IReadOnlyCollection<FolderDto>> GetFolders(Guid parentId)
     {
@@ -153,5 +155,20 @@ internal sealed class FotosApiClient
         });
 
         response.EnsureSuccessStatusCode();
+    }
+
+    internal async Task<FotoUserDto> GetMe()
+    {
+        try
+        {
+            var user = await _httpClient.GetFromJsonAsync<FotoUserDto>("api/users/me");
+
+            return user!;
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
     }
 }

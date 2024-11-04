@@ -6,7 +6,7 @@ using Fotos.Client.Features.Photos;
 
 namespace Fotos.Client.Features.PhotoFolders;
 
-internal delegate Task<IReadOnlyCollection<FolderDto>> ListFolders(Guid parentId);
+internal delegate Task<IReadOnlyCollection<FolderDto>> ListFolders(Guid id);
 internal delegate Task CreateFolder(Guid parentId, string folderName);
 internal delegate Task<FolderDto> GetFolder(Guid parentId, Guid folderId);
 internal delegate Task RemoveFolder(Guid parentId, Guid folderId);

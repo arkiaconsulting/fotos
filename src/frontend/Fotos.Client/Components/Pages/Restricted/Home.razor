@@ -1,10 +1,15 @@
 ﻿@page "/"
+
 @using Fotos.Client.Adapters
+@using Fotos.Client.Api.Types
 @using Fotos.Client.Components.Dialogs
+@using Fotos.Client.Features.Account
 @using Fotos.Client.Features.PhotoFolders
 @using System.Collections.ObjectModel
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Security.Claims
 
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ListFolders ListFolders
 @inject CreateFolder CreateFolder
 @inject RemoveFolder RemoveFolder
@@ -14,6 +19,9 @@
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 @inject SessionData SessionData
+@inject GetMe GetMe
+
+@attribute [Authorize]
 
 <PageTitle>Fotos Folders</PageTitle>
 
@@ -73,7 +81,13 @@
             if (SessionData.FolderStack.Count == 0)
             {
                 // We're at root
-                var folder = (await ListFolders(Guid.Empty)).Single();
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var userProviderId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var provider = authState.User.Identity?.AuthenticationType;
+
+                var fotoUser = await GetMe();
+
+                var folder = await GetFolder(Guid.Empty, fotoUser.RootFolderId);
                 SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name });
             }
 

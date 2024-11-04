@@ -1,22 +1,8 @@
-﻿using FluentValidation;
-
-namespace Fotos.Client.Api.Account;
+﻿namespace Fotos.Client.Api.Account;
 
 /// <summary>
-/// Create a new user
+/// A Foto App user
 /// </summary>
-/// <param name="Provider" example="google">The name of the identity provider</param>
-/// <param name="ProviderUserId" example="13283843502303892304589">The ID of the user as per the identity provider</param>
-/// <param name="GivenName" example="Nick">The name of the user to be use by the Foto App</param>
-internal readonly record struct FotoUserDto(string Provider, string ProviderUserId, string GivenName)
-{
-    internal sealed class Validator : AbstractValidator<FotoUserDto>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.Provider).NotEmpty();
-            RuleFor(x => x.ProviderUserId).NotEmpty();
-            RuleFor(x => x.GivenName).NotEmpty();
-        }
-    }
-}
+/// <param name="GivenName" example="Nick">The name of the user that the Fotos App should use</param>
+/// <param name="RootFolderId" example="d775fea4-79ec-4b89-bb7f-06a364d2432c">The ID of the root folder of the user</param>
+internal readonly record struct FotoUserDto(string GivenName, Guid RootFolderId);

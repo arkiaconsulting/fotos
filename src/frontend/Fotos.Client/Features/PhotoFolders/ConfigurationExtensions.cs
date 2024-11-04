@@ -7,8 +7,10 @@ internal static class ConfigurationExtensions
 {
     public static IServiceCollection AddFotosApi(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddHttpClient<FotosApiClient>(client => client.BaseAddress = new Uri(configuration["BaseUrl"]!));
+        services
+            .AddHttpClient(Constants.HttpClientName, (sp, client) => client.BaseAddress = new Uri(configuration["BaseUrl"]!));
 
+        services.AddScoped<FotosApiClient>();
         services.RegisterImplementation<ListFolders, FotosApiClient>(c => c.GetFolders);
         services.RegisterImplementation<CreateFolder, FotosApiClient>(c => c.CreateFolder);
         services.RegisterImplementation<GetFolder, FotosApiClient>(c => c.GetFolder);
@@ -25,6 +27,7 @@ internal static class ConfigurationExtensions
         services.RegisterImplementation<UpdatePhoto, FotosApiClient>(c => c.UpdatePhoto);
         services.RegisterImplementation<GetPhoto, FotosApiClient>(c => c.GetPhoto);
         services.RegisterImplementation<SaveUser, FotosApiClient>(c => c.SaveUser);
+        services.RegisterImplementation<GetMe, FotosApiClient>(c => c.GetMe);
 
         return services;
     }

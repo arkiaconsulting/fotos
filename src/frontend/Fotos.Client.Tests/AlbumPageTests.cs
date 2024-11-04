@@ -12,6 +12,7 @@ using System.Net.Mime;
 namespace Fotos.Client.Tests;
 
 [Trait("Category", "Unit")]
+[Trait("Category", "Blazor")]
 public sealed class AlbumPageTests : IDisposable
 {
     private readonly FotosTestContext _testContext;

@@ -7,6 +7,7 @@ using System.Security.Claims;
 namespace Fotos.Client.Tests;
 
 [Trait("Category", "Unit")]
+[Trait("Category", "Blazor")]
 public sealed class RegisterPageTests : IDisposable
 {
     private readonly FotosTestContext _testContext;

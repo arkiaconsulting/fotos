@@ -31,4 +31,16 @@ public sealed class UserManagementTests : IClassFixture<FotoApi>
         response.Should().Be400BadRequest();
         response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");
     }
+
+    [Theory(DisplayName = "Getting my user details should pass"), AutoData]
+    internal async Task Test03(string givenName)
+    {
+        var client = _fotoApi.CreateClient();
+        using var _ = await client.AddUser(TestAuthHandler.TestProvider, TestAuthHandler.TestUserName, givenName);
+
+        using var userResponse = await client.GetMe();
+
+        userResponse.Should().Be200Ok();
+        userResponse.Should().MatchInContent($"*{givenName}*");
+    }
 }

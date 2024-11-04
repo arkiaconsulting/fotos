@@ -1,5 +1,6 @@
 ﻿using Bunit.TestDoubles;
 using Fotos.Client.Adapters;
+using Fotos.Client.Api.Account;
 using Fotos.Client.Api.PhotoAlbums;
 using Fotos.Client.Api.PhotoFolders;
 using Fotos.Client.Api.Photos;
@@ -164,7 +165,8 @@ public sealed class FotosTestContext : TestContext
         Services.AddScoped<CustomCircuitHandler>();
         Services.AddScoped<CircuitHandler>(sp => sp.GetRequiredService<CustomCircuitHandler>());
 
-        Services.AddSingleton<SaveUser>(sp => (_, _, _) => Task.CompletedTask);
+        Services.AddSingleton<SaveUser>(_ => (_, _, _) => Task.CompletedTask);
+        Services.AddSingleton<GetMe>(_ => () => Task.FromResult<FotoUserDto>(new("any", RootFolderId)));
     }
 
     private void SetupMudProviders()
