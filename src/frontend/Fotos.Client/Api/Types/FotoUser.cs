@@ -2,7 +2,7 @@
 
 namespace Fotos.Client.Api.Types;
 
-public readonly record struct FotoUser(FotoUserId Id, Name GivenName);
+public readonly record struct FotoUser(FotoUserId Id, Name GivenName, Guid RootFolderId);
 
 public readonly record struct FotoUserId(string Value)
 {

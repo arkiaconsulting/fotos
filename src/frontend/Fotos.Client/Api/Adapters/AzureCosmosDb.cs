@@ -233,7 +233,7 @@ internal sealed class AzureCosmosDb
 
             activity?.AddEvent(new ActivityEvent("user retrieved from database"));
 
-            return new(new FotoUserId(response.Resource.Id), Name.Create(response.Resource.GivenName));
+            return new(new FotoUserId(response.Resource.Id), Name.Create(response.Resource.GivenName), response.Resource.RootFolderId);
         }
         catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -247,7 +247,7 @@ internal sealed class AzureCosmosDb
     {
         using var activity = _activitySource.StartActivity("add user to database");
 
-        var cosmosUser = new CosmosUser(user.Id.Value, user.GivenName.Value);
+        var cosmosUser = new CosmosUser(user.Id.Value, user.GivenName.Value, user.RootFolderId);
 
         await _userContainer.UpsertItemAsync(cosmosUser, new PartitionKey(user.Id.Value));
 
@@ -278,5 +278,5 @@ internal sealed class AzureCosmosDb
 
     private sealed record CosmosSessionData(Guid Id, CosmosFolder[] FolderStack);
 
-    private sealed record CosmosUser(string Id, string GivenName);
+    private sealed record CosmosUser(string Id, string GivenName, Guid RootFolderId);
 }
