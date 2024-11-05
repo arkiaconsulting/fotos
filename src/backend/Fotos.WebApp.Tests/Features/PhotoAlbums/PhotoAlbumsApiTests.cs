@@ -27,11 +27,11 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     }
 
     [Theory(DisplayName = "Creating a new album with an invalid payload should fail"), ClassData(typeof(CreateAlbumWrongTheoryData))]
-    internal async Task Test02(string _, string body, string folderId)
+    internal async Task Test02(string _, string body)
     {
         var client = _fotoApi.CreateClient();
 
-        using var response = await client.CreatePhotoAlbumWithBody(Guid.Parse(folderId), body);
+        using var response = await client.CreatePhotoAlbumWithBody(Some.FolderId, body);
 
         response.Should().Be400BadRequest();
         response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");

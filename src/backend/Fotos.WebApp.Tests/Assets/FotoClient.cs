@@ -147,12 +147,10 @@ internal static class FotoClient
         return await client.GetAsync(new Uri($"api/folders/{folderId}/albums/{albumId}/photos/{photoId}", UriKind.Relative));
     }
 
-    public static async Task<HttpResponseMessage> AddUser(this HttpClient client, string provider, string providerId, string givenName)
+    public static async Task<HttpResponseMessage> AddUser(this HttpClient client, string givenName)
     {
         var body = $$"""
 {
-    "provider":"{{provider}}",
-    "providerUserId":"{{providerId}}",
     "givenName":"{{givenName}}"
 }
 """;
@@ -174,6 +172,6 @@ internal static class FotoClient
 
     public static async Task<HttpResponseMessage> GetMe(this HttpClient client)
     {
-        return await client.GetAsync(new Uri($"api/users/me", UriKind.Relative));
+        return await client.GetAsync(new Uri("api/users/me", UriKind.Relative));
     }
 }

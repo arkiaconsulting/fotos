@@ -10,7 +10,8 @@ internal static class AccountEndpoints
 {
     public static IEndpointRouteBuilder MapAccountEndpoints(this IEndpointRouteBuilder endpoints, string authenticationScheme)
     {
-        var group = endpoints.MapGroup("/account");
+        var group = endpoints.MapGroup("/account")
+            .ExcludeFromDescription();
 
         group.MapPost("/login", (HttpContext context, [FromForm] string provider, [FromQuery] string? returnUrl) =>
         {
@@ -22,9 +23,7 @@ internal static class AccountEndpoints
             }
 
             return Helpers.Challenge(provider, GoogleDefaults.AuthenticationScheme, returnUrl);
-        }).AllowAnonymous()
-        .DisableAntiforgery()
-        .ExcludeFromDescription();
+        }).DisableAntiforgery();
 
         group.MapGet("/login-callback", async (HttpContext context, [FromServices] FindUserInStore findUser) =>
         {
@@ -57,8 +56,7 @@ internal static class AccountEndpoints
             };
 
             return TypedResults.SignIn(result.Principal!, authenticationProperties, authenticationScheme);
-        }).AllowAnonymous()
-        .ExcludeFromDescription();
+        });
 
         group.MapPost("/logout", (HttpContext context, [FromForm] string? returnUrl) =>
         {
@@ -70,14 +68,7 @@ internal static class AccountEndpoints
             };
 
             return TypedResults.SignOut(authenticationProperties, [authenticationScheme]);
-        }).AllowAnonymous()
-        .DisableAntiforgery()
-        .ExcludeFromDescription();
-
-        group.MapGet("/users", () => TypedResults.Ok())
-            .AllowAnonymous()
-            .DisableAntiforgery()
-            .ExcludeFromDescription();
+        }).DisableAntiforgery();
 
         return endpoints;
     }

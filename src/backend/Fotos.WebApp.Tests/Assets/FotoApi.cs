@@ -155,7 +155,7 @@ public sealed class FotoApi : WebApplicationFactory<Program>
 
                     if (filtered.Any())
                     {
-                        return Task.FromResult<FotoUser?>(users.First());
+                        return Task.FromResult<FotoUser?>(users[0]);
                     }
 
                     return Task.FromResult<FotoUser?>(default);

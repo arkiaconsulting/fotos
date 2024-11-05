@@ -8,7 +8,12 @@ internal static class EndpointExtension
 {
     public static IEndpointRouteBuilder MapPhotoFolderEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("api/folders", async ([FromBody] CreateFolderDto folder, [FromServices] AddFolderToStore storeNewFolder, [FromServices] InstrumentationConfig instrumentation) =>
+        var group = endpoints.MapGroup("api/folders")
+            .AddEndpointFilter<ValidationEndpointFilter>()
+            .WithTags("Folders")
+            .WithOpenApi();
+
+        group.MapPost("", async ([FromBody] CreateFolderDto folder, [FromServices] AddFolderToStore storeNewFolder, [FromServices] InstrumentationConfig instrumentation) =>
         {
             using var activity = instrumentation.ActivitySource.StartActivity("create folder", System.Diagnostics.ActivityKind.Server);
             activity?.SetTag("parentFolderId", folder.ParentId);
@@ -23,14 +28,11 @@ internal static class EndpointExtension
 
             return Results.Ok(id);
         })
-            .AddEndpointFilter<ValidationEndpointFilter>()
-            .WithTags("Folders")
             .WithSummary("Create a new folder in an existing folder")
             .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        endpoints.MapGet("api/folders/{folderId}/children", async (Guid folderId, [FromServices] GetFoldersFromStore getFolders, [FromServices] InstrumentationConfig instrumentation) =>
+        group.MapGet("{folderId}/children", async (Guid folderId, [FromServices] GetFoldersFromStore getFolders, [FromServices] InstrumentationConfig instrumentation) =>
         {
             using var activity = instrumentation.ActivitySource.StartActivity("list child folders", System.Diagnostics.ActivityKind.Server);
             activity?.SetTag("folderId", folderId);
@@ -41,13 +43,11 @@ internal static class EndpointExtension
 
             return Results.Ok(folders.Select(f => new FolderDto(f.Id, f.ParentId, f.Name.Value)));
         })
-            .WithTags("Folders")
             .WithSummary("List child folders")
             .Produces<IEnumerable<FolderDto>>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        endpoints.MapGet("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] GetFolderFromStore getFolder, [FromServices] InstrumentationConfig instrumentation) =>
+        group.MapGet("{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] GetFolderFromStore getFolder, [FromServices] InstrumentationConfig instrumentation) =>
         {
             using var activity = instrumentation.ActivitySource.StartActivity("get folder", System.Diagnostics.ActivityKind.Server);
             activity?.SetTag("folderId", folderId);
@@ -68,13 +68,11 @@ internal static class EndpointExtension
                 return Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "The given folder does not exist");
             }
         })
-            .WithTags("Folders")
             .WithSummary("Get an existing folder")
             .Produces<FolderDto>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        endpoints.MapDelete("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] RemoveFolderFromStore removeFolder, [FromServices] InstrumentationConfig instrumentation) =>
+        group.MapDelete("{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromServices] RemoveFolderFromStore removeFolder, [FromServices] InstrumentationConfig instrumentation) =>
         {
             using var activity = instrumentation.ActivitySource.StartActivity("delete folder", System.Diagnostics.ActivityKind.Server);
             activity?.SetTag("folderId", folderId);
@@ -94,13 +92,11 @@ internal static class EndpointExtension
                 return Results.NoContent();
             }
         })
-            .WithTags("Folders")
             .WithSummary("Remove an existing folder")
             .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        endpoints.MapPatch("api/folders/{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromBody] UpdateFolderDto folder, [FromServices] UpdateFolderInStore updateFolder, [FromServices] InstrumentationConfig instrumentation) =>
+        group.MapPatch("{parentId}/{folderId}", async (Guid parentId, Guid folderId, [FromBody] UpdateFolderDto folder, [FromServices] UpdateFolderInStore updateFolder, [FromServices] InstrumentationConfig instrumentation) =>
         {
             using var activity = instrumentation.ActivitySource.StartActivity("update folder", System.Diagnostics.ActivityKind.Server);
             activity?.SetTag("folderId", folderId);
@@ -122,12 +118,9 @@ internal static class EndpointExtension
                 return Results.Problem(statusCode: StatusCodes.Status400BadRequest, title: "The given folder does not exist");
             }
         })
-            .AddEndpointFilter<ValidationEndpointFilter>()
-            .WithTags("Folders")
             .WithSummary("Update an existing folder")
             .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status400BadRequest);
 
         return endpoints;
     }
