@@ -11,6 +11,7 @@ internal static class EndpointExtension
         var group = endpoints.MapGroup("api/folders/{folderId:guid}/albums")
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Albums")
+            .RequireAuthorization(Authentication.Constants.DefaultPolicy)
             .WithOpenApi();
 
         group.MapPost("", async ([FromRoute] Guid folderId, [FromBody] CreateAlbumDto folder, [FromServices] AddAlbumToStore addAlbum, [FromServices] InstrumentationConfig instrumentation) =>

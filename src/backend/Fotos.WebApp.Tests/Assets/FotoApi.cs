@@ -19,7 +19,11 @@ public sealed class FotoApi : WebApplicationFactory<Program>
     internal List<PhotoId> PhotoRemovedMessageSink { get; } = [];
     internal List<PhotoId> PhotoUploadedMessageSink { get; } = [];
 
-    public FotoApi() => ClientOptions.BaseAddress = new Uri("https://localhost");
+    public FotoApi()
+    {
+        ClientOptions.BaseAddress = new Uri("https://localhost");
+        ClientOptions.AllowAutoRedirect = false;
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

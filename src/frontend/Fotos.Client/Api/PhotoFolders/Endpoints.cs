@@ -11,6 +11,7 @@ internal static class EndpointExtension
         var group = endpoints.MapGroup("api/folders")
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Folders")
+            .RequireAuthorization(Authentication.Constants.DefaultPolicy)
             .WithOpenApi();
 
         group.MapPost("", async ([FromBody] CreateFolderDto folder, [FromServices] AddFolderToStore storeNewFolder, [FromServices] InstrumentationConfig instrumentation) =>

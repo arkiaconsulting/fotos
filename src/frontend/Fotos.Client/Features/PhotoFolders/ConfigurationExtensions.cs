@@ -1,5 +1,6 @@
 ﻿using Fotos.Client.Adapters;
 using Fotos.Client.Features.Account;
+using Microsoft.Net.Http.Headers;
 
 namespace Fotos.Client.Features.PhotoFolders;
 
@@ -7,10 +8,12 @@ internal static class ConfigurationExtensions
 {
     public static IServiceCollection AddFotosApi(this IServiceCollection services, IConfiguration configuration)
     {
-        services
-            .AddHttpClient(Constants.HttpClientName, client => client.BaseAddress = new Uri(configuration["BaseUrl"]!));
+        services.AddTransient<ClientCookieHandler>()
+            .AddHttpClient(Constants.HttpClientName, client => client.BaseAddress = new Uri(configuration["BaseUrl"]!))
+            .AddHttpMessageHandler<ClientCookieHandler>();
 
         services.AddScoped<FotosApiClient>();
+        services.AddHttpContextAccessor();
         services.RegisterImplementation<ListFolders, FotosApiClient>(c => c.GetFolders);
         services.RegisterImplementation<CreateFolder, FotosApiClient>(c => c.CreateFolder);
         services.RegisterImplementation<GetFolder, FotosApiClient>(c => c.GetFolder);
@@ -36,4 +39,21 @@ internal static class ConfigurationExtensions
         where TDelegate : class
         where TAdapter : notnull =>
         services.AddScoped(sp => implementer(sp.GetRequiredService<TAdapter>()));
+}
+
+internal sealed class ClientCookieHandler : DelegatingHandler
+{
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public ClientCookieHandler(IHttpContextAccessor httpContextAccessor) => _httpContextAccessor = httpContextAccessor;
+
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        var context = _httpContextAccessor.HttpContext!;
+        var authCookie = context.Request.Cookies[Authentication.Constants.CookieName];
+
+        request.Headers.Add("Cookie", new CookieHeaderValue(Authentication.Constants.CookieName, authCookie).ToString());
+
+        return base.SendAsync(request, cancellationToken);
+    }
 }

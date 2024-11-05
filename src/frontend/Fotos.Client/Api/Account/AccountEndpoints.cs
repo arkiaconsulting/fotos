@@ -1,4 +1,5 @@
 ﻿using Fotos.Client.Api.Types;
+using Fotos.Client.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,8 @@ internal static class AccountEndpoints
             }
 
             return Helpers.Challenge(provider, GoogleDefaults.AuthenticationScheme, returnUrl);
-        }).DisableAntiforgery();
+        }).AllowAnonymous()
+        .DisableAntiforgery();
 
         group.MapGet("/login-callback", async (HttpContext context, [FromServices] FindUserInStore findUser) =>
         {
@@ -56,7 +58,7 @@ internal static class AccountEndpoints
             };
 
             return TypedResults.SignIn(result.Principal!, authenticationProperties, authenticationScheme);
-        });
+        }).RequireAuthorization();
 
         group.MapPost("/logout", (HttpContext context, [FromForm] string? returnUrl) =>
         {
@@ -67,8 +69,9 @@ internal static class AccountEndpoints
                 RedirectUri = returnUrl
             };
 
-            return TypedResults.SignOut(authenticationProperties, [authenticationScheme]);
-        }).DisableAntiforgery();
+            return TypedResults.SignOut(authenticationProperties, [authenticationScheme, Constants.AuthenticationScheme]);
+        }).RequireAuthorization()
+        .DisableAntiforgery();
 
         return endpoints;
     }

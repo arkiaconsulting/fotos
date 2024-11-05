@@ -165,7 +165,7 @@ public sealed class FotosTestContext : TestContext
         Services.AddScoped<CustomCircuitHandler>();
         Services.AddScoped<CircuitHandler>(sp => sp.GetRequiredService<CustomCircuitHandler>());
 
-        Services.AddSingleton<SaveUser>(_ => (_, _, _) => Task.CompletedTask);
+        Services.AddSingleton<SaveUser>(_ => _ => Task.CompletedTask);
         Services.AddSingleton<GetMe>(_ => () => Task.FromResult<FotoUserDto>(new("any", RootFolderId)));
     }
 

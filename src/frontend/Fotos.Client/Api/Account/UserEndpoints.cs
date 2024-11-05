@@ -12,7 +12,7 @@ internal static class UserEndpoints
         var group = endpoints.MapGroup("api/users")
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Account")
-            .RequireAuthorization()
+            .RequireAuthorization(Authentication.Constants.DefaultPolicy)
             .WithOpenApi();
 
         group.MapPut("/", async (ClaimsPrincipal principal, [FromBody] CreateFotoUserDto user, [FromServices] AddUserBusiness business, [FromServices] InstrumentationConfig instrumentation) =>

@@ -37,10 +37,7 @@
 
     private async Task RegisterUser()
     {
-        var providerUserId = _authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("The provider user id must be present");
-        var provider = _authState.User.Identity?.AuthenticationType ?? throw new InvalidOperationException("The provider name must be present");
-
-        await SaveUser(provider, providerUserId, _givenName);
+        await SaveUser(_givenName);
 
         NavigationManager.NavigateTo("/account/login-callback", true);
     }

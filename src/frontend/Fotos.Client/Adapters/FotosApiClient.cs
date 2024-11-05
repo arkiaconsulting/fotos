@@ -145,12 +145,10 @@ internal sealed class FotosApiClient
         return photo!;
     }
 
-    internal async Task SaveUser(string provider, string providerUserId, string givenName)
+    internal async Task SaveUser(string givenName)
     {
         using var response = await _httpClient.PostAsJsonAsync("api/users", new
         {
-            provider,
-            providerUserId,
             givenName
         });
 
@@ -159,16 +157,8 @@ internal sealed class FotosApiClient
 
     internal async Task<FotoUserDto> GetMe()
     {
-        try
-        {
-            var user = await _httpClient.GetFromJsonAsync<FotoUserDto>("api/users/me");
+        var user = await _httpClient.GetFromJsonAsync<FotoUserDto>("api/users/me");
 
-            return user!;
-        }
-        catch (Exception)
-        {
-
-            throw;
-        }
+        return user!;
     }
 }

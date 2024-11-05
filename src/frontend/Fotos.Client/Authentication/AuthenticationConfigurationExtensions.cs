@@ -18,8 +18,14 @@ internal static class AuthenticationConfigurationExtensions
             })
             .AddCookie(Constants.AuthenticationScheme, options =>
             {
-                options.Cookie.Name = ".fotos.user";
+                options.Cookie.Name = Constants.CookieName;
                 options.LoginPath = "/account/signin";
+            });
+
+        services.AddAuthorizationBuilder()
+            .AddDefaultPolicy(Constants.DefaultPolicy, policy =>
+            {
+                policy.RequireAuthenticatedUser();
             });
 
         return services;
