@@ -55,3 +55,4 @@ resource "azurerm_cosmosdb_sql_container" "users" {
   partition_key_paths = ["/id"]
 }
 
+

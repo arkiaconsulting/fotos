@@ -64,3 +64,12 @@ data "azurerm_key_vault" "common" {
   resource_group_name = element(data.azurerm_resources.common_key_vault.resources.*.resource_group_name, 0)
 }
 
+data "azurerm_key_vault_certificate" "arkia_dev" {
+  name         = "arkia-dev"
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+
+data "azurerm_app_service_certificate" "arkia_dev" {
+  name                = "arkia-dev"
+  resource_group_name = data.azurerm_key_vault.common.resource_group_name
+}
