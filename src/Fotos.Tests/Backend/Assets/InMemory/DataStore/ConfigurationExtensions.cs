@@ -4,6 +4,7 @@ using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
 using Fotos.App.Api.Types;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Fotos.Tests.Backend.Assets.InMemory.DataStore;
 
@@ -34,7 +35,7 @@ internal static class ConfigurationExtensions
 
     public static IServiceCollection AddInMemoryFolderDataStore(this IServiceCollection services)
     {
-        services.AddSingleton<List<Folder>>([Folder.Create(Guid.NewGuid(), Guid.Empty, "Root")]);
+        services.AddSingleton<List<Folder>>(sp => [Folder.Create(sp.GetService<RootFolderIdWrapper>()?.Value ?? Guid.NewGuid(), Guid.Empty, "Root")]);
         services.AddSingleton<InMemoryFolderDataStore>();
         services.AddSingleton<AddFolderToStore>(sp => sp.GetRequiredService<InMemoryFolderDataStore>().Add);
         services.AddSingleton<RemoveFolderFromStore>(sp => sp.GetRequiredService<InMemoryFolderDataStore>().Remove);
@@ -54,4 +55,18 @@ internal static class ConfigurationExtensions
 
         return services;
     }
+
+    public static IServiceCollection SetRootFolderId(this IServiceCollection services, Guid rootFolderId)
+    {
+        services.TryAddSingleton(new RootFolderIdWrapper(rootFolderId));
+
+        return services;
+    }
+}
+
+public sealed class RootFolderIdWrapper
+{
+    public Guid Value { get; }
+
+    public RootFolderIdWrapper(Guid value) => Value = value;
 }

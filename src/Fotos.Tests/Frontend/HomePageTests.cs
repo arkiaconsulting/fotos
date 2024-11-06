@@ -1,6 +1,7 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Fotos.App.Api.PhotoFolders;
+using Fotos.App.Api.Shared;
 using Fotos.App.Components.Pages.Restricted;
 using Fotos.Tests.Frontend.Assets;
 
@@ -17,7 +18,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Home page should display folders that are children of root"), AutoData]
     public void Test01(string folderName)
     {
-        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new Folder(Guid.NewGuid(), _testContext.RootFolderId, Name.Create(folderName)));
         var home = _testContext.RenderComponent<Home>();
 
         home.WaitForElement("#folders .folder .title").InnerHtml.MarkupMatches(folderName);
@@ -38,7 +39,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Clicking on a newly created folder should display its child folders (none in this case)"), AutoData]
     public void Test03(string folderName)
     {
-        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new Folder(Guid.NewGuid(), _testContext.RootFolderId, Name.Create(folderName)));
 
         var home = _testContext.RenderComponent<Home>();
 
@@ -51,7 +52,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Navigating to the parent folder should pass"), AutoData]
     public void Test04(string folderName)
     {
-        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new Folder(Guid.NewGuid(), _testContext.RootFolderId, Name.Create(folderName)));
 
         var home = _testContext.RenderComponent<Home>();
         home.WaitForElement("#folders .folder").MouseOver();
@@ -73,7 +74,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "When on a child folder, it should be possible to go to parent"), AutoData]
     public void Test06(string folderName)
     {
-        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new Folder(Guid.NewGuid(), _testContext.RootFolderId, Name.Create(folderName)));
 
         var home = _testContext.RenderComponent<Home>();
 
@@ -94,7 +95,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Deleting a folder should remove it from list"), AutoData]
     public void Test08(string folderName)
     {
-        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new Folder(Guid.NewGuid(), _testContext.RootFolderId, Name.Create(folderName)));
 
         var home = _testContext.RenderComponent<Home>();
 
@@ -132,7 +133,7 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Opening folder settings should allow changing the folder name"), AutoData]
     public async Task Test11(string folderName, string newFolderName)
     {
-        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName });
+        _testContext.Folders.Add(new Folder(Guid.NewGuid(), _testContext.RootFolderId, Name.Create(folderName)));
         var home = _testContext.RenderComponent<Home>();
         await home.WaitForElement("#folders .folder").MouseOverAsync(new());
         home.WaitForElement("#folders .folder #settings").Click();
@@ -158,9 +159,9 @@ public sealed class HomePageTests : IDisposable
     [Theory(DisplayName = "Deleting a folder that has child folders should not delete it"), AutoData]
     public void Test13(string folderName, string childFolderName)
     {
-        var parentFolder = new FolderDto { Id = Guid.NewGuid(), ParentId = _testContext.RootFolderId, Name = folderName };
+        var parentFolder = new Folder(Guid.NewGuid(), _testContext.RootFolderId, Name.Create(folderName));
         _testContext.Folders.Add(parentFolder);
-        _testContext.Folders.Add(new FolderDto { Id = Guid.NewGuid(), ParentId = parentFolder.Id, Name = childFolderName });
+        _testContext.Folders.Add(new Folder(Guid.NewGuid(), parentFolder.Id, Name.Create(childFolderName)));
 
         var home = _testContext.RenderComponent<Home>();
 

@@ -1,16 +1,12 @@
 ﻿using Bunit.TestDoubles;
 using Fotos.App.Adapters;
-using Fotos.App.Api.Account;
 using Fotos.App.Api.PhotoAlbums;
 using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
-using Fotos.App.Features.Account;
-using Fotos.App.Features.PhotoAlbums;
-using Fotos.App.Features.PhotoFolders;
-using Fotos.App.Features.Photos;
 using Fotos.App.Hubs;
+using Fotos.Tests.Backend.Assets.InMemory.DataStore;
+using Fotos.Tests.Frontend.Assets.InMemory.Api;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -29,9 +25,9 @@ public sealed class FotosTestContext : TestContext
     private IRenderedComponent<MudPopoverProvider>? _popoverProvider;
     private IRenderedComponent<MudDialogProvider>? _dialogProvider;
 
-    internal List<FolderDto> Folders => Services.GetRequiredService<List<FolderDto>>();
-    internal List<AlbumDto> Albums => Services.GetRequiredService<List<AlbumDto>>();
-    internal List<PhotoDto> Photos => Services.GetRequiredService<List<PhotoDto>>();
+    internal List<Folder> Folders => Services.GetRequiredService<List<Folder>>();
+    internal List<Album> Albums => Services.GetRequiredService<List<Album>>();
+    internal List<Photo> Photos => Services.GetRequiredService<List<Photo>>();
 
     public Guid RootFolderId { get; } = Guid.NewGuid();
 
@@ -47,129 +43,28 @@ public sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
-        Services.AddMudServices();
-        Services.AddSingleton<List<FolderDto>>(_ => [new FolderDto(RootFolderId, Guid.Empty, "Root")]);
-        Services.AddTransient<ListFolders>(sp =>
-        {
-            var folders = sp.GetRequiredService<List<FolderDto>>();
+        Services.SetRootFolderId(RootFolderId);
 
-            return (Guid guid) => Task.FromResult<IReadOnlyCollection<FolderDto>>(folders.Where(f => f.ParentId == guid).ToList());
-        });
-        Services.AddTransient<CreateFolder>(sp =>
-        {
-            var folders = sp.GetRequiredService<List<FolderDto>>();
+        Services.AddInMemoryFolderDataStore()
+            .AddInMemoryFoldersApi();
 
-            return (Guid parentId, string name) => Task.Run(() => folders.Add(new FolderDto(Guid.NewGuid(), parentId, name)));
-        });
-        Services.AddTransient<GetFolder>(sp =>
-        {
-            var folders = sp.GetRequiredService<List<FolderDto>>();
+        Services.AddInMemoryAlbumDataStore()
+            .AddInMemoryAlbumsApi();
 
-            return (_, folderId) => Task.Run(() => folders.Single(f => f.Id == folderId));
-        });
-        Services.AddTransient<RemoveFolder>(sp =>
-        {
-            var folders = sp.GetRequiredService<List<FolderDto>>();
+        Services.AddInMemoryPhotoDataStore()
+            .AddInMemoryPhotosApi();
 
-            return (_, folderId) => Task.Run(() =>
-            {
-                var folder = folders.First(f => f.Id == folderId);
+        Services.AddInMemoryUserDataStore()
+            .AddInMemoryUsersApi();
 
-                folders.Remove(folder);
-            });
-        });
-        Services.AddTransient<UpdateFolder>(sp =>
-        {
-            var folders = sp.GetRequiredService<List<FolderDto>>();
-
-            return (_, folderId, name) => Task.Run(() =>
-            {
-                var folder = folders.Single(f => f.Id == folderId);
-                folders.Remove(folder);
-                folders.Add(new FolderDto(folderId, folder.ParentId, name));
-            });
-        });
-        Services.AddSingleton<List<AlbumDto>>(_ => []);
-        Services.AddTransient<CreateAlbum>(sp =>
-        {
-            var albums = sp.GetRequiredService<List<AlbumDto>>();
-
-            return (Guid folderId, string name) => Task.Run(() => albums.Add(new AlbumDto(Guid.NewGuid(), folderId, name)));
-        });
-        Services.AddTransient<ListAlbums>(sp =>
-        {
-            var albums = sp.GetRequiredService<List<AlbumDto>>();
-
-            return (Guid folderId) => Task.FromResult<IReadOnlyCollection<AlbumDto>>(albums.Where(a => a.FolderId == folderId).ToList());
-        });
-        Services.AddTransient<GetAlbum>(sp =>
-        {
-            var albums = sp.GetRequiredService<List<AlbumDto>>();
-
-            return albumId => Task.Run(() => albums.Single(a => a.Id == albumId.Id));
-        });
-        Services.AddSingleton<List<PhotoDto>>(_ => []);
-        Services.AddTransient<ListPhotos>(sp =>
-        {
-            var photos = sp.GetRequiredService<List<PhotoDto>>();
-
-            return albumId => Task.FromResult<IReadOnlyCollection<PhotoDto>>(photos.Where(p => p.AlbumId == albumId.Id).ToList());
-        });
-        Services.AddTransient<AddPhoto>(sp =>
-        {
-            var photos = sp.GetRequiredService<List<PhotoDto>>();
-
-            return (AlbumId albumId, PhotoToUpload _) => Task.Run(() =>
-            {
-                photos.Add(new(Guid.NewGuid(), albumId.FolderId, albumId.Id, default!, new()));
-
-                return Guid.NewGuid();
-            });
-        });
-        Services.AddTransient<RemovePhoto>(sp =>
-        {
-            var photos = sp.GetRequiredService<List<PhotoDto>>();
-
-            return photoId => Task.Run(() =>
-            {
-                var photo = photos.First(p => p.Id == photoId.Id);
-                photos.Remove(photo);
-            });
-        });
-        Services.AddTransient<UpdatePhoto>(sp =>
-        {
-            var photos = sp.GetRequiredService<List<PhotoDto>>();
-
-            return (photoId, title) =>
-            {
-                var photo = photos.Single(p => p.Id == photoId.Id);
-                photos.Remove(photo);
-                photos.Add(new PhotoDto(photo.Id, photo.FolderId, photo.AlbumId, title, new()));
-
-                return Task.CompletedTask;
-            };
-        });
-        Services.AddTransient<GetPhoto>(sp =>
-        {
-            var photos = sp.GetRequiredService<List<PhotoDto>>();
-
-            return photoId => Task.Run(() => photos.Single(p => p.Id == photoId.Id));
-        });
-        Services.AddTransient<GetOriginalUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
-        Services.AddTransient<GetThumbnailUri>(_ => _ => Task.FromResult(new Uri("/", UriKind.Relative)));
         Services.AddTransient<RealTimeMessageService, RealTimeServiceFake>();
         Services.AddScoped<SessionDataStorage, LocalStorageServiceFake>();
-        Services.AddSingleton<SessionData>(_ => new SessionData([]));
-        Services.AddScoped<List<SessionData>>();
-        Services.AddScoped<CustomCircuitHandler>();
-        Services.AddScoped<CircuitHandler>(sp => sp.GetRequiredService<CustomCircuitHandler>());
-
-        Services.AddSingleton<SaveUser>(_ => _ => Task.CompletedTask);
-        Services.AddSingleton<GetMe>(_ => () => Task.FromResult<FotoUserDto>(new("any", RootFolderId)));
+        Services.AddSingleton<SessionData>(_ => new([]));
     }
 
     private void SetupMudProviders()
     {
+        Services.AddMudServices();
         JSInterop.Mode = JSRuntimeMode.Loose;
         _snackBarComponent = RenderComponent<MudSnackbarProvider>();
         _popoverProvider = RenderComponent<MudPopoverProvider>();
