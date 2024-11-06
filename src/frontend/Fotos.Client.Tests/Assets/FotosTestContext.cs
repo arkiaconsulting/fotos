@@ -18,7 +18,6 @@ using MudBlazor.Services;
 namespace Fotos.Client.Tests.Assets;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
 public sealed class FotosTestContext : TestContext
 {
     internal IRenderedFragment SnackBar => _snackBarComponent!;

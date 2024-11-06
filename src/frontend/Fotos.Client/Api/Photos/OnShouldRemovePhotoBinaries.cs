@@ -3,7 +3,6 @@ using Microsoft.Azure.WebJobs;
 
 namespace Fotos.Client.Api.Photos;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Required by WebJobs runtime")]
 public sealed class OnShouldRemovePhotoBinaries
 {
     private readonly RemovePhotoOriginalFromStorage _removePhotoOriginal;

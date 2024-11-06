@@ -23,10 +23,7 @@ internal static class AuthenticationConfigurationExtensions
             });
 
         services.AddAuthorizationBuilder()
-            .AddDefaultPolicy(Constants.DefaultPolicy, policy =>
-            {
-                policy.RequireAuthenticatedUser();
-            });
+            .AddDefaultPolicy(Constants.DefaultPolicy, policy => policy.RequireAuthenticatedUser());
 
         return services;
     }

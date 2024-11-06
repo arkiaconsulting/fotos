@@ -4,7 +4,6 @@ using Fotos.Client.Features.Photos;
 
 namespace Fotos.Client.Api.Photos;
 
-#pragma warning disable CA1515 // Consider making public types internal (Azure Functions must be public)
 // Store
 internal delegate Task<IReadOnlyCollection<Photo>> ListPhotosFromStore(AlbumId id);
 internal delegate Task RemovePhotoFromStore(PhotoId photoId);
@@ -29,4 +28,3 @@ internal delegate Task OnPhotoRemoved(PhotoId photoId);
 // Various
 public delegate Task<Stream> CreateThumbnail(PhotoBinary photo);
 public delegate Task<ExifMetadata> ExtractExifMetadata(Stream photo, string mimeType);
-#pragma warning restore CA1515 // Consider making public types internal

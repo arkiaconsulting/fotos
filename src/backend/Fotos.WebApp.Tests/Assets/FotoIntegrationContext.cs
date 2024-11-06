@@ -14,7 +14,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Fotos.WebApp.Tests.Assets;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
 public sealed class FotoIntegrationContext
 {
     internal AddPhotoToMainStorage AddPhotoToMainStorage => _host.Services.GetRequiredService<AddPhotoToMainStorage>();
