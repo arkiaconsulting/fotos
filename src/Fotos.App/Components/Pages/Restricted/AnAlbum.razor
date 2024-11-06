@@ -1,0 +1,151 @@
+﻿@page "/album/{ParentId:guid}/{FolderId:guid}/{AlbumId:guid}"
+
+@using Fotos.App.Adapters
+@using Fotos.App.Features
+@using Fotos.App.Features.PhotoFolders
+@using System.Buffers
+@using Fotos.App.Features.Photos
+@using Fotos.App.Hubs
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject GetAlbum GetAlbum
+@inject AddPhoto AddPhoto
+@inject RealTimeMessageService RealTimeMessageService
+@inject ISnackbar Snackbar
+
+@implements IAsyncDisposable
+
+<PageTitle>Fotos Albums</PageTitle>
+
+@if (_album is not null)
+{
+    <MudStack id="album" Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
+        <MudStack Row AlignItems="AlignItems.Center">
+            <MudText id="album-name" Typo="Typo.h5">@_album.Name</MudText>
+            <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" OnClick="GoParentFolder" />
+        </MudStack>
+        <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadPhotos" Accept=".jpg, .jpeg, .png" Hidden="@false" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
+                       InputStyle="opacity:0" MaximumFileCount="50"
+                       @ondrop="@ClearDragClass"
+                       @ondragenter="@SetDragClass"
+                       @ondragleave="@ClearDragClass"
+                       @ondragend="@ClearDragClass">
+            <ActivatorContent>
+                <MudPaper Height="75px" Outlined Class="@_dragClass" tabindex="-1" Style="background-color: transparent">
+                    <MudText Typo="Typo.body1">Drag and drop files here or click</MudText>
+                </MudPaper>
+            </ActivatorContent>
+        </MudFileUpload>
+    </MudStack>
+    <MudDivider Class="mt-4" />
+    <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" OnLoaded="ThumbnailsLoaded" />
+}
+<MudOverlay Visible="@(!_loaded)">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+@code {
+    [Parameter]
+    public Guid AlbumId { get; set; }
+
+    [Parameter]
+    public Guid FolderId { get; set; }
+
+    [Parameter]
+    public Guid ParentId { get; set; }
+
+    private AlbumModel _album = default!;
+    private Thumbnails _thumbnailsComponent = new();
+    private string _dragClass = DefaultDragClass;
+    private bool _loaded;
+
+    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full align-content-center";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RealTimeMessageService.OnThumbnailReady += OnThumbnailReady;
+            RealTimeMessageService.OnMetadataReady += OnMetadataReady;
+            await RealTimeMessageService.StartAsync();
+
+            var album = await GetAlbum(new(FolderId, AlbumId));
+            _album = new AlbumModel { Id = album.Id, FolderId = album.FolderId, Name = album.Name };
+
+            StateHasChanged();
+        }
+    }
+
+    private void OnThumbnailReady(object? sender, PhotoId id)
+    {
+        InvokeAsync(() => _thumbnailsComponent.OnNewThumbnail(id.FolderId, id.AlbumId, id.Id));
+    }
+
+    private void OnMetadataReady(object? sender, PhotoId id)
+    {
+        InvokeAsync(() => _thumbnailsComponent.OnMetadataReady(id.FolderId, id.AlbumId, id.Id));
+    }
+
+    private async Task UploadPhotos(IReadOnlyList<IBrowserFile> files)
+    {
+        await Task.WhenAll(files.Select(UploadSinglePhoto));
+    }
+
+    private async Task UploadSinglePhoto(IBrowserFile file)
+    {
+        if (file.Size > Constants.MaxPhotoSize)
+        {
+            Snackbar.Add(new MarkupString("<div id='alert'><span>The file is too large.</span></div>"), Severity.Error);
+
+            return;
+        }
+
+        if (!Constants.AllowedPhotoContentTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+        {
+            Snackbar.Add(new MarkupString("<div id='alert'><span>Only photos can be uploaded.</span></div>"), Severity.Error);
+
+            return;
+        }
+
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(512 * 1024);
+        using var stream = file.OpenReadStream(maxAllowedSize: Constants.MaxPhotoSize);
+
+        using var ms = new MemoryStream();
+        int bytesRead;
+        long totalBytesRead = 0;
+        while ((bytesRead = await stream.ReadAsync(buffer)) != 0)
+        {
+            totalBytesRead += bytesRead;
+            await ms.WriteAsync(buffer.AsMemory(0, bytesRead));
+        };
+
+        var id = await AddPhoto(new(FolderId, AlbumId), new(ms.ToArray(), file.ContentType, file.Name));
+
+        var photo = new PhotoModel(FolderId, AlbumId, id, file.Name, new());
+        _thumbnailsComponent.AddPhoto(photo);
+    }
+
+    private void GoParentFolder()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void SetDragClass()
+        => _dragClass = $"{DefaultDragClass} mud-border-primary";
+
+    private void ClearDragClass()
+        => _dragClass = DefaultDragClass;
+
+    public async ValueTask DisposeAsync()
+    {
+        await RealTimeMessageService.DisposeAsync();
+    }
+
+    private void ThumbnailsLoaded()
+    {
+        _loaded = true;
+
+        StateHasChanged();
+    }
+}

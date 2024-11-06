@@ -1,0 +1,61 @@
+﻿@using Fotos.App.Components.Models;
+@using Fotos.App.Features.PhotoFolders
+
+@inject UpdateFolder UpdateFolder
+
+<MudDialog Options="_settingsOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h5">Folder settings</MudText>
+    </TitleContent>
+    <DialogContent>
+        <div id="folder-settings">
+            <MudTextField Label="Folder name" @bind-Value="Folder.Name" Variant="Variant.Filled" Immediate />
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CancelChanges">Cancel</MudButton>
+        <MudButton id="save" Variant="Variant.Filled" OnClick=SaveChanges>Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public FolderModel Folder { get; set; } = default!;
+
+    private string _previousFolderName = string.Empty;
+    private DialogOptions _settingsOptions = new()
+        {
+            FullWidth = true,
+            CloseButton = true,
+            CloseOnEscapeKey = true,
+        };
+
+    protected override void OnParametersSet()
+    {
+        _previousFolderName = Folder.Name;
+
+        base.OnParametersSet();
+    }
+
+    private async Task SaveChanges()
+    {
+        MudDialog.Close(DialogResult.Ok(Folder));
+
+        if (_previousFolderName != Folder.Name)
+        {
+            await UpdateFolder(Folder.ParentId, Folder.Id, Folder.Name);
+        }
+        _previousFolderName = string.Empty;
+    }
+
+    private void CancelChanges()
+    {
+        Folder.Name = _previousFolderName;
+        _previousFolderName = string.Empty;
+
+        MudDialog.Close(DialogResult.Cancel());
+    }
+}

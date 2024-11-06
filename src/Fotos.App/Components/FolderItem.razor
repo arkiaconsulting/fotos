@@ -1,0 +1,65 @@
+﻿@using Fotos.App.Components.Dialogs
+@using Fotos.App.Features.PhotoFolders;
+@using Fotos.App.Components.Models;
+
+@inject ListFolders ListFolders
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudPaper Class="folder" Style="background-color: transparent; position: relative"
+@onmouseover="@(() => _isOverlayVisible = true)"
+@onmouseout="@(() => _isOverlayVisible = false)">
+    <MudStack Spacing="0">
+        <MudButton Size="Size.Small">
+            <MudImage Src="img/folder.svg" Width="200">
+            </MudImage>
+        </MudButton>
+        <MudText Class="title ml-4 mb-2">@Folder.Name</MudText>
+    </MudStack>
+    <MudOverlay id="go" @onclick=FolderClicked Visible="@_isOverlayVisible" DarkBackground Absolute Class="d-flex align-end justify-end">
+        <MudIconButton id="settings" Icon="@Icons.Material.Filled.Settings" Size="Size.Small" OnClick=OpenSettings />
+        <MudIconButton id="remove" Icon="@Icons.Material.Filled.DeleteForever" Size="Size.Small" OnClick=RemoveThisFolder />
+    </MudOverlay>
+</MudPaper>
+
+
+
+@code {
+    [Parameter]
+    public FolderModel Folder { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<FolderModel> OnFolderChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<FolderModel> OnFolderRemoved { get; set; }
+
+    private bool _isOverlayVisible = false;
+
+
+    private async Task FolderClicked()
+    {
+        await OnFolderChanged.InvokeAsync(Folder);
+    }
+
+    private async Task RemoveThisFolder()
+    {
+        var childFoldersCount = (await ListFolders(Folder.Id)).Count;
+
+        if(childFoldersCount > 0) {
+            Snackbar.Add("This folder contains child folders. Please remove them first.", Severity.Error);
+
+            return;
+        }
+
+        await OnFolderRemoved.InvokeAsync(Folder);
+    }
+
+    private async Task OpenSettings()
+    {
+        var parameters = new DialogParameters<FolderSettingsDialog> { { x => x.Folder, Folder } };
+        var dialog = await DialogService.ShowAsync<FolderSettingsDialog>(default, parameters);
+        _ = await dialog.Result;
+    }
+}

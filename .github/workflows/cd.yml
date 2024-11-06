@@ -8,8 +8,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      FRONTEND_PATH: src/frontend
-      BACKEND_PATH: src/backend
+      APP_PROJECT_PATH: src/Fotos.App/Fotos.App.csproj
+      TESTS_PROJECT_PATH: src/Fotos.Tests/Fotos.Tests.csproj
       COSMOS_DB_ENDPOINT: https://arkia.documents.azure.com:443/
       COSMOS_DB_KEY: ${{ secrets.ARKIA_COSMOS_DB_ACCOUNT_KEY }}
       COSMOS_DB_DATABASE: tests
@@ -28,10 +28,7 @@ jobs:
     - uses: actions/checkout@v4
         
     - name: Restore frontend test dependencies
-      run: dotnet restore ${{ env.FRONTEND_PATH }}/Fotos.Client.Tests
-
-    - name: Run frontend tests
-      run: dotnet test ${{ env.FRONTEND_PATH }}/Fotos.Client.Tests --no-restore
+      run: dotnet restore ${{ env.TESTS_PROJECT_PATH }}
 
     - name: Install Azurite
       run: npm install -g azurite
@@ -47,11 +44,8 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Restore backend test dependencies
-      run: dotnet restore ${{ env.BACKEND_PATH }}/Fotos.WebApp.Tests
-
-    - name: Run backend tests
-      run: dotnet test ${{ env.BACKEND_PATH }}/Fotos.WebApp.Tests --no-restore
+    - name: Run frontend tests
+      run: dotnet test ${{ env.TESTS_PROJECT_PATH }} --no-restore
       env:
         CosmosDb__AccountEndpoint: ${{ env.COSMOS_DB_ENDPOINT }}
         CosmosDb__AccountKey: ${{ env.COSMOS_DB_KEY }}
@@ -67,10 +61,10 @@ jobs:
         ServiceBus__RemovePhotoBinariesSubscription: ${{ env.SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION }}
         ServiceBus__ExtractExifMetadataSubscription: ${{ env.SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION }}
         Google__ClientId: any
-        Google__ClientSecret: any
+        Google__ClientSecret: any      
 
     - name: Publish
-      run: dotnet publish ${{ env.FRONTEND_PATH }}/Fotos.Client -c Release -o publish
+      run: dotnet publish ${{ env.APP_PROJECT_PATH }} -c Release -o publish
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

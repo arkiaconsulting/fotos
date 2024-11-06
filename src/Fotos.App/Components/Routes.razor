@@ -1,0 +1,29 @@
+﻿@using Fotos.App.Components.Pages
+
+@if (_isLoading) {
+    <MudOverlay Visible DarkBackground />
+}
+else {
+    <Router AppAssembly="typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                <Authorizing>Authorizing...</Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+    </Router>
+}
+
+@code {
+    private bool _isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) {
+            await Task.Delay(1000);
+            _isLoading = false;
+
+            StateHasChanged();
+        }
+    }
+}

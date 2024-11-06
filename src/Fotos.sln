@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{16A1EFF2-A69E-4449-963D-D7F0209908F4}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{F523FA44-F3C9-40FD-B42B-DDD3649869D0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{ACF78481-081A-4C28-A2AA-5404EBA9ED40}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -14,11 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{ACF784
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fotos.WebApp.Tests", "backend\Fotos.WebApp.Tests\Fotos.WebApp.Tests.csproj", "{1F0290B5-F70C-4B38-8249-A485120E8533}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fotos.Tests", "Fotos.Tests\Fotos.Tests.csproj", "{1F0290B5-F70C-4B38-8249-A485120E8533}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fotos.Client", "frontend\Fotos.Client\Fotos.Client.csproj", "{896F1DB5-A593-4791-A26D-D9073FD8CCB5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fotos.Client.Tests", "frontend\Fotos.Client.Tests\Fotos.Client.Tests.csproj", "{083DAE8D-92AB-4E7C-A789-F0DB46EB01BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fotos.App", "Fotos.App\Fotos.App.csproj", "{896F1DB5-A593-4791-A26D-D9073FD8CCB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,18 +28,9 @@ Global
 		{896F1DB5-A593-4791-A26D-D9073FD8CCB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{896F1DB5-A593-4791-A26D-D9073FD8CCB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{896F1DB5-A593-4791-A26D-D9073FD8CCB5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{083DAE8D-92AB-4E7C-A789-F0DB46EB01BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{083DAE8D-92AB-4E7C-A789-F0DB46EB01BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{083DAE8D-92AB-4E7C-A789-F0DB46EB01BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{083DAE8D-92AB-4E7C-A789-F0DB46EB01BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{1F0290B5-F70C-4B38-8249-A485120E8533} = {16A1EFF2-A69E-4449-963D-D7F0209908F4}
-		{896F1DB5-A593-4791-A26D-D9073FD8CCB5} = {F523FA44-F3C9-40FD-B42B-DDD3649869D0}
-		{083DAE8D-92AB-4E7C-A789-F0DB46EB01BD} = {F523FA44-F3C9-40FD-B42B-DDD3649869D0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C329A32B-2F42-4B60-9FA9-27F9823516C5}

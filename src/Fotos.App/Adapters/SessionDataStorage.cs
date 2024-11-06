@@ -1,0 +1,29 @@
+﻿using Fotos.App.Api.Photos;
+
+namespace Fotos.App.Adapters;
+
+internal class SessionDataStorage
+{
+    private readonly GetSessionDataFromStore _getSessionData;
+    private readonly AddSessionDataToStore _addSessionData;
+
+    public SessionDataStorage(
+        GetSessionDataFromStore getSessionData,
+        AddSessionDataToStore addSessionData)
+    {
+        _getSessionData = getSessionData;
+        _addSessionData = addSessionData;
+    }
+
+    public virtual async Task Save(SessionData sessionData)
+    {
+        await _addSessionData(Guid.Empty, sessionData);
+    }
+
+    public virtual async Task<SessionData> Fetch()
+    {
+        var sessionData = await _getSessionData(Guid.Empty);
+
+        return sessionData ?? new(new());
+    }
+}

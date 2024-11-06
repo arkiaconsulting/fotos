@@ -1,0 +1,44 @@
+﻿@page "/account/register"
+
+@using System.Security.Claims
+@using Fotos.App.Features.Account
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject SaveUser SaveUser
+@inject NavigationManager NavigationManager
+
+@attribute [Authorize]
+
+<PageTitle>Register</PageTitle>
+
+<AuthorizeView>
+    <MudGrid Class="mt-4 justify-center">
+        <MudItem xs="8">
+            <MudPaper Class="px-4 pt-4" MaxWidth="50vh">
+                <MudTextField id="given-name" @bind-Value="@_givenName" Label="How should we call you ?" Placeholder="Given name" Required />
+                <div class="d-flex align-center justify-end">
+                    <MudButton id="register" Variant="Variant.Filled" Class="ma-4" OnClick=RegisterUser>Register</MudButton>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</AuthorizeView>
+
+@code {
+    private string _givenName = string.Empty;
+    private AuthenticationState _authState = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        _givenName = _authState.User.FindFirstValue(ClaimTypes.GivenName) ?? string.Empty;
+    }
+
+    private async Task RegisterUser()
+    {
+        await SaveUser(_givenName);
+
+        NavigationManager.NavigateTo("/account/login-callback", true);
+    }
+}
