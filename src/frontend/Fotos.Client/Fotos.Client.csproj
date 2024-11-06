@@ -37,5 +37,24 @@
 			<_Parameter1>Fotos.WebApp.Tests</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.CodeAnalysis.NetAnalyzers">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Update="Roslynator.Analyzers">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Update="Roslynator.CodeAnalysis.Analyzers">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Update="Roslynator.Formatting.Analyzers">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
 	
 </Project>
