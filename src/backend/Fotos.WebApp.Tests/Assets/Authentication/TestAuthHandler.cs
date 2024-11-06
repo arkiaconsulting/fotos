@@ -5,9 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-namespace Fotos.WebApp.Tests.Assets;
+namespace Fotos.WebApp.Tests.Assets.Authentication;
 
-[SuppressMessage("Design", "CA1812:Avoid uninstantiated internal classes", Justification = "<Pending>")]
+[SuppressMessage("Design", "CA1812:Avoid uninstantiated internal classes", Justification = "Instanciated by DI")]
 internal sealed class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     public const string AuthenticationScheme = "TestScheme";
