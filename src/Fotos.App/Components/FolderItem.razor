@@ -3,13 +3,12 @@
 @using Fotos.App.Components.Models;
 
 @inject ListFolders ListFolders
-
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
 <MudPaper Class="folder" Style="background-color: transparent; position: relative"
-@onmouseover="@(() => _isOverlayVisible = true)"
-@onmouseout="@(() => _isOverlayVisible = false)">
+          @onmouseover="@(() => _isOverlayVisible = true)"
+          @onmouseout="@(() => _isOverlayVisible = false)">
     <MudStack Spacing="0">
         <MudButton Size="Size.Small">
             <MudImage Src="img/folder.svg" Width="200">
@@ -23,43 +22,3 @@
     </MudOverlay>
 </MudPaper>
 
-
-
-@code {
-    [Parameter]
-    public FolderModel Folder { get; set; } = default!;
-
-    [Parameter]
-    public EventCallback<FolderModel> OnFolderChanged { get; set; }
-
-    [Parameter]
-    public EventCallback<FolderModel> OnFolderRemoved { get; set; }
-
-    private bool _isOverlayVisible = false;
-
-
-    private async Task FolderClicked()
-    {
-        await OnFolderChanged.InvokeAsync(Folder);
-    }
-
-    private async Task RemoveThisFolder()
-    {
-        var childFoldersCount = (await ListFolders(Folder.Id)).Count;
-
-        if(childFoldersCount > 0) {
-            Snackbar.Add("This folder contains child folders. Please remove them first.", Severity.Error);
-
-            return;
-        }
-
-        await OnFolderRemoved.InvokeAsync(Folder);
-    }
-
-    private async Task OpenSettings()
-    {
-        var parameters = new DialogParameters<FolderSettingsDialog> { { x => x.Folder, Folder } };
-        var dialog = await DialogService.ShowAsync<FolderSettingsDialog>(default, parameters);
-        _ = await dialog.Result;
-    }
-}

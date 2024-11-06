@@ -24,21 +24,3 @@
     </MudGrid>
 </AuthorizeView>
 
-@code {
-    private string _givenName = string.Empty;
-    private AuthenticationState _authState = default!;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-        _givenName = _authState.User.FindFirstValue(ClaimTypes.GivenName) ?? string.Empty;
-    }
-
-    private async Task RegisterUser()
-    {
-        await SaveUser(_givenName);
-
-        NavigationManager.NavigateTo("/account/login-callback", true);
-    }
-}

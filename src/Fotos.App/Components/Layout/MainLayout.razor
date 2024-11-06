@@ -6,12 +6,12 @@
 
 @inject IHostEnvironment HostEnvironment
 
-<MudThemeProvider @ref=@_mudThemeProvider Theme="FotosTheme" @bind-IsDarkMode=@_isDarkMode />
+<MudThemeProvider @ref=@_mudThemeProvider Theme="_fotosTheme" @bind-IsDarkMode=@_isDarkMode />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<CustomErrorBoundary @ref="errorBoundary">
+<CustomErrorBoundary @ref="_errorBoundary">
     <ChildContent>
         <MudLayout>
             <MudAppBar>
@@ -53,45 +53,9 @@
             @if (HostEnvironment.IsDevelopment()) {
                 <p>@context.StackTrace</p>
             }
-            <button class="btn btn-info" @onclick="_ => errorBoundary?.Recover()">
+            <button class="btn btn-info" @onclick="_ => _errorBoundary?.Recover()">
                 Clear
             </button>
         </div>
     </ErrorContent>
 </CustomErrorBoundary>
-
-@code {
-    private ErrorBoundary? errorBoundary = default!;
-    private bool _isDarkMode;
-    private MudThemeProvider _mudThemeProvider = default!;
-    private MudTheme FotosTheme = new()
-        {
-            PaletteLight = new()
-            {
-                AppbarBackground = Colors.BlueGray.Lighten1,
-                AppbarText = Colors.BlueGray.Lighten3,
-                Background = Colors.BlueGray.Lighten5,
-                Primary = Colors.Gray.Darken4,
-                Secondary = Colors.Teal.Lighten1,
-                Surface = Colors.BlueGray.Lighten4,
-                TextPrimary = Colors.BlueGray.Darken1,
-            },
-            PaletteDark = new()
-            {
-                AppbarBackground = Colors.Gray.Darken4,
-                Background = Colors.Gray.Darken3,
-                Primary = Colors.Gray.Darken4,
-                Secondary = Colors.Teal.Darken1,
-                Surface = Colors.Gray.Darken4,
-            }
-        };
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender) {
-            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
-
-            StateHasChanged();
-        }
-    }
-}

@@ -7,16 +7,3 @@
         </MudStack>
     </MudButton>
 </MudPaper>
-
-@code {
-    [Parameter]
-    public AlbumModel Album { get; set; } = default!;
-
-    [Parameter]
-    public EventCallback<AlbumModel> OnAlbumChanged { get; set; }
-
-    private async Task AlbumClicked()
-    {
-        await OnAlbumChanged.InvokeAsync(Album);
-    }
-}
