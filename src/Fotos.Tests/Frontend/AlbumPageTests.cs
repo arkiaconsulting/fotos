@@ -20,14 +20,16 @@ public sealed class AlbumPageTests : IDisposable
 
     public AlbumPageTests() => _testContext = new FotosTestContext();
 
-    [Theory(DisplayName = "The album page should display the name of the album"), AutoData]
-    public void Test01(Guid folderId, Guid albumId, string albumName)
+    [Theory(DisplayName = "The album page should display the name and photo count of the album"), AutoData]
+    public void Test01(Guid folderId, Guid albumId, string albumName, string photoTitle)
     {
         _testContext.Albums.Add(new Album(albumId, folderId, Name.Create(albumName)));
+        _testContext.Photos.Add(new Photo(new(folderId, albumId, Guid.NewGuid()), photoTitle));
         var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
         parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
 
         cut.WaitForElement("#album-name").TextContent.Should().Be(albumName);
+        cut.WaitForElement("#photo-count").TextContent.Should().Be("1");
     }
 
     [Theory(DisplayName = "The album page should display the attached photos"), AutoData]

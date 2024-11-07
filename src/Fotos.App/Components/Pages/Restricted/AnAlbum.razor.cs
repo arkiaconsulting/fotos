@@ -35,7 +35,7 @@ public sealed partial class AnAlbum
             await RealTimeMessageService.StartAsync();
 
             var album = await GetAlbum(new(FolderId, AlbumId));
-            _album = new AlbumModel { Id = album.Id, FolderId = album.FolderId, Name = album.Name };
+            _album = new AlbumModel { Id = album.Id, FolderId = album.FolderId, Name = album.Name, PhotoCount = album.PhotoCount };
 
             StateHasChanged();
         }
@@ -110,6 +110,11 @@ public sealed partial class AnAlbum
     {
         _loaded = true;
 
+        StateHasChanged();
+    }
+
+    private void PhotoRemoved()
+    {
         StateHasChanged();
     }
 }

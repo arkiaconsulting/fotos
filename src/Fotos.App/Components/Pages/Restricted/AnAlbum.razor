@@ -23,6 +23,7 @@
     <MudStack id="album" Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-4">
         <MudStack Row AlignItems="AlignItems.Center">
             <MudText id="album-name" Typo="Typo.h5">@_album.Name</MudText>
+            <MudChip T="string" id="photo-count" Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary">@_thumbnailsComponent.Count</MudChip>
             <MudIconButton id="go-parent-folder" Icon="@Icons.Material.Filled.ArrowCircleUp" OnClick="GoParentFolder" />
         </MudStack>
         <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadPhotos" Accept=".jpg, .jpeg, .png" Hidden="@false" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
@@ -39,7 +40,7 @@
         </MudFileUpload>
     </MudStack>
     <MudDivider Class="mt-4" />
-    <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" OnLoaded="ThumbnailsLoaded" />
+    <Thumbnails @ref="_thumbnailsComponent" FolderId="FolderId" AlbumId="AlbumId" OnLoaded="ThumbnailsLoaded" OnPhotoRemoved="PhotoRemoved" />
 }
 <MudOverlay Visible="@(!_loaded)">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />

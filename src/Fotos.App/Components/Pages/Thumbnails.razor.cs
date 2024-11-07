@@ -13,6 +13,11 @@ public partial class Thumbnails
     [Parameter]
     public EventCallback OnLoaded { get; set; }
 
+    [Parameter]
+    public EventCallback OnPhotoRemoved { get; set; }
+
+    public int Count => _thumbnails.Count;
+
     private bool _isPhotoDisplayed;
 
     private List<PhotoModel> _thumbnails = [];
@@ -46,6 +51,8 @@ public partial class Thumbnails
         CloseDetails();
 
         StateHasChanged();
+
+        await OnPhotoRemoved.InvokeAsync(null);
     }
 
     private async Task ViewPhoto(PhotoModel photo)
