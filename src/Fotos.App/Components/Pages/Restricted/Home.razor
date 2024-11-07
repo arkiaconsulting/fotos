@@ -29,8 +29,8 @@
 {
     <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4" Justify="Justify.SpaceBetween">
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
-            <MudText id="current-folder-name" Typo="Typo.h5">@CurrentFolder.Name</MudText>
             <MudIconButton id="up" Icon="@Icons.Material.Filled.ArrowUpward" OnClick="GotToParentFolder" Disabled="@(CurrentFolder.ParentId == Guid.Empty)" Size="Size.Small" />
+            <MudText id="current-folder-name" Typo="Typo.h5">@CurrentFolder.Name</MudText>
             <MudIconButton id="current-folder-settings" Icon="@Icons.Material.Filled.Settings" OnClick="OpenCurrentFolderSettings" Size="Size.Small" />
         </MudStack>
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
