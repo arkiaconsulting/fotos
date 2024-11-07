@@ -1,5 +1,6 @@
 using Fotos.App.Components.Models;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace Fotos.App.Components.Pages;
 public partial class Thumbnails
@@ -20,12 +21,26 @@ public partial class Thumbnails
 
     private bool _isPhotoDisplayed;
 
-    private IEnumerable<PhotoModel> FilteredPhotos => _thumbnails.Where(p => p.Title.Contains(_filter ?? string.Empty, StringComparison.InvariantCultureIgnoreCase));
+    private IEnumerable<PhotoModel> FilteredPhotos
+    {
+        get
+        {
+            var filtered = _thumbnails.Where(p => p.Title.Contains(_filter ?? string.Empty, StringComparison.InvariantCultureIgnoreCase));
+
+            return _sortDate switch
+            {
+                SortDirection.Ascending => filtered.OrderBy(p => p.Metadata.DateTaken),
+                SortDirection.Descending => filtered.OrderByDescending(p => p.Metadata.DateTaken),
+                _ => filtered
+            };
+        }
+    }
 
     private List<PhotoModel> _thumbnails = [];
     private PhotoModel _photo = PhotoModel.Default();
     private bool _showDetails;
     private string? _filter;
+    private SortDirection _sortDate = SortDirection.Ascending;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

@@ -44,8 +44,18 @@
         </MudGrid>
     </MudStack>
 </MudPopover>
-<MudTextField T="string" id="filter" @bind-Value="@_filter" DebounceInterval="1000" OnDebounceIntervalElapsed="FilterChanged" Label="Filter" Style="width:40vh" Clearable
-HelperTextOnFocus HelperText="You can filter on title"/>
+<MudStack Row AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+    <div style="width:40vh">
+        <MudTextField T="string" id="filter" @bind-Value="@_filter" DebounceInterval="1000" OnDebounceIntervalElapsed="FilterChanged" Label="Filter" Clearable
+                      HelperTextOnFocus HelperText="You can filter on title" />
+    </div>
+    <MudDivider Vertical FlexItem />
+    <MudText>Date</MudText>
+    <MudToggleGroup T="SortDirection" @bind-Value="_sortDate" SelectionMode="SelectionMode.SingleSelection" CheckMark FixedContent>
+        <MudToggleItem Value="@SortDirection.Ascending" Text="Ascending" />
+        <MudToggleItem Value="@SortDirection.Descending" Text="Descending" />
+    </MudToggleGroup>
+</MudStack>
 <MudStack id="thumbnails" Row Wrap="Wrap.Wrap" Class="mt-12">
     @foreach (var thumbnail in FilteredPhotos) {
         <div class="thumbnail">
