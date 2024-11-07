@@ -20,9 +20,12 @@ public partial class Thumbnails
 
     private bool _isPhotoDisplayed;
 
+    private IEnumerable<PhotoModel> FilteredPhotos => _thumbnails.Where(p => p.Title.Contains(_filter ?? string.Empty, StringComparison.InvariantCultureIgnoreCase));
+
     private List<PhotoModel> _thumbnails = [];
     private PhotoModel _photo = PhotoModel.Default();
     private bool _showDetails;
+    private string? _filter;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -127,5 +130,14 @@ public partial class Thumbnails
 
         photo.Metadata = actualPhoto.Metadata;
         StateHasChanged();
+    }
+
+    private void FilterChanged(string newValue)
+    {
+        if (string.IsNullOrWhiteSpace(newValue))
+        {
+            _filter = null;
+            return;
+        }
     }
 }

@@ -191,6 +191,45 @@ public sealed class AlbumPageTests : IDisposable
         cut.WaitForAssertion(() => _testContext.Photos.Single(p => p.Id.Id == photoId).Title.Should().Be(newTitle));
     }
 
+    [Theory(DisplayName = "When filtering on photo title should only show filtered photos"), AutoData]
+    public async Task Test14(Guid folderId, Guid albumId, string albumName, string photo1Title, string photo2Title)
+    {
+        await Task.CompletedTask;
+
+        _testContext.Albums.Add(new Album(albumId, folderId, Name.Create(albumName)));
+        var photo1Id = Guid.NewGuid();
+        var photo2Id = Guid.NewGuid();
+        _testContext.Photos.Add(new Photo(new(folderId, albumId, Guid.NewGuid()), photo1Title));
+        _testContext.Photos.Add(new Photo(new(folderId, albumId, Guid.NewGuid()), photo2Title));
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        var filter = cut.WaitForElement("#filter");
+
+        await filter.InputAsync(new() { Value = photo1Title });
+
+        cut.WaitForAssertion(() => cut.FindAll("#thumbnails .thumbnail").Should().HaveCount(1));
+    }
+
+    [Theory(DisplayName = "When emptying filter should show all photos"), AutoData]
+    public async Task Test15(Guid folderId, Guid albumId, string albumName, string photo1Title, string photo2Title)
+    {
+        await Task.CompletedTask;
+
+        _testContext.Albums.Add(new Album(albumId, folderId, Name.Create(albumName)));
+        var photo1Id = Guid.NewGuid();
+        var photo2Id = Guid.NewGuid();
+        _testContext.Photos.Add(new Photo(new(folderId, albumId, Guid.NewGuid()), photo1Title));
+        _testContext.Photos.Add(new Photo(new(folderId, albumId, Guid.NewGuid()), photo2Title));
+        var cut = _testContext.RenderComponent<AnAlbum>(parameters =>
+        parameters.Add(p => p.FolderId, folderId).Add(p => p.AlbumId, albumId));
+        var filter = cut.WaitForElement("#filter");
+        await filter.InputAsync(new() { Value = photo1Title });
+
+        await filter.InputAsync(new() { Value = string.Empty });
+
+        cut.WaitForAssertion(() => cut.FindAll("#thumbnails .thumbnail").Should().HaveCount(2));
+    }
+
     #region IDisposable
 
     public void Dispose() => _testContext.Dispose();

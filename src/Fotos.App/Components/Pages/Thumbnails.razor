@@ -10,7 +10,7 @@
 @inject GetPhoto GetPhoto
 
 <MudPopover Open=_showDetails Class="pa-4" OverflowBehavior="OverflowBehavior.FlipNever" Fixed
-AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopRight">
+            AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopRight">
     <MudStack id="details" Style="width: 400px">
         <MudStack Row AlignItems="AlignItems.Start" Class="pt-0">
             <MudTextField T="string" id="title" Typo="Typo.body2" @bind-Text="@_photo.Title" Margin="Margin.Dense" ValueChanged="PhotoRenamed" TextUpdateSuppression />
@@ -19,7 +19,7 @@ AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopRight">
             <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick=CloseDetails Size="Size.Medium" />
         </MudStack>
         <MudGrid>
-            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full"  Typo="Typo.body2">Date taken</MudText></MudItem>
+            <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Date taken</MudText></MudItem>
             <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.DateTaken</MudText></MudItem>
             <MudItem xs="4"><MudText Class="d-flex justify-start mud-width-full" Typo="Typo.body2">Camera Brand</MudText></MudItem>
             <MudItem xs="8"><MudText Class="d-flex justify-end mud-width-full" Typo="Typo.body2">@_photo.Metadata.CameraBrand</MudText></MudItem>
@@ -44,10 +44,10 @@ AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.TopRight">
         </MudGrid>
     </MudStack>
 </MudPopover>
+<MudTextField T="string" id="filter" @bind-Value="@_filter" DebounceInterval="1000" OnDebounceIntervalElapsed="FilterChanged" Label="Filter" Style="width:40vh" Clearable
+HelperTextOnFocus HelperText="You can filter on title"/>
 <MudStack id="thumbnails" Row Wrap="Wrap.Wrap" Class="mt-12">
-
-    @foreach (var thumbnail in _thumbnails)
-    {
+    @foreach (var thumbnail in FilteredPhotos) {
         <div class="thumbnail">
             <MudButton class="view" ondblclick="@(() => ViewPhoto(thumbnail))" OnClick="@(() => ShowDetails(thumbnail))">
                 <MudImage src="@thumbnail.ThumbnailUri?.ToString()" alt="@thumbnail.Title" Width="200" Height="133" ObjectFit="ObjectFit.Contain" />
