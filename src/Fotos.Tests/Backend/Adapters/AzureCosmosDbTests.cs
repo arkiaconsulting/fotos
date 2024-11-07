@@ -115,4 +115,15 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
         var item = await JsonSerializer.DeserializeAsync<JsonElement>(response.Content, options: new(JsonSerializerDefaults.Web));
         item.GetProperty("givenName").GetString().Should().Be(user.GivenName.Value);
     }
+
+    [Theory(DisplayName = "When getting an album photo count should return right count"), AutoData]
+    internal async Task Test08(Photo[] photos, Photo anotherPhoto)
+    {
+        await Task.WhenAll(photos.Select(photo => _context.StorePhotoData(photo with { Id = photo.Id with { FolderId = photos[0].Id.FolderId, AlbumId = photos[0].Id.AlbumId } })));
+        await _context.StorePhotoData(anotherPhoto);
+
+        var actualCount = await _context.GetAlbumPhotoCount(photos[0].Id.FolderId, photos[0].Id.AlbumId);
+
+        actualCount.Should().Be(photos.Length);
+    }
 }

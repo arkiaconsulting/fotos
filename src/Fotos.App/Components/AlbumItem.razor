@@ -1,8 +1,10 @@
 ﻿<MudPaper Class="album" Style="background-color: transparent; position: relative">
     <MudButton class="go" OnClick=AlbumClicked>
         <MudStack Spacing="0">
-            <MudImage Src="img/folder.svg" Width="200">
-            </MudImage>
+            <div class="d-flex justify-end">
+                <MudChip T="string" Class="photoCount" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary">@Album.PhotoCount</MudChip>
+            </div>
+            <MudImage Src="img/folder.svg" Width="200" Class="ma-0 pa-0" />
             <MudText Class="title ml-4 mb-2">@Album.Name</MudText>
         </MudStack>
     </MudButton>

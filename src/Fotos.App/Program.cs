@@ -42,6 +42,7 @@ builder.Services.AddFotosAuthentication(builder.Configuration);
 
 // Business
 builder.Services.AddPhotosBusiness();
+builder.Services.AddAlbumsBusiness();
 builder.Services.AddAccountBusiness();
 
 // Adapters

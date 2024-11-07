@@ -29,32 +29,38 @@ internal static class EndpointExtension
             .WithSummary("Create a new album in an existing folder")
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        group.MapGet("", async ([FromRoute] Guid folderId, [FromServices] GetFolderAlbumsFromStore getFolderAlbums, [FromServices] InstrumentationConfig instrumentation) =>
+        group.MapGet("", async ([FromRoute] Guid folderId, [FromServices] GetFolderAlbumsBusiness getFolderAlbumsBusiness, [FromServices] InstrumentationConfig instrumentation) =>
         {
             using var activity = instrumentation.ActivitySource.StartActivity("list albums", System.Diagnostics.ActivityKind.Server);
             activity?.SetTag("folderId", folderId);
 
-            var albums = await getFolderAlbums(folderId);
+            var albums = await getFolderAlbumsBusiness.Process(folderId);
 
             activity?.AddEvent(new System.Diagnostics.ActivityEvent("albums listed", tags: new(new Dictionary<string, object?>() { ["count"] = albums.Count })));
 
-            return Results.Ok(albums.Select(a => new AlbumDto(a.Id, a.FolderId, a.Name.Value)));
+            return Results.Ok(albums
+                .Select(x =>
+                 {
+                     var (album, photoCount) = x;
+                     return new AlbumDto(album.Id, album.FolderId, album.Name.Value, photoCount);
+                 })
+            );
         })
             .WithSummary("List the albums attached to the given folder")
             .Produces<IEnumerable<AlbumDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        group.MapGet("{albumId:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] GetAlbumFromStore getAlbum, [FromServices] InstrumentationConfig instrumentation) =>
+        group.MapGet("{albumId:guid}", async ([FromRoute] Guid folderId, [FromRoute] Guid albumId, [FromServices] GetAlbumBusiness getAlbum, [FromServices] InstrumentationConfig instrumentation) =>
         {
             using var activity = instrumentation.ActivitySource.StartActivity("get album", System.Diagnostics.ActivityKind.Server);
             activity?.SetTag("folderId", folderId);
             activity?.SetTag("albumId", albumId);
 
-            var album = await getAlbum(new(folderId, albumId));
+            var (album, photoCount) = await getAlbum.Process(new(folderId, albumId));
 
             activity?.AddEvent(new System.Diagnostics.ActivityEvent("album retrieved"));
 
-            return Results.Ok(new AlbumDto(album.Id, album.FolderId, album.Name.Value));
+            return Results.Ok(new AlbumDto(album.Id, album.FolderId, album.Name.Value, photoCount));
         })
             .WithSummary("Get a specific album")
             .Produces<AlbumDto>(StatusCodes.Status200OK)

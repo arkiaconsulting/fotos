@@ -18,6 +18,7 @@ internal static class ConfigurationExtensions
         services.AddSingleton<RemovePhotoFromStore>(sp => sp.GetRequiredService<InMemoryPhotoDataStore>().Remove);
         services.AddSingleton<GetPhotoFromStore>(sp => sp.GetRequiredService<InMemoryPhotoDataStore>().Get);
         services.AddSingleton<ListPhotosFromStore>(sp => sp.GetRequiredService<InMemoryPhotoDataStore>().GetByAlbum);
+        services.AddSingleton<GetAlbumPhotoCountFromStore>(sp => sp.GetRequiredService<InMemoryPhotoDataStore>().CountPhotos);
 
         return services;
     }

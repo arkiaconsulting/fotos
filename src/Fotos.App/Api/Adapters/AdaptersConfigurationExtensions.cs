@@ -112,7 +112,8 @@ internal static class AdaptersConfigurationExtensions
         .AddScoped<AddSessionDataToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreSessionData)
         .AddScoped<GetSessionDataFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetSessionData)
         .AddScoped<FindUserInStore>(sp => sp.GetRequiredService<AzureCosmosDb>().FindUser)
-        .AddScoped<AddUserToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreUser);
+        .AddScoped<AddUserToStore>(sp => sp.GetRequiredService<AzureCosmosDb>().StoreUser)
+        .AddScoped<GetAlbumPhotoCountFromStore>(sp => sp.GetRequiredService<AzureCosmosDb>().GetAlbumPhotoCount);
 
         services.AddSingleton(sp =>
         {

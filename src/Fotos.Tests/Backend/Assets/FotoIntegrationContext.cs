@@ -5,6 +5,7 @@ using Azure.Storage.Blobs;
 using Fotos.App;
 using Fotos.App.Api.Account;
 using Fotos.App.Api.Adapters;
+using Fotos.App.Api.PhotoAlbums;
 using Fotos.App.Api.Photos;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,7 @@ public sealed class FotoIntegrationContext
     internal AddSessionDataToStore StoreSessionData => _host.Services.GetRequiredService<AddSessionDataToStore>();
     internal GetSessionDataFromStore GetSessionData => _host.Services.GetRequiredService<GetSessionDataFromStore>();
     internal AddUserToStore AddUserToStore => _host.Services.GetRequiredService<AddUserToStore>();
+    internal GetAlbumPhotoCountFromStore GetAlbumPhotoCount => _host.Services.GetRequiredService<GetAlbumPhotoCountFromStore>();
     internal Container PhotosData
     {
         get

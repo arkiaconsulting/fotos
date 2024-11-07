@@ -31,4 +31,7 @@ internal sealed class InMemoryPhotoDataStore
 
     public Task<IReadOnlyCollection<Photo>> GetByAlbum(AlbumId albumId) =>
         Task.FromResult<IReadOnlyCollection<Photo>>(_source.Where(photo => photo.Id.AlbumId == albumId.Id).ToList());
+
+    public Task<int> CountPhotos(Guid _, Guid albumId) =>
+        Task.FromResult(_source.Count(photo => photo.Id.AlbumId == albumId));
 }

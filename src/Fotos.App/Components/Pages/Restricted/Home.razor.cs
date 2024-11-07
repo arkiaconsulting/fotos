@@ -49,7 +49,7 @@ public partial class Home
 
     private async Task RefreshAlbums()
     {
-        _childAlbums = (await ListAlbums(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name }).ToList();
+        _childAlbums = (await ListAlbums(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name, PhotoCount = dto.PhotoCount }).ToList();
     }
 
     private async Task RefreshFoldersAndAlbums()

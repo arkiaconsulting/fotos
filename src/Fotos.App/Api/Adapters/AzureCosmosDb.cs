@@ -263,6 +263,26 @@ internal sealed class AzureCosmosDb
             .Add(albumId.FolderId.ToString())
             .Add(albumId.Id.ToString())
             .Build();
+    internal async Task<int> GetAlbumPhotoCount(Guid folderId, Guid albumId)
+    {
+        using var activity = _activitySource.StartActivity("retrieving album photo count from database");
+
+        var query = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.folderId = @folderId AND c.albumId = @albumId")
+            .WithParameter("@folderId", folderId)
+            .WithParameter("@albumId", albumId);
+
+        var iterator = _photoContainer.GetItemQueryIterator<int>(query, requestOptions: new() { PartitionKey = new PartitionKey(folderId.ToString()) });
+        var count = 0;
+        while (iterator.HasMoreResults)
+        {
+            var response = await iterator.ReadNextAsync();
+            count += response.Sum();
+        }
+
+        activity?.AddEvent(new ActivityEvent("album photo count retrieved from database"));
+
+        return count;
+    }
 
     private sealed record CosmosPhoto(Guid Id, Guid FolderId, Guid AlbumId, string Title, ExifMetadata? Metadata)
     {

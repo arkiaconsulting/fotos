@@ -1,6 +1,8 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using Fotos.App.Api.PhotoAlbums;
 using Fotos.App.Api.PhotoFolders;
+using Fotos.App.Api.Photos;
 using Fotos.App.Api.Shared;
 using Fotos.App.Components.Pages.Restricted;
 using Fotos.Tests.Frontend.Assets;
@@ -169,6 +171,16 @@ public sealed class HomePageTests : IDisposable
         home.WaitForElement("#folders .folder #remove").Click();
 
         home.WaitForElement("#folders:not(:empty)");
+    }
+
+    [Theory(DisplayName = "Album tile should display the number of photos in the album"), AutoData]
+    public void Test14(Guid albumId, string albumName)
+    {
+        _testContext.Albums.Add(new Album(albumId, _testContext.RootFolderId, Name.Create(albumName)));
+        _testContext.Photos.Add(new Photo(new(_testContext.RootFolderId, albumId, Guid.NewGuid()), albumName));
+        var home = _testContext.RenderComponent<Home>();
+
+        home.WaitForElement("#albums .album .photoCount").TextContent.MarkupMatches("1");
     }
 
     #region IDisposable
