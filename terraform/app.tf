@@ -51,6 +51,7 @@ resource "azurerm_windows_web_app" "main" {
     "Instrumentation:ServiceName"                 = "fotos-app"
     "Google:ClientId"                             = "@Microsoft.KeyVault(SecretUri=${local.google.client_id})"
     "Google:ClientSecret"                         = "@Microsoft.KeyVault(SecretUri=${local.google.client_secret})"
+    "AccessTokenSigningKey"                       = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault.common.vault_uri}secrets/fotos-token-key)"
   }
 
   tags = local.tags

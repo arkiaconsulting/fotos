@@ -1,5 +1,4 @@
-﻿using Fotos.App;
-using Fotos.App.Api.Framework;
+﻿using Fotos.App.Api.Framework;
 using Fotos.App.Api.Shared;
 using Fotos.App.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +12,7 @@ internal static class EndpointExtension
         var group = endpoints.MapGroup("api/folders")
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Folders")
-            .RequireAuthorization(Constants.DefaultPolicy)
+            .RequireAuthorization(Constants.ApiPolicy)
             .WithOpenApi();
 
         group.MapPost("", async ([FromBody] CreateFolderDto folder, [FromServices] AddFolderToStore storeNewFolder, [FromServices] InstrumentationConfig instrumentation) =>

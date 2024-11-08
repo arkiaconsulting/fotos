@@ -61,7 +61,9 @@ jobs:
         ServiceBus__RemovePhotoBinariesSubscription: ${{ env.SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION }}
         ServiceBus__ExtractExifMetadataSubscription: ${{ env.SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION }}
         Google__ClientId: any
-        Google__ClientSecret: any      
+        Google__ClientSecret: any
+        BaseUrl: https://any
+        AccessTokenSigningKey: 0000000000000000000000000000000000000000000000000000000000000000000
 
     - name: Publish
       run: dotnet publish ${{ env.APP_PROJECT_PATH }} -c Release -o publish

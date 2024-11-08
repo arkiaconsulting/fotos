@@ -9,6 +9,9 @@ using System.Security.Claims;
 namespace Fotos.App.Components.Pages.Restricted;
 public partial class Home
 {
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = default!;
+
     public FolderModel CurrentFolder => SessionData.FolderStack.Peek();
 
     private List<FolderModel> _childFolders = [];

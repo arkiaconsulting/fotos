@@ -1,6 +1,9 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
+using Fotos.App.Api.Shared;
+using Fotos.App.Api.Types;
 using Fotos.Tests.Backend.Assets;
+using Fotos.Tests.Backend.Assets.Authentication;
 
 namespace Fotos.Tests.Backend.Account;
 
@@ -14,7 +17,7 @@ public sealed class UserManagementTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Creating the authenticated user should pass"), AutoData]
     public async Task Test01(string givenName)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.AddUser(givenName);
 
@@ -24,7 +27,7 @@ public sealed class UserManagementTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Creating the authenticated user with an invalid payload should fail"), ClassData(typeof(AddUserWrongTheoryData))]
     internal async Task Test02(string _, string body)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.AddUserWithBody(body);
 
@@ -33,14 +36,15 @@ public sealed class UserManagementTests : IClassFixture<FotoApi>
     }
 
     [Theory(DisplayName = "Getting the authenticated user details should pass"), AutoData]
-    internal async Task Test03(string givenName)
+    internal async Task Test03(string givenName, Guid rootFolderId)
     {
-        var client = _fotoApi.CreateClient();
-        using var _ = await client.AddUser(givenName);
+        _fotoApi.Users.Add(new FotoUser(FotoUserId.Create("bearer", Constants.TestUserId), Name.Create(givenName), rootFolderId));
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var userResponse = await client.GetMe();
 
         userResponse.Should().Be200Ok();
         userResponse.Should().MatchInContent($"*{givenName}*");
+        userResponse.Should().MatchInContent($"*{rootFolderId}*");
     }
 }

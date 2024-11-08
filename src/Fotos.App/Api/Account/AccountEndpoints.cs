@@ -27,7 +27,7 @@ internal static class AccountEndpoints
         }).AllowAnonymous()
         .DisableAntiforgery();
 
-        group.MapGet("/login-callback", async (HttpContext context, [FromServices] FindUserInStore findUser) =>
+        group.MapGet("/login-callback", async (HttpContext context, [FromServices] FindUserInStore findUser, [FromServices] AccessTokenService accessTokenService) =>
         {
             if (context.User.Identity?.IsAuthenticated == false || context?.User.Identity is null)
             {
@@ -54,8 +54,11 @@ internal static class AccountEndpoints
 
             var authenticationProperties = new AuthenticationProperties
             {
-                RedirectUri = returnUrl
+                RedirectUri = returnUrl,
+                IsPersistent = true
             };
+
+            authenticationProperties = accessTokenService.StoreNewToken(authenticationProperties, user.Value.Id.Value, user.Value.GivenName.Value);
 
             return TypedResults.SignIn(result.Principal!, authenticationProperties, authenticationScheme);
         }).RequireAuthorization();

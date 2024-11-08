@@ -1,4 +1,5 @@
 ﻿using Fotos.App.Api.Photos;
+using Fotos.App.Api.Types;
 using Fotos.App.Features.Photos;
 using Fotos.Tests.Backend.Assets.Authentication;
 using Fotos.Tests.Backend.Assets.InMemory.DataStore;
@@ -8,12 +9,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Security.Claims;
 
 namespace Fotos.Tests.Backend.Assets;
 
 public sealed class FotoApi : WebApplicationFactory<Program>
 {
     internal List<Photo> Photos => Services.GetRequiredService<List<Photo>>();
+    internal List<FotoUser> Users => Services.GetRequiredService<List<FotoUser>>();
     internal List<PhotoId> PhotoRemovedMessageSink => Services.GetRequiredKeyedService<List<PhotoId>>("messages-removed");
     internal List<PhotoId> PhotoUploadedMessageSink => Services.GetRequiredKeyedService<List<PhotoId>>("messages-uploaded");
 
@@ -42,14 +45,24 @@ public sealed class FotoApi : WebApplicationFactory<Program>
         builder.ConfigureAppConfiguration(ConfigureAppConfiguration);
     }
 
+    public HttpClient CreateAuthenticatedClient()
+    {
+        var client = CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer",
+            MockJwtTokens.GenerateJwtToken([new Claim(ClaimTypes.NameIdentifier, $"bearer-{Constants.TestUserId}")]));
+
+        return client;
+    }
+
     private static void ConfigureAppConfiguration(WebHostBuilderContext _, IConfigurationBuilder builder) =>
-        builder.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true",
-            ["AzureWebJobs.OnShouldRemovePhotoBinaries.Disabled"] = "true",
-            ["AzureWebJobs.OnShouldExtractExifMetadata.Disabled"] = "true",
-            ["Instrumentation:ServiceName"] = "tests-fotos-app",
-        });
+    builder.AddInMemoryCollection(new Dictionary<string, string?>
+    {
+        ["AzureWebJobs.OnShouldProduceThumbnail.Disabled"] = "true",
+        ["AzureWebJobs.OnShouldRemovePhotoBinaries.Disabled"] = "true",
+        ["AzureWebJobs.OnShouldExtractExifMetadata.Disabled"] = "true",
+        ["Instrumentation:ServiceName"] = "tests-fotos-app",
+    });
 
     public override async ValueTask DisposeAsync()
     {

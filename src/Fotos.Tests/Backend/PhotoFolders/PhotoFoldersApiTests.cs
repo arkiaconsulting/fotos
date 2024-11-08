@@ -16,7 +16,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Creating a new folder with a valid name should pass"), AutoData]
     public async Task Test01(Guid parentFolderId, string folderName)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.CreatePhotoFolder(parentFolderId, folderName);
 
@@ -27,7 +27,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Creating a new folder with an invalid payload should fail"), ClassData(typeof(CreateFolderWrongTheoryData))]
     public async Task Test02(string body)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.CreatePhotoFolderWithBody(body);
 
@@ -38,7 +38,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Listing folders at root when no child folders should return empty list"), AutoData]
     public async Task Test03(Guid rootFolderId)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.ListPhotoFolders(rootFolderId);
 
@@ -49,7 +49,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Listing folders at root when having child folders should not return other root child folders"), AutoData]
     public async Task Test04(Guid rootFolderId, Guid anotherFolderId, string folderName)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         _ = await client.CreatePhotoFolder(rootFolderId, folderName);
         _ = await client.CreatePhotoFolder(anotherFolderId, folderName);
 
@@ -62,7 +62,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Getting a folder that does not exist should fail"), AutoData]
     public async Task Test05(Guid parentId, Guid nonExistingFolderId)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.GetFolder(parentId, nonExistingFolderId);
 
@@ -73,7 +73,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Removing a folder that does not exist should pass"), AutoData]
     public async Task Test06(Guid parentId, Guid nonExistingFolderId)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.RemoveFolder(parentId, nonExistingFolderId);
 
@@ -83,7 +83,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Removing a folder that exists should pass"), AutoData]
     public async Task Test07(Guid parentId, string folderName)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         using var r0 = await client.CreatePhotoFolder(parentId, folderName);
         var folderId = await r0.Content.ReadFromJsonAsync<Guid>();
 
@@ -97,7 +97,7 @@ public sealed class PhotoFoldersApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Renaming a folder should pass"), AutoData]
     public async Task Test08(Guid parentId, string folderName, string newFolderName)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         using var r0 = await client.CreatePhotoFolder(parentId, folderName);
         var folderId = await r0.Content.ReadFromJsonAsync<Guid>();
 

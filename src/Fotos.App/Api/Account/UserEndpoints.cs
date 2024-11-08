@@ -1,5 +1,4 @@
-﻿using Fotos.App;
-using Fotos.App.Api.Framework;
+﻿using Fotos.App.Api.Framework;
 using Fotos.App.Api.Types;
 using Fotos.App.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ internal static class UserEndpoints
         var group = endpoints.MapGroup("api/users")
             .AddEndpointFilter<ValidationEndpointFilter>()
             .WithTags("Account")
-            .RequireAuthorization(Constants.DefaultPolicy)
+            .RequireAuthorization(Constants.ApiPolicy)
             .WithOpenApi();
 
         group.MapPut("/", async (ClaimsPrincipal principal, [FromBody] CreateFotoUserDto user, [FromServices] AddUserBusiness business, [FromServices] InstrumentationConfig instrumentation) =>
@@ -46,10 +45,9 @@ internal static class UserEndpoints
         {
             using var activity = instrumentation.ActivitySource.StartActivity("retrieve user details", System.Diagnostics.ActivityKind.Server);
 
-            var provider = principal.Identity?.AuthenticationType ?? throw new InvalidOperationException("user not authenticated");
-            var providerId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var userId = new FotoUserId(principal.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var user = (await findUserInStore(FotoUserId.Create(provider, providerId))).Value;
+            var user = (await findUserInStore(userId)).Value;
 
             activity?.AddEvent(new System.Diagnostics.ActivityEvent("user details retrieved"));
 

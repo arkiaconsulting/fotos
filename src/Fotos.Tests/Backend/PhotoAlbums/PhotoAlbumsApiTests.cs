@@ -19,7 +19,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Creating an album into a folder should pass"), AutoData]
     public async Task Test01(Guid folderId, string albumName)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.CreatePhotoAlbum(folderId, albumName);
 
@@ -29,7 +29,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Creating a new album with an invalid payload should fail"), ClassData(typeof(CreateAlbumWrongTheoryData))]
     internal async Task Test02(string _, string body)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.CreatePhotoAlbumWithBody(Some.FolderId, body);
 
@@ -40,7 +40,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Adding a photo into an album should pass"), AutoData]
     public async Task Test03(Guid folderId, Guid albumId, byte[] photo)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
 
         using var response = await client.AddPhoto(folderId, albumId, photo);
 
@@ -53,7 +53,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Listing folder albums should pass"), AutoData]
     public async Task Test04(Guid folderId, string albumName)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         using var _ = await client.CreatePhotoAlbum(folderId, albumName);
 
         using var response = await client.ListFolderAlbums(folderId);
@@ -66,7 +66,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Getting a single album should pass"), AutoData]
     public async Task Test05(Guid folderId, string albumName)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         using var _ = await client.CreatePhotoAlbum(folderId, albumName);
         using var _2 = await client.ListFolderAlbums(folderId);
         var actual = await _2.Content.ReadFromJsonAsync<List<JsonElement>>();
@@ -80,7 +80,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Listing the photos of an album should pass"), AutoData]
     internal async Task Test06(PhotoId photoId, string title)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.ListPhotos(photoId.FolderId, photoId.AlbumId);
@@ -93,7 +93,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Removing a photo from an album should pass"), AutoData]
     internal async Task Test07(PhotoId photoId, string title)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.RemovePhoto(photoId.FolderId, photoId.AlbumId, photoId.Id);
@@ -105,7 +105,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Getting the original URI of a photo should pass"), AutoData]
     internal async Task Test08(PhotoId photoId, string title)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.GetOriginalUri(photoId.FolderId, photoId.AlbumId, photoId.Id);
@@ -116,7 +116,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Getting the thumbnail URI of a photo should pass"), AutoData]
     internal async Task Test09(PhotoId photoId, string title)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.GetThumbnailUri(photoId.FolderId, photoId.AlbumId, photoId.Id);
@@ -127,7 +127,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Updating the title of a photo should pass"), AutoData]
     internal async Task Test10(PhotoId photoId, string title)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.UpdatePhoto(photoId.FolderId, photoId.AlbumId, photoId.Id, title);
@@ -138,7 +138,7 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     [Theory(DisplayName = "Getting a photo should pass"), AutoData]
     internal async Task Test11(PhotoId photoId, string title)
     {
-        var client = _fotoApi.CreateClient();
+        var client = _fotoApi.CreateAuthenticatedClient();
         _fotoApi.Photos.Add(new Photo(photoId, title));
 
         using var response = await client.GetPhoto(photoId.FolderId, photoId.AlbumId, photoId.Id);

@@ -69,4 +69,3 @@ resource "azurerm_role_assignment" "identity_key_vault_secrets_user" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
-

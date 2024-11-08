@@ -1,6 +1,6 @@
 ﻿using Fotos.App.Adapters;
 using Fotos.App.Features.Account;
-using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Fotos.App.Features.PhotoFolders;
 
@@ -8,9 +8,12 @@ internal static class ConfigurationExtensions
 {
     public static IServiceCollection AddFotosApi(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddTransient<ClientCookieHandler>()
+        services
+            .AddTransient<ClientAuthenticationHandler>()
             .AddHttpClient(Constants.HttpClientName, client => client.BaseAddress = new Uri(configuration["BaseUrl"]!))
-            .AddHttpMessageHandler<ClientCookieHandler>();
+            .AddHttpMessageHandler<ClientAuthenticationHandler>();
+
+        services.AddScoped<HttpClient>(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.HttpClientName));
 
         services.AddScoped<FotosApiClient>();
         services.AddHttpContextAccessor();
@@ -41,19 +44,23 @@ internal static class ConfigurationExtensions
         services.AddScoped(sp => implementer(sp.GetRequiredService<TAdapter>()));
 }
 
-internal sealed class ClientCookieHandler : DelegatingHandler
+internal sealed class ClientAuthenticationHandler : DelegatingHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ClientCookieHandler(IHttpContextAccessor httpContextAccessor) => _httpContextAccessor = httpContextAccessor;
+    public ClientAuthenticationHandler(IHttpContextAccessor httpContextAccessor) => _httpContextAccessor = httpContextAccessor;
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var context = _httpContextAccessor.HttpContext!;
-        var authCookie = context.Request.Cookies[Authentication.Constants.CookieName];
 
-        request.Headers.Add("Cookie", new CookieHeaderValue(Authentication.Constants.CookieName, authCookie).ToString());
+        var token = await context.GetTokenAsync("access_token");
 
-        return base.SendAsync(request, cancellationToken);
+        if (!string.IsNullOrEmpty(token))
+        {
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        }
+
+        return await base.SendAsync(request, cancellationToken);
     }
 }
