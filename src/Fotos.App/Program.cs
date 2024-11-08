@@ -84,7 +84,7 @@ app.UseHttpsRedirection();
 app.MapPhotoFolderEndpoints();
 app.MapPhotoAlbumEndpoints();
 app.MapPhotosEndpoints();
-app.MapAccountEndpoints(Fotos.App.Authentication.Constants.AuthenticationScheme);
+app.MapAccountEndpoints();
 app.MapUserEndpoints();
 
 app.UseStaticFiles();

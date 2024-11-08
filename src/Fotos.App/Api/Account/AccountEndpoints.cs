@@ -1,6 +1,7 @@
 ﻿using Fotos.App.Api.Types;
 using Fotos.App.Authentication;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -9,7 +10,7 @@ namespace Fotos.App.Api.Account;
 
 internal static class AccountEndpoints
 {
-    public static IEndpointRouteBuilder MapAccountEndpoints(this IEndpointRouteBuilder endpoints, string authenticationScheme)
+    public static IEndpointRouteBuilder MapAccountEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/account")
             .ExcludeFromDescription();
@@ -58,9 +59,10 @@ internal static class AccountEndpoints
                 IsPersistent = true
             };
 
-            authenticationProperties = accessTokenService.StoreNewToken(authenticationProperties, user.Value.Id.Value, user.Value.GivenName.Value);
+            var token = accessTokenService.GenerateAccessToken(user.Value.Id.Value, user.Value.GivenName.Value);
+            authenticationProperties.StoreFotosApiToken(token);
 
-            return TypedResults.SignIn(result.Principal!, authenticationProperties, authenticationScheme);
+            return TypedResults.SignIn(result.Principal!, authenticationProperties, CookieAuthenticationDefaults.AuthenticationScheme);
         }).RequireAuthorization();
 
         group.MapPost("/logout", (HttpContext context, [FromForm] string? returnUrl) =>
@@ -72,7 +74,7 @@ internal static class AccountEndpoints
                 RedirectUri = returnUrl
             };
 
-            return TypedResults.SignOut(authenticationProperties, [authenticationScheme, Constants.AuthenticationScheme]);
+            return TypedResults.SignOut(authenticationProperties, [CookieAuthenticationDefaults.AuthenticationScheme]);
         }).RequireAuthorization()
         .DisableAntiforgery();
 

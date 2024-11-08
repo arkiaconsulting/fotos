@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -19,23 +20,7 @@ internal sealed class AccessTokenService
         _signinKey = configuration["AccessTokenSigningKey"] ?? throw new ArgumentNullException("AccessTokenSigningKey setting is missing or empty", default(Exception));
     }
 
-    public AuthenticationProperties StoreNewToken(AuthenticationProperties authenticationProperties, string nameIdentifier, string givenName)
-    {
-        var token = GenerateAccessToken(nameIdentifier, givenName);
-
-        authenticationProperties.StoreTokens(
-        [
-            new AuthenticationToken
-            {
-                Name = "access_token",
-                Value = new JwtSecurityTokenHandler().WriteToken(token)
-            }
-        ]);
-
-        return authenticationProperties;
-    }
-
-    private JwtSecurityToken GenerateAccessToken(string nameIdentifier, string givenName)
+    public JwtSecurityToken GenerateAccessToken(string nameIdentifier, string givenName)
     {
         var claims = new List<Claim>
         {
@@ -47,9 +32,29 @@ internal sealed class AccessTokenService
             issuer: _issuer,
             audience: _audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(1),
+            expires: DateTime.UtcNow.AddMinutes(6),
             signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_signinKey)),
                 SecurityAlgorithms.HmacSha256)
         );
+    }
+}
+
+internal static class AccessTokenExtensions
+{
+    public static void StoreFotosApiToken(this AuthenticationProperties authenticationProperties, JwtSecurityToken securityToken)
+    {
+        authenticationProperties.StoreTokens(
+        [
+            new()
+            {
+                Name = "access_token",
+                Value = new JwtSecurityTokenHandler().WriteToken(securityToken)
+            },
+            new()
+            {
+                Name = "expires_at",
+                Value = securityToken.ValidTo.ToString("o", CultureInfo.InvariantCulture)
+            }
+        ]);
     }
 }
