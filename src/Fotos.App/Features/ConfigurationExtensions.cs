@@ -1,8 +1,9 @@
 ﻿using Fotos.App.Adapters;
+using Fotos.App.Authentication;
 using Fotos.App.Features.Account;
-using Microsoft.AspNetCore.Authentication;
+using Fotos.App.Features.PhotoFolders;
 
-namespace Fotos.App.Features.PhotoFolders;
+namespace Fotos.App.Features;
 
 internal static class ConfigurationExtensions
 {
@@ -13,7 +14,7 @@ internal static class ConfigurationExtensions
             .AddHttpClient(Constants.HttpClientName, client => client.BaseAddress = new Uri(configuration["BaseUrl"]!))
             .AddHttpMessageHandler<ClientAuthenticationHandler>();
 
-        services.AddScoped<HttpClient>(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.HttpClientName));
+        services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient(Constants.HttpClientName));
 
         services.AddScoped<FotosApiClient>();
         services.AddHttpContextAccessor();
@@ -42,25 +43,4 @@ internal static class ConfigurationExtensions
         where TDelegate : class
         where TAdapter : notnull =>
         services.AddScoped(sp => implementer(sp.GetRequiredService<TAdapter>()));
-}
-
-internal sealed class ClientAuthenticationHandler : DelegatingHandler
-{
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public ClientAuthenticationHandler(IHttpContextAccessor httpContextAccessor) => _httpContextAccessor = httpContextAccessor;
-
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        var context = _httpContextAccessor.HttpContext!;
-
-        var token = await context.GetTokenAsync("access_token");
-
-        if (!string.IsNullOrEmpty(token))
-        {
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-        }
-
-        return await base.SendAsync(request, cancellationToken);
-    }
 }

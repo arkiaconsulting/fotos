@@ -7,7 +7,7 @@ using Fotos.App.Api.PhotoAlbums;
 using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
 using Fotos.App.Authentication;
-using Fotos.App.Features.PhotoFolders;
+using Fotos.App.Features;
 using Fotos.App.Hubs;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.ResponseCompression;

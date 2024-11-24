@@ -70,6 +70,8 @@ internal static class AuthenticationConfigurationExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
                     ValidIssuer = issuer,
                     ValidAudience = audience,
+                    ValidateLifetime = true,
+                    RequireExpirationTime = true,
                 };
             });
 
