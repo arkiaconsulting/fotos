@@ -47,7 +47,7 @@ resource "azurerm_windows_web_app" "main" {
     "ServiceBus:ProduceThumbnailSubscription"     = azurerm_servicebus_subscription.produce_thumbnail.name
     "ServiceBus:ExtractExifMetadataSubscription"  = azurerm_servicebus_subscription.extract_exif_metadata.name
     "ServiceBus:RemovePhotoBinariesSubscription"  = azurerm_servicebus_subscription.remove_photo_binaries.name
-    "BaseUrl"                                     = "https://${local.web_app_name}.azurewebsites.net"
+    "BaseUrl"                                     = "https://${local.hostname}"
     "Instrumentation:ServiceName"                 = "fotos-app"
     "Google:ClientId"                             = "@Microsoft.KeyVault(SecretUri=${local.google.client_id})"
     "Google:ClientSecret"                         = "@Microsoft.KeyVault(SecretUri=${local.google.client_secret})"

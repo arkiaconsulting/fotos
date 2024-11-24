@@ -16,4 +16,6 @@ locals {
     client_id     = "https://arkia.vault.azure.net/secrets/fotos-google-client-id"
     client_secret = "https://arkia.vault.azure.net/secrets/fotos-google-client-secret"
   }
+
+  hostname = "fotos.arkia.dev"
 }
