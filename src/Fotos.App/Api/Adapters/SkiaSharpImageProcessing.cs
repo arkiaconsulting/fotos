@@ -39,7 +39,7 @@ internal sealed class SkiaSharpImageProcessing
         }
 
         using var bitmap = SKBitmap.FromImage(originalImage);
-        using var resizedBitmap = bitmap.Resize(new SKImageInfo(newWidth, newHeight), SKFilterQuality.Medium);
+        using var resizedBitmap = bitmap.Resize(new SKImageInfo(newWidth, newHeight), sampling: SKSamplingOptions.Default);
         using var image = SKImage.FromBitmap(resizedBitmap);
 
         var encodingType = photo.MimeType switch

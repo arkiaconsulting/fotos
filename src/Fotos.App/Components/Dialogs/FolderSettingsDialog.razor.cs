@@ -6,7 +6,7 @@ namespace Fotos.App.Components.Dialogs;
 public partial class FolderSettingsDialog
 {
     [CascadingParameter]
-    private MudDialogInstance MudDialog { get; set; } = default!;
+    private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter]
     public FolderModel Folder { get; set; } = default!;

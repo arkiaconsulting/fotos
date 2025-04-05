@@ -1,0 +1,38 @@
+{
+    "sqltools.connections": [
+        {
+            "port": 3050,
+            "firebirdOptions": {
+                "lowercase_keys": false,
+                "role": null,
+                "pageSize": 4096,
+                "retryConnectionInterval": 1000,
+                "blobAsText": false,
+                "encoding": "UTF8"
+            },
+            "previewLimit": 50,
+            "driver": "SQLTools Firebird",
+            "name": "Local VM DOMAIN",
+            "host": "127.0.0.1",
+            "database": "c:\\visiativ\\domain\\DOMAIN.FDB",
+            "username": "SYSDBA"
+        },
+        {
+            "port": 3050,
+            "firebirdOptions": {
+                "lowercase_keys": false,
+                "role": null,
+                "pageSize": 4096,
+                "retryConnectionInterval": 1000,
+                "blobAsText": false,
+                "encoding": "UTF8"
+            },
+            "previewLimit": 50,
+            "driver": "SQLTools Firebird",
+            "name": "Local VM CONTOSO01 LIBRARY",
+            "host": "127.0.0.1",
+            "database": "C:\\visiativ\\libraries\\0000000002\\0000000001\\LIBRARY.FDB",
+            "username": "SYSDBA"
+        }
+    ]
+}
