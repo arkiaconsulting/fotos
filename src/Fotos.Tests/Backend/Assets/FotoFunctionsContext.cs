@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace Fotos.Tests.Backend.Assets;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
 public sealed class FotoFunctionsContext
 {
     internal Collection<(Guid, byte[])> MainStorage => _host.Services.GetRequiredKeyedService<Collection<(Guid, byte[])>>("main");

@@ -88,9 +88,9 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
         result.ValueKind.Should().Be(JsonValueKind.Array);
         result.GetArrayLength().Should().Be(1);
         result.EnumerateArray().Single().GetProperty("folderStack").EnumerateArray().Select(x => x.GetProperty("id").GetGuid())
-            .Should().BeEquivalentTo(new[] { folder1.Id, folder2.Id }, config => config.WithStrictOrdering());
+            .Should().BeEquivalentTo([folder1.Id, folder2.Id], config => config.WithStrictOrdering());
         result.EnumerateArray().Single().GetProperty("folderStack").EnumerateArray().Select(x => x.GetProperty("parentId").GetGuid())
-            .Should().BeEquivalentTo(new[] { folder1.ParentId, folder2.ParentId }, config => config.WithStrictOrdering());
+            .Should().BeEquivalentTo([folder1.ParentId, folder2.ParentId], config => config.WithStrictOrdering());
     }
 
     [Theory(DisplayName = "When fetching stored session data should pass"), AutoData]

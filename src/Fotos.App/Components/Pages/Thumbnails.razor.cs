@@ -46,7 +46,7 @@ public partial class Thumbnails
     {
         if (firstRender)
         {
-            _thumbnails = (await ListPhotos(new(FolderId, AlbumId))).Select(p => new PhotoModel(p.FolderId, p.AlbumId, p.Id, p.Title, p.Metadata)).ToList();
+            _thumbnails = [.. (await ListPhotos(new(FolderId, AlbumId))).Select(p => new PhotoModel(p.FolderId, p.AlbumId, p.Id, p.Title, p.Metadata))];
             await SetThumbnailUris();
 
             await OnLoaded.InvokeAsync(null);

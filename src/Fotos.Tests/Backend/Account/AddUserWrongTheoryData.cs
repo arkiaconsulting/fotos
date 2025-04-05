@@ -1,6 +1,8 @@
-﻿namespace Fotos.Tests.Backend.Account;
+﻿using System.Diagnostics.CodeAnalysis;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
+namespace Fotos.Tests.Backend.Account;
+
+[SuppressMessage("Design", "CA1812", Justification = "Instantiated by test framework")]
 internal sealed class AddUserWrongTheoryData : TheoryData<string, string>
 {
     public AddUserWrongTheoryData()

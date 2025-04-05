@@ -29,7 +29,7 @@ internal sealed class InMemoryFolderDataStore
         Task.FromResult(_source.Single(folder => folder.Id == id));
 
     public Task<IReadOnlyCollection<Folder>> GetByParent(Guid parentId) =>
-        Task.FromResult<IReadOnlyCollection<Folder>>(_source.Where(folder => folder.ParentId == parentId).ToList());
+        Task.FromResult<IReadOnlyCollection<Folder>>([.. _source.Where(folder => folder.ParentId == parentId)]);
 
     public Task Update(Guid parentId, Guid id, Name name)
     {

@@ -36,7 +36,7 @@ internal static class EndpointExtension
 
             var albums = await getFolderAlbumsBusiness.Process(folderId);
 
-            activity?.AddEvent(new System.Diagnostics.ActivityEvent("albums listed", tags: new(new Dictionary<string, object?>() { ["count"] = albums.Count })));
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("albums listed", tags: [new("count", albums.Count)]));
 
             return Results.Ok(albums
                 .Select(x =>

@@ -65,7 +65,7 @@ internal static class ConfigurationExtensions
     }
 }
 
-public sealed class RootFolderIdWrapper
+internal sealed class RootFolderIdWrapper
 {
     public Guid Value { get; }
 

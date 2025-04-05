@@ -46,7 +46,7 @@ internal sealed class AzurePhotoStorage
 
         await blobClient.UploadAsync(photo, options);
 
-        activity?.AddEvent(new ActivityEvent("photo original stored", tags: new(new Dictionary<string, object?> { ["blobName"] = blobClient.Name })));
+        activity?.AddEvent(new ActivityEvent("photo original stored", tags: [new("blobName", blobClient.Name)]));
     }
 
     public async Task<Uri> GetOriginalUri(PhotoId photoId)
@@ -56,7 +56,7 @@ internal sealed class AzurePhotoStorage
         var blobName = ComputeOriginalName(photoId);
         var uri = await GetAuthorizedUri(blobName)!;
 
-        activity?.AddEvent(new ActivityEvent("original photo uri retrieved", tags: new(new Dictionary<string, object?> { ["blobName"] = blobName })));
+        activity?.AddEvent(new ActivityEvent("original photo uri retrieved", tags: [new("blobName", blobName)]));
 
         return uri;
     }
@@ -68,7 +68,7 @@ internal sealed class AzurePhotoStorage
         var blobName = ComputeThumbnailName(photoId);
         var uri = await GetAuthorizedUri(blobName)!;
 
-        activity?.AddEvent(new ActivityEvent("thumbnail photo uri retrieved", tags: new(new Dictionary<string, object?> { ["blobName"] = blobName })));
+        activity?.AddEvent(new ActivityEvent("thumbnail photo uri retrieved", tags: [new("blobName", blobName)]));
 
         return uri;
     }
@@ -81,7 +81,7 @@ internal sealed class AzurePhotoStorage
         var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
         var blobDownloadInfo = await blobClient.DownloadContentAsync();
 
-        activity?.AddEvent(new ActivityEvent("photo original read", tags: new(new Dictionary<string, object?> { ["blobName"] = blobClient.Name, ["size"] = blobDownloadInfo.Value.Details.ContentLength })));
+        activity?.AddEvent(new ActivityEvent("photo original read", tags: [new("blobName", blobClient.Name), new("size", blobDownloadInfo.Value.Details.ContentLength)]));
 
         return new(blobDownloadInfo.Value.Content.ToStream(), blobDownloadInfo.Value.Details.ContentType);
     }
@@ -103,7 +103,7 @@ internal sealed class AzurePhotoStorage
 
         await blobClient.UploadAsync(photo.Content, options);
 
-        activity?.AddEvent(new ActivityEvent("photo thumbnail stored", tags: new(new Dictionary<string, object?> { ["blobName"] = blobClient.Name })));
+        activity?.AddEvent(new ActivityEvent("photo thumbnail stored", tags: [new("blobName", blobClient.Name)]));
     }
 
     public async Task RemovePhotoOriginal(PhotoId photoId)
@@ -113,7 +113,7 @@ internal sealed class AzurePhotoStorage
         var blobName = ComputeOriginalName(photoId);
         await RemoveBlob(blobName);
 
-        activity?.AddEvent(new ActivityEvent("photo original removed", tags: new(new Dictionary<string, object?> { ["blobName"] = blobName })));
+        activity?.AddEvent(new ActivityEvent("photo original removed", tags: [new("blobName", blobName)]));
     }
 
     public async Task RemovePhotoThumbnail(PhotoId photoId)
@@ -123,7 +123,7 @@ internal sealed class AzurePhotoStorage
         var blobName = ComputeThumbnailName(photoId);
         await RemoveBlob(ComputeThumbnailName(photoId));
 
-        activity?.AddEvent(new ActivityEvent("photo thumbnail removed", tags: new(new Dictionary<string, object?> { ["blobName"] = blobName })));
+        activity?.AddEvent(new ActivityEvent("photo thumbnail removed", tags: [new("blobName", blobName)]));
     }
 
     private async Task RemoveBlob(string blobName)

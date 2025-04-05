@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace Fotos.Tests.Backend.Assets.Authentication;
 
-public static class MockJwtTokens
+internal static class MockJwtTokens
 {
     public static string Issuer { get; } = Guid.NewGuid().ToString(); // random issuer
     public static SecurityKey SecurityKey { get; }

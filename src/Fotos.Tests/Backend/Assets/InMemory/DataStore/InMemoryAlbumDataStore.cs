@@ -29,5 +29,5 @@ internal sealed class InMemoryAlbumDataStore
         Task.FromResult(_source.Single(album => album.Id == id.Id));
 
     public Task<IReadOnlyCollection<Album>> GetByFolder(Guid folderId) =>
-        Task.FromResult<IReadOnlyCollection<Album>>(_source.Where(album => album.FolderId == folderId).ToList());
+        Task.FromResult<IReadOnlyCollection<Album>>([.. _source.Where(album => album.FolderId == folderId)]);
 }

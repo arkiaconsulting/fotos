@@ -47,12 +47,12 @@ public partial class Home
 
     private async Task RefreshFolders()
     {
-        _childFolders = (await ListFolders(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name }).ToList();
+        _childFolders = [.. (await ListFolders(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name })];
     }
 
     private async Task RefreshAlbums()
     {
-        _childAlbums = (await ListAlbums(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name, PhotoCount = dto.PhotoCount }).ToList();
+        _childAlbums = [.. (await ListAlbums(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name, PhotoCount = dto.PhotoCount })];
     }
 
     private async Task RefreshFoldersAndAlbums()

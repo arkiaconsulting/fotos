@@ -23,7 +23,7 @@ internal static class EndpointExtension
 
             var id = await business.Process(folderId, albumId, stream, photo.ContentType, photo.FileName);
 
-            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photo uploaded", tags: new(new Dictionary<string, object?> { ["id"] = id })));
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photo uploaded", tags: [new("id", id)]));
 
             instrumentation.PhotoUploadCounter.Add(1);
 
@@ -50,7 +50,7 @@ internal static class EndpointExtension
 
             var photos = await listPhotos(new(folderId, albumId));
 
-            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photos listed", tags: new(new Dictionary<string, object?> { ["count"] = photos.Count })));
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("photos listed", tags: [new("count", photos.Count)]));
 
             return Results.Ok(photos.Select(p => new PhotoDto(p.Id.Id, p.Id.FolderId, p.Id.AlbumId, p.Title, p.Metadata ?? new())));
         })

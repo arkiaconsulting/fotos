@@ -26,7 +26,7 @@ internal static class EndpointExtension
 
             await storeNewFolder(newFolder);
 
-            activity?.AddEvent(new System.Diagnostics.ActivityEvent("folder created", tags: new(new Dictionary<string, object?> { ["id"] = id })));
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("folder created", tags: [new("id", id)]));
 
             return Results.Ok(id);
         })
@@ -41,7 +41,7 @@ internal static class EndpointExtension
 
             var folders = await getFolders(folderId);
 
-            activity?.AddEvent(new System.Diagnostics.ActivityEvent("folders listed", tags: new(new Dictionary<string, object?> { ["count"] = folders.Count })));
+            activity?.AddEvent(new System.Diagnostics.ActivityEvent("folders listed", tags: [new("count", folders.Count)]));
 
             return Results.Ok(folders.Select(f => new FolderDto(f.Id, f.ParentId, f.Name.Value)));
         })

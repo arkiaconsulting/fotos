@@ -14,7 +14,7 @@ using MudBlazor.Services;
 namespace Fotos.Tests.Frontend.Assets;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
-public sealed class FotosTestContext : TestContext
+internal sealed class FotosTestContext : TestContext
 {
     internal IRenderedFragment SnackBar => _snackBarComponent!;
     internal IRenderedFragment Popover => _popoverProvider!;

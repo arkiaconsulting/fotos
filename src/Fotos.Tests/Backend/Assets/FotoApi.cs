@@ -13,6 +13,7 @@ using System.Security.Claims;
 
 namespace Fotos.Tests.Backend.Assets;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
 public sealed class FotoApi : WebApplicationFactory<Program>
 {
     internal List<Photo> Photos => Services.GetRequiredService<List<Photo>>();

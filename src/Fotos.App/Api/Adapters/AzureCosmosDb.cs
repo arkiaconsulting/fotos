@@ -196,7 +196,7 @@ internal sealed class AzureCosmosDb
     {
         using var activity = _activitySource.StartActivity("store session data in database");
 
-        var cosmosSessionData = new CosmosSessionData(userId, sessionData.FolderStack.Select(x => new CosmosFolder(x.Id, x.ParentId, x.Name)).Reverse().ToArray());
+        var cosmosSessionData = new CosmosSessionData(userId, [.. sessionData.FolderStack.Select(x => new CosmosFolder(x.Id, x.ParentId, x.Name)).Reverse()]);
 
         await _sessionDataContainer.UpsertItemAsync(cosmosSessionData, new PartitionKey(userId.ToString()));
 

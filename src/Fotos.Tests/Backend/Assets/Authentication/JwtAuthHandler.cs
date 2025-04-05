@@ -27,9 +27,7 @@ internal sealed class JwtAuthHandler : JwtBearerHandler
 
             if (!string.IsNullOrEmpty(jwtToken))
             {
-                var token = new JwtSecurityTokenHandler().ReadToken(jwtToken) as JwtSecurityToken;
-
-                if (token != null)
+                if (new JwtSecurityTokenHandler().ReadToken(jwtToken) is JwtSecurityToken token)
                 {
                     var claims = token.Claims;
                     var identity = new ClaimsIdentity(claims, "Bearer", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
