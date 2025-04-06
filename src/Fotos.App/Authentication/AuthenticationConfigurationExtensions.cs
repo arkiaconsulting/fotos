@@ -23,6 +23,17 @@ internal static class AuthenticationConfigurationExtensions
 
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.UsePkce = true;
+
+                options.Events = new()
+                {
+                    OnRedirectToAuthorizationEndpoint = context =>
+                    {
+                        context.RedirectUri += $"&prompt=select_account";
+                        context.Response.Redirect(context.RedirectUri);
+
+                        return Task.CompletedTask;
+                    }
+                };
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
