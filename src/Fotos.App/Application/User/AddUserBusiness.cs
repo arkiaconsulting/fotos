@@ -1,8 +1,9 @@
-﻿using Fotos.App.Api.PhotoFolders;
+﻿using Fotos.App.Api.Account;
+using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Shared;
 using Fotos.App.Api.Types;
 
-namespace Fotos.App.Api.Account;
+namespace Fotos.App.Application.User;
 
 internal sealed class AddUserBusiness
 {

@@ -1,5 +1,4 @@
-﻿using Fotos.App.Api.Account;
-using Fotos.App.Api.PhotoAlbums;
+﻿using Fotos.App.Api.PhotoAlbums;
 using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
 using Fotos.App.Features;
@@ -153,12 +152,5 @@ internal sealed class FotosApiClient
         });
 
         response.EnsureSuccessStatusCode();
-    }
-
-    internal async Task<FotoUserDto> GetMe()
-    {
-        var user = await _httpClient.GetFromJsonAsync<FotoUserDto>("api/users/me");
-
-        return user!;
     }
 }

@@ -1,10 +1,13 @@
-﻿namespace Fotos.App.Api.Account;
+﻿using Fotos.App.Application.User;
+
+namespace Fotos.App.Api.Account;
 
 internal static class ConfigurationExtensions
 {
     public static IServiceCollection AddAccountBusiness(this IServiceCollection services)
     {
-        services.AddScoped<AddUserBusiness>();
+        services.AddScoped<AddUserBusiness>()
+            .AddScoped<FindUserBusiness>();
 
         return services;
     }

@@ -47,9 +47,9 @@ internal static class ConfigurationExtensions
         return services;
     }
 
-    public static IServiceCollection AddInMemoryUserDataStore(this IServiceCollection services)
+    public static IServiceCollection AddInMemoryUserDataStore(this IServiceCollection services, List<FotoUser>? users = default)
     {
-        services.AddSingleton<List<FotoUser>>();
+        services.AddSingleton(users ?? []);
         services.AddSingleton<InMemoryUserDataStore>();
         services.AddSingleton<AddUserToStore>(sp => sp.GetRequiredService<InMemoryUserDataStore>().Add);
         services.AddSingleton<FindUserInStore>(sp => sp.GetRequiredService<InMemoryUserDataStore>().Find);

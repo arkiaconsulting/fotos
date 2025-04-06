@@ -1,15 +1,20 @@
 ﻿using Bunit.TestDoubles;
 using Fotos.App.Adapters;
+using Fotos.App.Api.Account;
 using Fotos.App.Api.PhotoAlbums;
 using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
+using Fotos.App.Api.Shared;
+using Fotos.App.Api.Types;
 using Fotos.App.Hubs;
+using Fotos.Tests.Backend.Assets.Authentication;
 using Fotos.Tests.Backend.Assets.InMemory.DataStore;
 using Fotos.Tests.Frontend.Assets.InMemory.Api;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
+using System.Security.Claims;
 
 namespace Fotos.Tests.Frontend.Assets;
 
@@ -28,6 +33,8 @@ internal sealed class FotosTestContext : TestContext
     internal List<Folder> Folders => Services.GetRequiredService<List<Folder>>();
     internal List<Album> Albums => Services.GetRequiredService<List<Album>>();
     internal List<Photo> Photos => Services.GetRequiredService<List<Photo>>();
+    internal List<FotoUser> Users => _users;
+    private List<FotoUser> _users = [];
 
     public Guid RootFolderId { get; } = Guid.NewGuid();
 
@@ -35,7 +42,9 @@ internal sealed class FotosTestContext : TestContext
 
     public FotosTestContext()
     {
-        AuthContext = this.AddTestAuthorization();
+        AuthContext = this.AddTestAuthorization()
+            .SetClaims([new(ClaimTypes.NameIdentifier, Constants.TestUserId)])
+            .SetAuthenticationType(Constants.TestProvider);
 
         ConfigureServices();
         SetupMudProviders();
@@ -44,6 +53,8 @@ internal sealed class FotosTestContext : TestContext
     private void ConfigureServices()
     {
         Services.SetRootFolderId(RootFolderId);
+
+        Services.AddAccountBusiness();
 
         Services.AddInMemoryFolderDataStore()
             .AddInMemoryFoldersApi();
@@ -54,7 +65,7 @@ internal sealed class FotosTestContext : TestContext
         Services.AddInMemoryPhotoDataStore()
             .AddInMemoryPhotosApi();
 
-        Services.AddInMemoryUserDataStore()
+        Services.AddInMemoryUserDataStore(_users)
             .AddInMemoryUsersApi();
 
         Services.AddTransient<RealTimeMessageService, RealTimeServiceFake>();
@@ -69,6 +80,11 @@ internal sealed class FotosTestContext : TestContext
         _snackBarComponent = RenderComponent<MudSnackbarProvider>();
         _popoverProvider = RenderComponent<MudPopoverProvider>();
         _dialogProvider = RenderComponent<MudDialogProvider>();
+    }
+
+    public void AddUser(string givenName)
+    {
+        _users.Add(new FotoUser(FotoUserId.Create(Constants.TestProvider, Constants.TestUserId), Name.Create(givenName), RootFolderId));
     }
 
     protected override void Dispose(bool disposing)

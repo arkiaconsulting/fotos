@@ -18,7 +18,11 @@ public sealed class AlbumPageTests : IDisposable
 {
     private readonly FotosTestContext _testContext;
 
-    public AlbumPageTests() => _testContext = new FotosTestContext();
+    public AlbumPageTests()
+    {
+        _testContext = new FotosTestContext();
+        _testContext.AddUser("John Doe");
+    }
 
     [Theory(DisplayName = "The album page should display the name and photo count of the album"), AutoData]
     public void Test01(Guid folderId, Guid albumId, string albumName, string photoTitle)

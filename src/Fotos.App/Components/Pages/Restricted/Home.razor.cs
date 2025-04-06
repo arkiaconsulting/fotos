@@ -1,4 +1,5 @@
 using Fotos.App.Adapters;
+using Fotos.App.Application.User;
 using Fotos.App.Components.Dialogs;
 using Fotos.App.Components.Models;
 using Microsoft.AspNetCore.Components;
@@ -11,6 +12,9 @@ public partial class Home
 {
     [CascadingParameter]
     public HttpContext HttpContext { get; set; } = default!;
+
+    [Inject]
+    internal FindUserBusiness FindUser { get; set; } = default!;
 
     public FolderModel CurrentFolder => SessionData.FolderStack.Peek();
 
@@ -32,9 +36,9 @@ public partial class Home
                 var userProviderId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var provider = authState.User.Identity?.AuthenticationType;
 
-                var fotoUser = await GetMe();
+                var fotoUser = await FindUser.Process(provider!, userProviderId!);
 
-                var folder = await GetFolder(Guid.Empty, fotoUser.RootFolderId);
+                var folder = await GetFolder(Guid.Empty, fotoUser!.Value.RootFolderId);
                 SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name });
             }
 

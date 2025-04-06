@@ -15,7 +15,11 @@ public sealed class HomePageTests : IDisposable
 {
     private readonly FotosTestContext _testContext;
 
-    public HomePageTests() => _testContext = new FotosTestContext();
+    public HomePageTests()
+    {
+        _testContext = new FotosTestContext();
+        _testContext.AddUser("John Doe");
+    }
 
     [Theory(DisplayName = "Home page should display folders that are children of root"), AutoData]
     public void Test01(string folderName)

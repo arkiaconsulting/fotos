@@ -1,9 +1,6 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
-using Fotos.App.Api.Shared;
-using Fotos.App.Api.Types;
 using Fotos.Tests.Backend.Assets;
-using Fotos.Tests.Backend.Assets.Authentication;
 
 namespace Fotos.Tests.Backend.Account;
 
@@ -33,18 +30,5 @@ public sealed class UserManagementTests : IClassFixture<FotoApi>
 
         response.Should().Be400BadRequest();
         response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");
-    }
-
-    [Theory(DisplayName = "Getting the authenticated user details should pass"), AutoData]
-    internal async Task Test03(string givenName, Guid rootFolderId)
-    {
-        _fotoApi.Users.Add(new FotoUser(FotoUserId.Create("bearer", Constants.TestUserId), Name.Create(givenName), rootFolderId));
-        var client = _fotoApi.CreateAuthenticatedClient();
-
-        using var userResponse = await client.GetMe();
-
-        userResponse.Should().Be200Ok();
-        userResponse.Should().MatchInContent($"*{givenName}*");
-        userResponse.Should().MatchInContent($"*{rootFolderId}*");
     }
 }

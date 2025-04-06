@@ -1,5 +1,4 @@
-﻿using Fotos.App.Api.Account;
-using Fotos.App.Api.Shared;
+﻿using Fotos.App.Api.Shared;
 using Fotos.App.Api.Types;
 using Fotos.Tests.Backend.Assets.InMemory.DataStore;
 using System.Diagnostics.CodeAnalysis;
@@ -22,13 +21,6 @@ internal sealed class InMemoryUsersApi
     {
         var user = new FotoUser(FotoUserId.Create("provider", "id"), Name.Create(givenName), _rootFolderId);
         _entities.Add(user);
-
-        return Task.FromResult(user);
-    }
-
-    public Task<FotoUserDto> GetMe()
-    {
-        var user = new FotoUserDto("given name", _rootFolderId);
 
         return Task.FromResult(user);
     }

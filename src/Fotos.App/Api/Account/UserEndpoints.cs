@@ -1,5 +1,5 @@
 ﻿using Fotos.App.Api.Framework;
-using Fotos.App.Api.Types;
+using Fotos.App.Application.User;
 using Fotos.App.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -40,22 +40,6 @@ internal static class UserEndpoints
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .DisableAntiforgery();
-
-        group.MapGet("/me", async (ClaimsPrincipal principal, [FromServices] FindUserInStore findUserInStore, [FromServices] InstrumentationConfig instrumentation) =>
-        {
-            using var activity = instrumentation.ActivitySource.StartActivity("retrieve user details", System.Diagnostics.ActivityKind.Server);
-
-            var userId = new FotoUserId(principal.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-            var user = (await findUserInStore(userId)).Value;
-
-            activity?.AddEvent(new System.Diagnostics.ActivityEvent("user details retrieved"));
-
-            return TypedResults.Ok(new FotoUserDto(user.GivenName.Value, user.RootFolderId));
-        })
-        .WithSummary("Get the authenticated user details")
-        .Produces(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest);
 
         return endpoints;
     }

@@ -46,7 +46,6 @@ internal static class ConfigurationExtensions
     {
         services.AddSingleton<InMemoryUsersApi>();
         services.AddSingleton<SaveUser>(sp => sp.GetRequiredService<InMemoryUsersApi>().Add);
-        services.AddSingleton<GetMe>(sp => sp.GetRequiredService<InMemoryUsersApi>().GetMe);
 
         return services;
     }
