@@ -1,4 +1,5 @@
 using Fotos.App.Adapters;
+using Fotos.App.Application.Albums;
 using Fotos.App.Application.Folders;
 using Fotos.App.Application.User;
 using Fotos.App.Components.Dialogs;
@@ -28,6 +29,12 @@ public partial class Home
 
     [Inject]
     internal CreateFolderBusiness CreateFolder { get; set; } = default!;
+
+    [Inject]
+    internal CreateAlbumBusiness CreateAlbum { get; set; } = default!;
+
+    [Inject]
+    internal ListFolderAlbumsBusiness ListFolderAlbums { get; set; } = default!;
 
     public FolderModel CurrentFolder => SessionData.FolderStack.Peek();
 
@@ -69,7 +76,7 @@ public partial class Home
 
     private async Task RefreshAlbums()
     {
-        _childAlbums = [.. (await ListAlbums(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Id, FolderId = dto.FolderId, Name = dto.Name, PhotoCount = dto.PhotoCount })];
+        _childAlbums = [.. (await ListFolderAlbums.Process(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Album.Id, FolderId = dto.Album.FolderId, Name = dto.Album.Name.Value, PhotoCount = dto.PhotoCount })];
     }
 
     private async Task RefreshFoldersAndAlbums()
@@ -101,7 +108,7 @@ public partial class Home
 
     private async Task CreateNewAlbum()
     {
-        await CreateAlbum(CurrentFolder.Id, _newAlbumName);
+        await CreateAlbum.Process(CurrentFolder.Id, _newAlbumName);
         await RefreshAlbums();
         _newAlbumName = string.Empty;
     }

@@ -3,8 +3,8 @@ using Fotos.App;
 using Fotos.App.Adapters;
 using Fotos.App.Api.Account;
 using Fotos.App.Api.Adapters;
-using Fotos.App.Api.PhotoAlbums;
 using Fotos.App.Api.Photos;
+using Fotos.App.Application.Albums;
 using Fotos.App.Application.User;
 using Fotos.App.Authentication;
 using Fotos.App.Features;
@@ -42,7 +42,7 @@ builder.Services.AddFotosAuthentication(builder.Configuration);
 
 // Business
 builder.Services.AddPhotosBusiness();
-builder.Services.AddAlbumsBusiness();
+builder.Services.AddAlbumBusiness();
 builder.Services.AddAccountBusiness();
 
 // Adapters
@@ -81,7 +81,6 @@ else
 
 app.UseHttpsRedirection();
 
-app.MapPhotoAlbumEndpoints();
 app.MapPhotosEndpoints();
 app.MapAccountEndpoints();
 

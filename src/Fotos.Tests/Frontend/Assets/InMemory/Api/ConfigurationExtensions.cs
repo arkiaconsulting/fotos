@@ -5,16 +5,6 @@ namespace Fotos.Tests.Frontend.Assets.InMemory.Api;
 
 internal static class ConfigurationExtensions
 {
-    public static IServiceCollection AddInMemoryAlbumsApi(this IServiceCollection services)
-    {
-        services.AddSingleton<InMemoryAlbumsApi>();
-        services.AddSingleton<CreateAlbum>(sp => sp.GetRequiredService<InMemoryAlbumsApi>().Add);
-        services.AddSingleton<ListAlbums>(sp => sp.GetRequiredService<InMemoryAlbumsApi>().List);
-        services.AddSingleton<GetAlbum>(sp => sp.GetRequiredService<InMemoryAlbumsApi>().Get);
-
-        return services;
-    }
-
     public static IServiceCollection AddInMemoryPhotosApi(this IServiceCollection services)
     {
         services.AddSingleton<InMemoryPhotosApi>();

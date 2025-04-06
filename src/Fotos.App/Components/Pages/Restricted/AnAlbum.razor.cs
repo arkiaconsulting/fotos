@@ -1,3 +1,4 @@
+using Fotos.App.Application.Albums;
 using Fotos.App.Components.Models;
 using Fotos.App.Features;
 using Fotos.App.Features.Photos;
@@ -19,6 +20,9 @@ public sealed partial class AnAlbum
     [Parameter]
     public Guid ParentId { get; set; }
 
+    [Inject]
+    internal GetAlbumBusiness GetAlbum { get; set; } = default!;
+
     private AlbumModel _album = default!;
     private Thumbnails _thumbnailsComponent = new();
     private string _dragClass = DefaultDragClass;
@@ -34,8 +38,8 @@ public sealed partial class AnAlbum
             RealTimeMessageService.OnMetadataReady += OnMetadataReady;
             await RealTimeMessageService.StartAsync();
 
-            var album = await GetAlbum(new(FolderId, AlbumId));
-            _album = new AlbumModel { Id = album.Id, FolderId = album.FolderId, Name = album.Name, PhotoCount = album.PhotoCount };
+            var album = await GetAlbum.Process(new(FolderId, AlbumId));
+            _album = new AlbumModel { Id = album.Album.Id, FolderId = album.Album.FolderId, Name = album.Album.Name.Value, PhotoCount = album.PhotoCount };
 
             StateHasChanged();
         }

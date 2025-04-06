@@ -1,13 +1,13 @@
-﻿using Fotos.App.Features.PhotoAlbums;
+﻿using Fotos.App.Api.PhotoAlbums;
 
-namespace Fotos.App.Api.PhotoAlbums;
+namespace Fotos.App.Application.Albums;
 
-internal sealed class GetFolderAlbumsBusiness
+internal sealed class ListFolderAlbumsBusiness
 {
     private readonly GetFolderAlbumsFromStore _getFolderAlbumsFromStore;
     private readonly GetAlbumPhotoCountFromStore _getAlbumPhotoCountFromStore;
 
-    public GetFolderAlbumsBusiness(
+    public ListFolderAlbumsBusiness(
         GetFolderAlbumsFromStore getFolderAlbumsFromStore,
         GetAlbumPhotoCountFromStore getAlbumPhotoCountFromStore)
     {
@@ -24,26 +24,6 @@ internal sealed class GetFolderAlbumsBusiness
 
     private async Task<AlbumAugmented> GetPhotoCount(Album album)
     {
-        return new AlbumAugmented(album, await _getAlbumPhotoCountFromStore(album.FolderId, album.Id));
-    }
-}
-
-internal sealed class GetAlbumBusiness
-{
-    private readonly GetAlbumFromStore _getAlbumFromStore;
-    private readonly GetAlbumPhotoCountFromStore _getAlbumPhotoCountFromStore;
-
-    public GetAlbumBusiness(GetAlbumFromStore getAlbumFromStore,
-        GetAlbumPhotoCountFromStore getAlbumPhotoCountFromStore)
-    {
-        _getAlbumFromStore = getAlbumFromStore;
-        _getAlbumPhotoCountFromStore = getAlbumPhotoCountFromStore;
-    }
-
-    public async Task<AlbumAugmented> Process(AlbumId albumId)
-    {
-        var album = await _getAlbumFromStore(albumId);
-
         return new AlbumAugmented(album, await _getAlbumPhotoCountFromStore(album.FolderId, album.Id));
     }
 }

@@ -5,6 +5,7 @@ using Fotos.App.Api.PhotoAlbums;
 using Fotos.App.Api.Photos;
 using Fotos.App.Api.Shared;
 using Fotos.App.Api.Types;
+using Fotos.App.Application.Albums;
 using Fotos.App.Application.Folders;
 using Fotos.App.Application.User;
 using Fotos.App.Hubs;
@@ -32,7 +33,7 @@ internal sealed class FotosTestContext : TestContext
     private IRenderedComponent<MudDialogProvider>? _dialogProvider;
 
     internal List<Folder> Folders => Services.GetRequiredService<List<Folder>>();
-    internal List<Album> Albums => Services.GetRequiredService<List<Album>>();
+    internal List<Album> Albums { get; } = [];
     internal List<Photo> Photos => Services.GetRequiredService<List<Photo>>();
     internal List<FotoUser> Users { get; } = [];
 
@@ -56,13 +57,12 @@ internal sealed class FotosTestContext : TestContext
         Services.AddSingleton<InstrumentationConfig>();
 
         Services.AddAccountBusiness()
-            .AddFolderBusiness();
+            .AddFolderBusiness()
+            .AddAlbumBusiness();
 
         Services.AddInMemoryFolderDataStore();
         Services.AddInMemoryUserDataStore(Users);
-
-        Services.AddInMemoryAlbumDataStore()
-            .AddInMemoryAlbumsApi();
+        Services.AddInMemoryAlbumDataStore(Albums);
 
         Services.AddInMemoryPhotoDataStore()
             .AddInMemoryPhotosApi();

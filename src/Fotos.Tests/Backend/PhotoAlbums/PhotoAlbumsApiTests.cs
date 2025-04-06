@@ -4,7 +4,6 @@ using Fotos.App.Api.Photos;
 using Fotos.App.Features.Photos;
 using Fotos.Tests.Backend.Assets;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Fotos.Tests.Backend.PhotoAlbums;
 
@@ -15,27 +14,6 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
     private readonly FotoApi _fotoApi;
 
     public PhotoAlbumsApiTests(FotoApi fotoApi) => _fotoApi = fotoApi;
-
-    [Theory(DisplayName = "Creating an album into a folder should pass"), AutoData]
-    public async Task Test01(Guid folderId, string albumName)
-    {
-        var client = _fotoApi.CreateAuthenticatedClient();
-
-        using var response = await client.CreatePhotoAlbum(folderId, albumName);
-
-        response.Should().Be204NoContent();
-    }
-
-    [Theory(DisplayName = "Creating a new album with an invalid payload should fail"), ClassData(typeof(CreateAlbumWrongTheoryData))]
-    internal async Task Test02(string _, string body)
-    {
-        var client = _fotoApi.CreateAuthenticatedClient();
-
-        using var response = await client.CreatePhotoAlbumWithBody(Some.FolderId, body);
-
-        response.Should().Be400BadRequest();
-        response.Should().MatchInContent("*https://tools.ietf.org/html/rfc9110#section-15.5.1*");
-    }
 
     [Theory(DisplayName = "Adding a photo into an album should pass"), AutoData]
     public async Task Test03(Guid folderId, Guid albumId, byte[] photo)
@@ -48,33 +26,6 @@ public sealed class PhotoAlbumsApiTests : IClassFixture<FotoApi>
         var id = await response.Content.ReadFromJsonAsync<Guid>();
         id.Should().NotBeEmpty();
         _fotoApi.PhotoUploadedMessageSink.Should().Contain(new PhotoId(folderId, albumId, id));
-    }
-
-    [Theory(DisplayName = "Listing folder albums should pass"), AutoData]
-    public async Task Test04(Guid folderId, string albumName)
-    {
-        var client = _fotoApi.CreateAuthenticatedClient();
-        using var _ = await client.CreatePhotoAlbum(folderId, albumName);
-
-        using var response = await client.ListFolderAlbums(folderId);
-
-        response.Should().Be200Ok();
-        var actual = await response.Content.ReadFromJsonAsync<List<object>>();
-        actual.Should().ContainSingle();
-    }
-
-    [Theory(DisplayName = "Getting a single album should pass"), AutoData]
-    public async Task Test05(Guid folderId, string albumName)
-    {
-        var client = _fotoApi.CreateAuthenticatedClient();
-        using var _ = await client.CreatePhotoAlbum(folderId, albumName);
-        using var _2 = await client.ListFolderAlbums(folderId);
-        var actual = await _2.Content.ReadFromJsonAsync<List<JsonElement>>();
-        var albumId = actual.Should().ContainSingle().Subject.GetProperty("id").GetGuid();
-
-        using var response = await client.GetAlbum(folderId, albumId);
-
-        response.Should().Be200Ok();
     }
 
     [Theory(DisplayName = "Listing the photos of an album should pass"), AutoData]

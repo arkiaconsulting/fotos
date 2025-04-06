@@ -23,9 +23,9 @@ internal static class ConfigurationExtensions
         return services;
     }
 
-    public static IServiceCollection AddInMemoryAlbumDataStore(this IServiceCollection services)
+    public static IServiceCollection AddInMemoryAlbumDataStore(this IServiceCollection services, List<Album>? albums = default)
     {
-        services.AddSingleton<List<Album>>();
+        services.AddSingleton(albums ?? []);
         services.AddSingleton<InMemoryAlbumDataStore>();
         services.AddSingleton<AddAlbumToStore>(sp => sp.GetRequiredService<InMemoryAlbumDataStore>().Add);
         services.AddSingleton<GetAlbumFromStore>(sp => sp.GetRequiredService<InMemoryAlbumDataStore>().Get);
