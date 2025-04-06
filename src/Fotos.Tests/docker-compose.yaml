@@ -6,7 +6,7 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite:latest
     container_name: "azurite"
     hostname: azurite
-    entrypoint: ["azurite", "--blobHost", "0.0.0.0", "--queueHost", "0.0.0.0", "--tableHost", "0.0.0.0", "-l", "data"]
+    entrypoint: ["azurite", "--blobHost", "0.0.0.0", "--queueHost", "0.0.0.0", "--tableHost", "0.0.0.0", "-l", "data", "--skipApiVersionCheck"]
     restart: always
     ports:
       - "10000:10000"

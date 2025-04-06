@@ -52,7 +52,7 @@ public sealed class AzurePhotoStorageTests : IClassFixture<FotoIntegrationContex
     }
 
     [Theory(DisplayName = "When producing thumbnail should return it as stream")]
-    [InlineData("Backend/Adapters/test-file.jpg")]
+    [InlineData("Adapters/test-file.jpg")]
     internal async Task Test04(string photoTestPath)
     {
         await using var stream = File.OpenRead(photoTestPath);

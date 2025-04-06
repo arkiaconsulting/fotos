@@ -11,7 +11,7 @@ public sealed class ExifMetadataTests : IClassFixture<FotoIntegrationContext>
     public ExifMetadataTests(FotoIntegrationContext context) => _context = context;
 
     [Theory(DisplayName = "Extracting EXIF metadata should pass")]
-    [InlineData("Backend/Adapters/test-file.jpg")]
+    [InlineData("Adapters/test-file.jpg")]
     internal async Task Test01(string photoPath)
     {
         await using var stream = File.OpenRead(photoPath);
@@ -22,7 +22,7 @@ public sealed class ExifMetadataTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "Extracting EXIF metadata should pass")]
-    [InlineData("Backend/Adapters/test-file-2.jpg")]
+    [InlineData("Adapters/test-file-2.jpg")]
     internal async Task Test02(string photoPath)
     {
         await using var stream = File.OpenRead(photoPath);
@@ -33,7 +33,7 @@ public sealed class ExifMetadataTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "Extracting EXIF metadata should pass")]
-    [InlineData("Backend/Adapters/test-file-3.png")]
+    [InlineData("Adapters/test-file-3.png")]
     internal async Task Test03(string photoPath)
     {
         await using var stream = File.OpenRead(photoPath);
@@ -44,7 +44,7 @@ public sealed class ExifMetadataTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "Extracting EXIF metadata should pass")]
-    [InlineData("Backend/Adapters/test-file-4.jpg")]
+    [InlineData("Adapters/test-file-4.jpg")]
     internal async Task Test04(string photoPath)
     {
         await using var stream = File.OpenRead(photoPath);
@@ -66,7 +66,7 @@ public sealed class ExifMetadataTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "Extracting EXIF metadata should pass")]
-    [InlineData("Backend/Adapters/test-file-5.jpg")]
+    [InlineData("Adapters/test-file-5.jpg")]
     internal async Task Test05(string photoPath)
     {
         await using var stream = File.OpenRead(photoPath);
@@ -77,7 +77,7 @@ public sealed class ExifMetadataTests : IClassFixture<FotoIntegrationContext>
     }
 
     [Theory(DisplayName = "Extracting EXIF metadata should pass")]
-    [InlineData("Backend/Adapters/test-file-iphone.jpeg")]
+    [InlineData("Adapters/test-file-iphone.jpeg")]
     internal async Task Test06(string photoPath)
     {
         await using var stream = File.OpenRead(photoPath);
