@@ -1,5 +1,5 @@
-using Fotos.App.Api.Types;
 using Fotos.App.Application.User;
+using Fotos.App.Domain;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;

@@ -14,7 +14,7 @@ internal static class InstrumentationConfigurationExtensions
         var azureMonitorConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
         var otlpEndpoint = new Uri("http://localhost:4317");
         builder.Services.AddSingleton<InstrumentationConfig>();
-        builder.Logging.ClearProviders();
+        //builder.Logging.ClearProviders();
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(r => r
                 .AddService(

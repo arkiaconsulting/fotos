@@ -1,4 +1,4 @@
-﻿using Fotos.App.Api.PhotoAlbums;
+﻿using Fotos.App.Domain;
 
 namespace Fotos.App.Application.Albums;
 

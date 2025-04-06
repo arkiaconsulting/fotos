@@ -1,4 +1,4 @@
-﻿using Fotos.App.Api.Photos;
+﻿using Fotos.App.Domain;
 
 namespace Fotos.App.Components.Models;
 

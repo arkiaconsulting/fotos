@@ -1,9 +1,7 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
-using Fotos.App.Api.PhotoAlbums;
-using Fotos.App.Api.Photos;
-using Fotos.App.Api.Shared;
 using Fotos.App.Components.Pages.Restricted;
+using Fotos.App.Domain;
 using Fotos.Tests.Frontend.Assets;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;

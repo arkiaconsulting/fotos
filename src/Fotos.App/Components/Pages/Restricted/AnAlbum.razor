@@ -1,15 +1,11 @@
 ﻿@page "/album/{ParentId:guid}/{FolderId:guid}/{AlbumId:guid}"
 
 @using Fotos.App.Adapters
-@using Fotos.App.Features
-@using Fotos.App.Features.PhotoFolders
 @using System.Buffers
-@using Fotos.App.Features.Photos
 @using Fotos.App.Hubs
 @using Microsoft.AspNetCore.SignalR.Client
 
 @inject NavigationManager NavigationManager
-@inject AddPhoto AddPhoto
 @inject RealTimeMessageService RealTimeMessageService
 @inject ISnackbar Snackbar
 

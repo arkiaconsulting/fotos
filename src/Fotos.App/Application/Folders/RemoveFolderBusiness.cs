@@ -1,6 +1,4 @@
-﻿using Fotos.App.Api.PhotoFolders;
-
-namespace Fotos.App.Application.Folders;
+﻿namespace Fotos.App.Application.Folders;
 
 internal sealed class RemoveFolderBusiness
 {

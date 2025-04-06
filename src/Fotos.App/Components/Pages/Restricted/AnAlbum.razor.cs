@@ -1,7 +1,7 @@
 using Fotos.App.Application.Albums;
+using Fotos.App.Application.Photos;
 using Fotos.App.Components.Models;
-using Fotos.App.Features;
-using Fotos.App.Features.Photos;
+using Fotos.App.Domain;
 using Fotos.App.Hubs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -22,6 +22,9 @@ public sealed partial class AnAlbum
 
     [Inject]
     internal GetAlbumBusiness GetAlbum { get; set; } = default!;
+
+    [Inject]
+    internal AddPhotosBusiness AddPhoto { get; set; } = default!;
 
     private AlbumModel _album = default!;
     private Thumbnails _thumbnailsComponent = new();
@@ -88,7 +91,7 @@ public sealed partial class AnAlbum
             await ms.WriteAsync(buffer.AsMemory(0, bytesRead));
         }
 
-        var id = await AddPhoto(new(FolderId, AlbumId), new(ms.ToArray(), file.ContentType, file.Name));
+        var id = await AddPhoto.Process(FolderId, AlbumId, ms, file.ContentType, file.Name);
 
         var photo = new PhotoModel(FolderId, AlbumId, id, file.Name, new());
         _thumbnailsComponent.AddPhoto(photo);

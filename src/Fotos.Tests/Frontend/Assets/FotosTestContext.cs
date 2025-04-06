@@ -1,17 +1,15 @@
 ﻿using Bunit.TestDoubles;
 using Fotos.App;
 using Fotos.App.Adapters;
-using Fotos.App.Api.PhotoAlbums;
-using Fotos.App.Api.Photos;
-using Fotos.App.Api.Shared;
-using Fotos.App.Api.Types;
 using Fotos.App.Application.Albums;
 using Fotos.App.Application.Folders;
+using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
+using Fotos.App.Domain;
 using Fotos.App.Hubs;
-using Fotos.Tests.Backend.Assets.Authentication;
-using Fotos.Tests.Backend.Assets.InMemory.DataStore;
-using Fotos.Tests.Frontend.Assets.InMemory.Api;
+using Fotos.Tests.Assets.InMemory.DataStore;
+using Fotos.Tests.Assets.InMemory.Messaging;
+using Fotos.Tests.Assets.InMemory.Storage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
@@ -32,9 +30,9 @@ internal sealed class FotosTestContext : TestContext
     private IRenderedComponent<MudPopoverProvider>? _popoverProvider;
     private IRenderedComponent<MudDialogProvider>? _dialogProvider;
 
-    internal List<Folder> Folders => Services.GetRequiredService<List<Folder>>();
+    internal List<Folder> Folders { get; } = [];
     internal List<Album> Albums { get; } = [];
-    internal List<Photo> Photos => Services.GetRequiredService<List<Photo>>();
+    internal List<Photo> Photos { get; } = [];
     internal List<FotoUser> Users { get; } = [];
 
     public Guid RootFolderId { get; } = Guid.NewGuid();
@@ -44,8 +42,8 @@ internal sealed class FotosTestContext : TestContext
     public FotosTestContext()
     {
         AuthContext = this.AddTestAuthorization()
-            .SetClaims([new(ClaimTypes.NameIdentifier, Constants.TestUserId)])
-            .SetAuthenticationType(Constants.TestProvider);
+            .SetClaims([new(ClaimTypes.NameIdentifier, Tests.Assets.Authentication.Constants.TestUserId)])
+            .SetAuthenticationType(Tests.Assets.Authentication.Constants.TestProvider);
 
         ConfigureServices();
         SetupMudProviders();
@@ -53,19 +51,20 @@ internal sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
-        Services.SetRootFolderId(RootFolderId);
         Services.AddSingleton<InstrumentationConfig>();
 
         Services.AddAccountBusiness()
             .AddFolderBusiness()
-            .AddAlbumBusiness();
+            .AddAlbumBusiness()
+            .AddPhotoBusiness();
 
-        Services.AddInMemoryFolderDataStore();
+        Folders.Add(Folder.Create(RootFolderId, Guid.Empty, "Root"));
+        Services.AddInMemoryFolderDataStore(Folders);
         Services.AddInMemoryUserDataStore(Users);
         Services.AddInMemoryAlbumDataStore(Albums);
-
-        Services.AddInMemoryPhotoDataStore()
-            .AddInMemoryPhotosApi();
+        Services.AddInMemoryPhotoDataStore(Photos);
+        Services.AddInMemoryPhotoStorage();
+        Services.AddInMemoryMessagePublishers();
 
         Services.AddTransient<RealTimeMessageService, RealTimeServiceFake>();
         Services.AddScoped<SessionDataStorage, LocalStorageServiceFake>();
@@ -83,7 +82,7 @@ internal sealed class FotosTestContext : TestContext
 
     public void AddUser(string givenName)
     {
-        Users.Add(new FotoUser(FotoUserId.Create(Constants.TestProvider, Constants.TestUserId), Name.Create(givenName), RootFolderId));
+        Users.Add(new FotoUser(FotoUserId.Create(Tests.Assets.Authentication.Constants.TestProvider, Tests.Assets.Authentication.Constants.TestUserId), Name.Create(givenName), RootFolderId));
     }
 
     protected override void Dispose(bool disposing)

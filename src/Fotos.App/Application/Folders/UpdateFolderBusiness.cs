@@ -1,5 +1,4 @@
-﻿using Fotos.App.Api.PhotoFolders;
-using Fotos.App.Api.Shared;
+﻿using Fotos.App.Domain;
 
 namespace Fotos.App.Application.Folders;
 

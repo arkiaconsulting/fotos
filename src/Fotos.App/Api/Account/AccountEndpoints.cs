@@ -1,5 +1,6 @@
-﻿using Fotos.App.Api.Types;
+﻿using Fotos.App.Application.User;
 using Fotos.App.Authentication;
+using Fotos.App.Domain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;

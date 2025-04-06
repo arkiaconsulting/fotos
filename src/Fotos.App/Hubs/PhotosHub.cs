@@ -1,4 +1,4 @@
-﻿using Fotos.App.Features.Photos;
+﻿using Fotos.App.Domain;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Fotos.App.Hubs;

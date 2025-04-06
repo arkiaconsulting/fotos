@@ -1,7 +1,5 @@
-﻿using Fotos.App.Api.Account;
-using Fotos.App.Api.PhotoFolders;
-using Fotos.App.Api.Shared;
-using Fotos.App.Api.Types;
+﻿using Fotos.App.Application.Folders;
+using Fotos.App.Domain;
 
 namespace Fotos.App.Application.User;
 

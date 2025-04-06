@@ -1,4 +1,4 @@
-﻿using Fotos.App.Api.Photos;
+﻿using Fotos.App.Application.Photos;
 
 namespace Fotos.App.Adapters;
 

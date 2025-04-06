@@ -1,13 +1,11 @@
-using FluentValidation;
 using Fotos.App;
 using Fotos.App.Adapters;
 using Fotos.App.Api.Account;
-using Fotos.App.Api.Adapters;
-using Fotos.App.Api.Photos;
 using Fotos.App.Application.Albums;
+using Fotos.App.Application.Folders;
+using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
 using Fotos.App.Authentication;
-using Fotos.App.Features;
 using Fotos.App.Hubs;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -33,15 +31,14 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(typeof(Program).Assembly.Location.Replace("dll", "xml", StringComparison.OrdinalIgnoreCase));
     options.NonNullableReferenceTypesAsRequired();
 });
-builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
-builder.Services.AddProblemDetails();
 builder.Services.AddMemoryCache();
 
 // Authentication
 builder.Services.AddFotosAuthentication(builder.Configuration);
 
 // Business
-builder.Services.AddPhotosBusiness();
+builder.Services.AddFolderBusiness();
+builder.Services.AddPhotoBusiness();
 builder.Services.AddAlbumBusiness();
 builder.Services.AddAccountBusiness();
 
@@ -49,7 +46,6 @@ builder.Services.AddAccountBusiness();
 builder.Services.AddPhotosAdapters(builder.Configuration);
 builder.Services.AddSignalR();
 builder.Services.AddResponseCompression(options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]));
-builder.Services.AddFotosApi(builder.Configuration);
 builder.Services.AddTransient<RealTimeMessageService>();
 
 // Blazor features
@@ -81,7 +77,6 @@ else
 
 app.UseHttpsRedirection();
 
-app.MapPhotosEndpoints();
 app.MapAccountEndpoints();
 
 app.UseStaticFiles();
