@@ -24,11 +24,10 @@ internal sealed class AddUserBusiness
         _instrumentation = instrumentation;
     }
 
-    public async Task Process(string provider, string providerId, string givenName)
+    public async Task Process(FotoUserId userId, string givenName)
     {
         using var activity = _instrumentation.ActivitySource.StartActivity("BUSINESS: add user", System.Diagnostics.ActivityKind.Internal);
 
-        var userId = FotoUserId.Create(provider, providerId);
         var existingUser = await _findUserInStore(userId);
 
         if (existingUser is not null)

@@ -169,9 +169,4 @@ internal static class FotoClient
 
         return await client.PutAsync(new Uri("api/users", UriKind.Relative), content);
     }
-
-    public static async Task<HttpResponseMessage> GetMe(this HttpClient client)
-    {
-        return await client.GetAsync(new Uri("api/users/me", UriKind.Relative));
-    }
 }

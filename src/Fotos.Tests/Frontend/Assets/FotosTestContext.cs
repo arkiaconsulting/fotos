@@ -1,4 +1,5 @@
 ﻿using Bunit.TestDoubles;
+using Fotos.App;
 using Fotos.App.Adapters;
 using Fotos.App.Api.Account;
 using Fotos.App.Api.PhotoAlbums;
@@ -53,6 +54,7 @@ internal sealed class FotosTestContext : TestContext
     private void ConfigureServices()
     {
         Services.SetRootFolderId(RootFolderId);
+        Services.AddSingleton<InstrumentationConfig>();
 
         Services.AddAccountBusiness();
 

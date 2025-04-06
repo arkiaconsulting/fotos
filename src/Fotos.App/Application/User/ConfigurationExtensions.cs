@@ -1,6 +1,4 @@
-﻿using Fotos.App.Application.User;
-
-namespace Fotos.App.Api.Account;
+﻿namespace Fotos.App.Application.User;
 
 internal static class ConfigurationExtensions
 {

@@ -85,7 +85,6 @@ app.MapPhotoFolderEndpoints();
 app.MapPhotoAlbumEndpoints();
 app.MapPhotosEndpoints();
 app.MapAccountEndpoints();
-app.MapUserEndpoints();
 
 app.UseStaticFiles();
 app.UseAntiforgery();

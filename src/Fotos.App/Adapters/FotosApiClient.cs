@@ -143,14 +143,4 @@ internal sealed class FotosApiClient
 
         return photo!;
     }
-
-    internal async Task SaveUser(string givenName)
-    {
-        using var response = await _httpClient.PostAsJsonAsync("api/users", new
-        {
-            givenName
-        });
-
-        response.EnsureSuccessStatusCode();
-    }
 }
