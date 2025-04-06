@@ -1,5 +1,4 @@
 ﻿using Fotos.App.Api.PhotoAlbums;
-using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
 using Fotos.App.Features;
 using Fotos.App.Features.PhotoAlbums;
@@ -14,13 +13,6 @@ internal sealed class FotosApiClient
 
     public FotosApiClient(IHttpClientFactory httpClientFactory) => _httpClient = httpClientFactory.CreateClient(Constants.HttpClientName);
 
-    public async Task<IReadOnlyCollection<FolderDto>> GetFolders(Guid parentId)
-    {
-        var folders = await _httpClient.GetFromJsonAsync<IReadOnlyCollection<FolderDto>>($"api/folders/{parentId}/children");
-
-        return folders!;
-    }
-
     public async Task<Guid> CreateFolder(Guid parentId, string name)
     {
         using var response = await _httpClient.PostAsJsonAsync("api/folders", new
@@ -32,13 +24,6 @@ internal sealed class FotosApiClient
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<Guid>()!;
-    }
-
-    public async Task<FolderDto> GetFolder(Guid parentId, Guid folderId)
-    {
-        var folder = await _httpClient.GetFromJsonAsync<FolderDto>($"api/folders/{parentId}/{folderId}");
-
-        return folder!;
     }
 
     public async Task RemoveFolder(Guid parentId, Guid folderId)

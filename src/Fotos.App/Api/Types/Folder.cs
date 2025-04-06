@@ -1,6 +1,6 @@
 ﻿using Fotos.App.Api.Shared;
 
-namespace Fotos.App.Api.PhotoFolders;
+namespace Fotos.App.Api.Types;
 
 internal readonly record struct Folder(Guid Id, Guid ParentId, Name Name)
 {

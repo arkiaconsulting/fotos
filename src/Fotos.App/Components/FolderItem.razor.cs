@@ -1,3 +1,4 @@
+using Fotos.App.Application.Folders;
 using Fotos.App.Components.Dialogs;
 using Fotos.App.Components.Models;
 using Microsoft.AspNetCore.Components;
@@ -15,6 +16,9 @@ public partial class FolderItem
     [Parameter]
     public EventCallback<FolderModel> OnFolderRemoved { get; set; }
 
+    [Inject]
+    internal ListChildFoldersBusiness ListChildFolders { get; set; } = default!;
+
     private bool _isOverlayVisible;
 
     private async Task FolderClicked()
@@ -24,7 +28,7 @@ public partial class FolderItem
 
     private async Task RemoveThisFolder()
     {
-        var childFoldersCount = (await ListFolders(Folder.Id)).Count;
+        var childFoldersCount = (await ListChildFolders.Process(Folder.Id)).Count();
 
         if (childFoldersCount > 0)
         {

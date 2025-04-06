@@ -4,8 +4,8 @@ using Fotos.App.Adapters;
 using Fotos.App.Api.Account;
 using Fotos.App.Api.Adapters;
 using Fotos.App.Api.PhotoAlbums;
-using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
+using Fotos.App.Application.User;
 using Fotos.App.Authentication;
 using Fotos.App.Features;
 using Fotos.App.Hubs;
@@ -81,7 +81,6 @@ else
 
 app.UseHttpsRedirection();
 
-app.MapPhotoFolderEndpoints();
 app.MapPhotoAlbumEndpoints();
 app.MapPhotosEndpoints();
 app.MapAccountEndpoints();

@@ -1,9 +1,9 @@
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Fotos.App.Api.PhotoAlbums;
-using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
 using Fotos.App.Api.Shared;
+using Fotos.App.Api.Types;
 using Fotos.App.Components.Pages.Restricted;
 using Fotos.Tests.Frontend.Assets;
 

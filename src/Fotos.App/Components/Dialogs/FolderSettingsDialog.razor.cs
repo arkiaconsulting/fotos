@@ -1,3 +1,4 @@
+using Fotos.App.Application.Folders;
 using Fotos.App.Components.Models;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -10,6 +11,9 @@ public partial class FolderSettingsDialog
 
     [Parameter]
     public FolderModel Folder { get; set; } = default!;
+
+    [Inject]
+    internal UpdateFolderBusiness UpdateFolder { get; set; } = default!;
 
     private string _previousFolderName = string.Empty;
     private readonly DialogOptions _settingsOptions = new()
@@ -32,7 +36,7 @@ public partial class FolderSettingsDialog
 
         if (_previousFolderName != Folder.Name)
         {
-            await UpdateFolder(Folder.ParentId, Folder.Id, Folder.Name);
+            await UpdateFolder.Process(Folder.ParentId, Folder.Id, Folder.Name);
         }
         _previousFolderName = string.Empty;
     }

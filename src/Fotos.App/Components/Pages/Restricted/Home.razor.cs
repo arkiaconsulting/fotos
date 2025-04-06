@@ -1,4 +1,5 @@
 using Fotos.App.Adapters;
+using Fotos.App.Application.Folders;
 using Fotos.App.Application.User;
 using Fotos.App.Components.Dialogs;
 using Fotos.App.Components.Models;
@@ -15,6 +16,18 @@ public partial class Home
 
     [Inject]
     internal FindUserBusiness FindUser { get; set; } = default!;
+
+    [Inject]
+    internal GetFolderBusiness GetFolder { get; set; } = default!;
+
+    [Inject]
+    internal RemoveFolderBusiness RemoveFolder { get; set; } = default!;
+
+    [Inject]
+    internal ListChildFoldersBusiness ListChildFolders { get; set; } = default!;
+
+    [Inject]
+    internal CreateFolderBusiness CreateFolder { get; set; } = default!;
 
     public FolderModel CurrentFolder => SessionData.FolderStack.Peek();
 
@@ -38,8 +51,8 @@ public partial class Home
 
                 var fotoUser = await FindUser.Process(provider!, userProviderId!);
 
-                var folder = await GetFolder(Guid.Empty, fotoUser!.Value.RootFolderId);
-                SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name });
+                var folder = await GetFolder.Process(Guid.Empty, fotoUser!.Value.RootFolderId);
+                SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name.Value });
             }
 
             await RefreshFoldersAndAlbums();
@@ -51,7 +64,7 @@ public partial class Home
 
     private async Task RefreshFolders()
     {
-        _childFolders = [.. (await ListFolders(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name })];
+        _childFolders = [.. (await ListChildFolders.Process(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name.Value })];
     }
 
     private async Task RefreshAlbums()
@@ -66,7 +79,7 @@ public partial class Home
 
     private async Task CreateNewFolder()
     {
-        await CreateFolder(CurrentFolder.Id, _newFolder);
+        await CreateFolder.Process(CurrentFolder.Id, _newFolder);
 
         await RefreshFolders();
         _newFolder = string.Empty;
@@ -81,7 +94,7 @@ public partial class Home
 
     private async Task RemoveThisFolder(FolderModel folder)
     {
-        await RemoveFolder(folder.ParentId, folder.Id);
+        await RemoveFolder.Process(folder.ParentId, folder.Id);
 
         _childFolders.Remove(folder);
     }

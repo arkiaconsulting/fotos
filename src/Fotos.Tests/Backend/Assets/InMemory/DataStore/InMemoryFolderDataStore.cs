@@ -1,5 +1,5 @@
-﻿using Fotos.App.Api.PhotoFolders;
-using Fotos.App.Api.Shared;
+﻿using Fotos.App.Api.Shared;
+using Fotos.App.Api.Types;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Fotos.Tests.Backend.Assets.InMemory.DataStore;

@@ -1,12 +1,12 @@
 ﻿using Bunit.TestDoubles;
 using Fotos.App;
 using Fotos.App.Adapters;
-using Fotos.App.Api.Account;
 using Fotos.App.Api.PhotoAlbums;
-using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
 using Fotos.App.Api.Shared;
 using Fotos.App.Api.Types;
+using Fotos.App.Application.Folders;
+using Fotos.App.Application.User;
 using Fotos.App.Hubs;
 using Fotos.Tests.Backend.Assets.Authentication;
 using Fotos.Tests.Backend.Assets.InMemory.DataStore;
@@ -34,8 +34,7 @@ internal sealed class FotosTestContext : TestContext
     internal List<Folder> Folders => Services.GetRequiredService<List<Folder>>();
     internal List<Album> Albums => Services.GetRequiredService<List<Album>>();
     internal List<Photo> Photos => Services.GetRequiredService<List<Photo>>();
-    internal List<FotoUser> Users => _users;
-    private List<FotoUser> _users = [];
+    internal List<FotoUser> Users { get; } = [];
 
     public Guid RootFolderId { get; } = Guid.NewGuid();
 
@@ -56,19 +55,17 @@ internal sealed class FotosTestContext : TestContext
         Services.SetRootFolderId(RootFolderId);
         Services.AddSingleton<InstrumentationConfig>();
 
-        Services.AddAccountBusiness();
+        Services.AddAccountBusiness()
+            .AddFolderBusiness();
 
-        Services.AddInMemoryFolderDataStore()
-            .AddInMemoryFoldersApi();
+        Services.AddInMemoryFolderDataStore();
+        Services.AddInMemoryUserDataStore(Users);
 
         Services.AddInMemoryAlbumDataStore()
             .AddInMemoryAlbumsApi();
 
         Services.AddInMemoryPhotoDataStore()
             .AddInMemoryPhotosApi();
-
-        Services.AddInMemoryUserDataStore(_users)
-            .AddInMemoryUsersApi();
 
         Services.AddTransient<RealTimeMessageService, RealTimeServiceFake>();
         Services.AddScoped<SessionDataStorage, LocalStorageServiceFake>();
@@ -86,7 +83,7 @@ internal sealed class FotosTestContext : TestContext
 
     public void AddUser(string givenName)
     {
-        _users.Add(new FotoUser(FotoUserId.Create(Constants.TestProvider, Constants.TestUserId), Name.Create(givenName), RootFolderId));
+        Users.Add(new FotoUser(FotoUserId.Create(Constants.TestProvider, Constants.TestUserId), Name.Create(givenName), RootFolderId));
     }
 
     protected override void Dispose(bool disposing)

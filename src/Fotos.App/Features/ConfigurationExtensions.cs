@@ -17,11 +17,6 @@ internal static class ConfigurationExtensions
 
         services.AddScoped<FotosApiClient>();
         services.AddHttpContextAccessor();
-        services.RegisterImplementation<ListFolders, FotosApiClient>(c => c.GetFolders);
-        services.RegisterImplementation<CreateFolder, FotosApiClient>(c => c.CreateFolder);
-        services.RegisterImplementation<GetFolder, FotosApiClient>(c => c.GetFolder);
-        services.RegisterImplementation<RemoveFolder, FotosApiClient>(c => c.RemoveFolder);
-        services.RegisterImplementation<UpdateFolder, FotosApiClient>(c => c.UpdateFolder);
         services.RegisterImplementation<ListAlbums, FotosApiClient>(c => c.GetAlbums);
         services.RegisterImplementation<CreateAlbum, FotosApiClient>(c => c.CreateAlbum);
         services.RegisterImplementation<GetAlbum, FotosApiClient>(c => c.GetAlbum);

@@ -1,6 +1,5 @@
 ﻿using Fotos.App.Adapters;
 using Fotos.App.Api.PhotoAlbums;
-using Fotos.App.Api.PhotoFolders;
 using Fotos.App.Api.Photos;
 using Fotos.App.Api.Shared;
 using Fotos.App.Api.Types;
