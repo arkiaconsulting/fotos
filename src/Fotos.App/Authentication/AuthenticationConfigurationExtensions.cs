@@ -28,7 +28,7 @@ internal static class AuthenticationConfigurationExtensions
                 {
                     OnRedirectToAuthorizationEndpoint = context =>
                     {
-                        context.RedirectUri += $"&prompt=select_account";
+                        context.RedirectUri += "&prompt=select_account";
                         context.Response.Redirect(context.RedirectUri);
 
                         return Task.CompletedTask;

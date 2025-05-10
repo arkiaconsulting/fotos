@@ -15,16 +15,16 @@ internal sealed class AzureCosmosDb
 
     public AzureCosmosDb(CosmosClient client, IConfiguration configuration, InstrumentationConfig instrumentation)
     {
-        _photoContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
-            .GetContainer(configuration["CosmosDb:ContainerId"]);
-        _folderContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
-            .GetContainer(configuration["CosmosDb:FoldersContainerId"]);
-        _albumContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
-            .GetContainer(configuration["CosmosDb:AlbumsContainerId"]);
-        _sessionDataContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
-            .GetContainer(configuration["CosmosDb:SessionDataContainerId"]);
-        _userContainer = client.GetDatabase(configuration["CosmosDb:DatabaseId"])
-            .GetContainer(configuration["CosmosDb:UsersContainerId"]);
+        _photoContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
+            .GetContainer(configuration["Cosmos:PhotosContainerId"]);
+        _folderContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
+            .GetContainer(configuration["Cosmos:FoldersContainerId"]);
+        _albumContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
+            .GetContainer(configuration["Cosmos:AlbumsContainerId"]);
+        _sessionDataContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
+            .GetContainer(configuration["Cosmos:SessionDataContainerId"]);
+        _userContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
+            .GetContainer(configuration["Cosmos:UsersContainerId"]);
         _activitySource = instrumentation.ActivitySource;
     }
     public async Task SavePhoto(Photo photo)

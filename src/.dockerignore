@@ -1,0 +1,11 @@
+**/obj
+**/bin
+**/appsettings.*.json
+
+Dockerfile
+**/*.md
+.dockerignore
+.editorconfig
+*.ncrunch*
+.vs
+Fotos.Tests/

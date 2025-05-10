@@ -4,7 +4,7 @@ resource "random_string" "storage_suffix" {
   upper   = false
 }
 
-resource "azurerm_storage_account" "photos" {
+resource "azurerm_storage_account" "fotos" {
   name                     = local.storage_account_name
   resource_group_name      = azurerm_resource_group.main.name
   location                 = azurerm_resource_group.main.location
@@ -17,6 +17,6 @@ resource "azurerm_storage_account" "photos" {
 
 resource "azurerm_storage_container" "photos" {
   name                  = "photos"
-  storage_account_name  = azurerm_storage_account.photos.name
   container_access_type = "private"
+  storage_account_id    = azurerm_storage_account.fotos.id
 }

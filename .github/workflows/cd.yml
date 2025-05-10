@@ -4,79 +4,111 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  ACR_NAME: ctn0akc0acr0cmn
+  ACR_REGISTRY: ctn0akc0acr0cmn.azurecr.io
+  ACR_REPOSITORY: fotos
+  DOCKER_IMAGE_NAME: fotos-web
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      APP_PROJECT_PATH: src/Fotos.App/Fotos.App.csproj
-      TESTS_PROJECT_PATH: src/Fotos.Tests/Fotos.Tests.csproj
-      COSMOS_DB_ENDPOINT: https://arkia.documents.azure.com:443/
-      COSMOS_DB_KEY: ${{ secrets.ARKIA_COSMOS_DB_ACCOUNT_KEY }}
-      COSMOS_DB_DATABASE: tests
-      COSMOS_DB_PHOTOS_CONTAINER: photos-test
-      COSMOS_DB_SESSION_DATA_CONTAINER: session-data-test
-      COSMOS_DB_USERS_CONTAINER: users-test
-      SERVICE_BUS_NAMESPACE_FQDN: arkiabus.servicebus.windows.net
-      SERVICE_BUS_TOPIC: tests-fotos-main
-      SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION: produce-thumbnail
-      SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION: remove-photo-binaries
-      SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION: unused
-      AZURE_STORAGE_URI: UseDevelopmentStorage=true
-      AZURE_STORAGE_CONTAINER: fotostests
+
+    # env:
+      # APP_PROJECT_PATH: src/Fotos.App/Fotos.App.csproj
+      # TESTS_PROJECT_PATH: src/Fotos.Tests/Fotos.Tests.csproj
+      # COSMOS_DB_ENDPOINT: https://arkia.documents.azure.com:443/
+      # COSMOS_DB_KEY: ${{ secrets.ARKIA_COSMOS_DB_ACCOUNT_KEY }}
+      # COSMOS_DB_DATABASE: tests
+      # COSMOS_DB_PHOTOS_CONTAINER: photos-test
+      # COSMOS_DB_SESSION_DATA_CONTAINER: session-data-test
+      # COSMOS_DB_USERS_CONTAINER: users-test
+      # SERVICE_BUS_NAMESPACE_FQDN: arkiabus.servicebus.windows.net
+      # SERVICE_BUS_TOPIC: tests-fotos-main
+      # SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION: produce-thumbnail
+      # SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION: remove-photo-binaries
+      # SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION: unused
+      # AZURE_STORAGE_URI: UseDevelopmentStorage=true
+      # AZURE_STORAGE_CONTAINER: fotostests
 
     steps:
     - uses: actions/checkout@v4
 
-    - uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.x
-        
-    - name: Restore frontend test dependencies
-      run: dotnet restore ${{ env.TESTS_PROJECT_PATH }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - name: Install Azurite
-      run: npm install -g azurite
-
-    - name: Start azurite
-      run: azurite-blob &
-
-    - name: Create storage test container
-      run: az storage container create -n ${{ env.AZURE_STORAGE_CONTAINER }} --connection-string "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
-
-    - name: Azure Login
+    - name: Az CLI login
       uses: azure/login@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        client-id: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AKC_TENANT_ID }}
+        subscription-id: ${{ secrets.AKC_SUBSCRIPTION_ID }}
 
-    - name: Run frontend tests
-      run: dotnet test ${{ env.TESTS_PROJECT_PATH }} --no-restore
-      env:
-        CosmosDb__AccountEndpoint: ${{ env.COSMOS_DB_ENDPOINT }}
-        CosmosDb__AccountKey: ${{ env.COSMOS_DB_KEY }}
-        CosmosDb__DatabaseId: ${{ env.COSMOS_DB_DATABASE }}
-        CosmosDb__ContainerId: ${{ env.COSMOS_DB_PHOTOS_CONTAINER }}
-        CosmosDb__SessionDataContainerId: ${{ env.COSMOS_DB_SESSION_DATA_CONTAINER }}
-        CosmosDb__UsersContainerId: ${{ env.COSMOS_DB_USERS_CONTAINER }}
-        CosmosDb__FoldersContainerId: unused
-        CosmosDb__AlbumsContainerId: unused
-        ServiceBus__fullyQualifiedNamespace: ${{ env.SERVICE_BUS_NAMESPACE_FQDN }}
-        ServiceBus__MainTopic: ${{ env.SERVICE_BUS_TOPIC }}
-        ServiceBus__ProduceThumbnailSubscription: ${{ env.SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION }}
-        ServiceBus__RemovePhotoBinariesSubscription: ${{ env.SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION }}
-        ServiceBus__ExtractExifMetadataSubscription: ${{ env.SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION }}
-        Google__ClientId: any
-        Google__ClientSecret: any
-        BaseUrl: https://any
-        AccessTokenSigningKey: 0000000000000000000000000000000000000000000000000000000000000000000
+    - name: ACR Login
+      run: az acr login --name ${{ env.ACR_NAME }}
 
-    - name: Publish
-      run: dotnet publish ${{ env.APP_PROJECT_PATH }} -c Release -o publish
-
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+    - name: Build and Push Image
+      uses: docker/build-push-action@v5
       with:
-        name: app-binaries
-        path: publish
+        context: src
+        push: true
+        tags: ${{ env.ACR_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+        platforms: linux/amd64
+
+    # - uses: actions/setup-dotnet@v4
+    #   with:
+    #     dotnet-version: 9.x
+        
+    # - name: Restore frontend test dependencies
+    #   run: dotnet restore ${{ env.TESTS_PROJECT_PATH }}
+
+    # - name: Install Azurite
+    #   run: npm install -g azurite
+
+    # - name: Start azurite
+    #   run: azurite-blob &
+
+    # - name: Create storage test container
+    #   run: az storage container create -n ${{ env.AZURE_STORAGE_CONTAINER }} --connection-string "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+
+    # - name: Azure Login
+    #   uses: azure/login@v2
+    #   with:
+    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # - name: Run frontend tests
+    #   run: dotnet test ${{ env.TESTS_PROJECT_PATH }} --no-restore
+    #   env:
+    #     CosmosDb__AccountEndpoint: ${{ env.COSMOS_DB_ENDPOINT }}
+    #     CosmosDb__AccountKey: ${{ env.COSMOS_DB_KEY }}
+    #     CosmosDb__DatabaseId: ${{ env.COSMOS_DB_DATABASE }}
+    #     CosmosDb__ContainerId: ${{ env.COSMOS_DB_PHOTOS_CONTAINER }}
+    #     CosmosDb__SessionDataContainerId: ${{ env.COSMOS_DB_SESSION_DATA_CONTAINER }}
+    #     CosmosDb__UsersContainerId: ${{ env.COSMOS_DB_USERS_CONTAINER }}
+    #     CosmosDb__FoldersContainerId: unused
+    #     CosmosDb__AlbumsContainerId: unused
+    #     ServiceBus__fullyQualifiedNamespace: ${{ env.SERVICE_BUS_NAMESPACE_FQDN }}
+    #     ServiceBus__MainTopic: ${{ env.SERVICE_BUS_TOPIC }}
+    #     ServiceBus__ProduceThumbnailSubscription: ${{ env.SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION }}
+    #     ServiceBus__RemovePhotoBinariesSubscription: ${{ env.SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION }}
+    #     ServiceBus__ExtractExifMetadataSubscription: ${{ env.SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION }}
+    #     Google__ClientId: any
+    #     Google__ClientSecret: any
+    #     BaseUrl: https://any
+    #     AccessTokenSigningKey: 0000000000000000000000000000000000000000000000000000000000000000000
+
+    # - name: Publish
+    #   run: dotnet publish ${{ env.APP_PROJECT_PATH }} -c Release -o publish
+
+    # - name: Upload build artifacts
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: app-binaries
+    #     path: publish
 
   terraform:
     runs-on: ubuntu-latest
@@ -84,14 +116,13 @@ jobs:
       run:
         working-directory: ./terraform
     env:
-      TF_RESOURCE_GROUP: common
-      TF_STORAGE_ACCOUNT_NAME: arkia
-      TF_STORAGE_CONTAINER_NAME: tfinfra
-      TF_STORAGE_BLOB_NAME: fotos.terraform.tfstate
-      ARM_CLIENT_ID: ${{ secrets.SP_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
-      ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AKC_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AKC_SUBSCRIPTION_ID }}
+      ARM_USE_AZUREAD: true
+      ARM_USE_OIDC: true
+      TF_VAR_fotos_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
+      TF_VAR_fotos_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
     steps:
     - uses: actions/checkout@v4
@@ -99,17 +130,11 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: 1.9.8
+        terraform_version: 1.11.4
 
     - name: Terraform Init
       run: >
-        terraform init -input=false
-        -backend-config="resource_group_name=${{ env.TF_RESOURCE_GROUP }}"
-        -backend-config="storage_account_name=${{ env.TF_STORAGE_ACCOUNT_NAME }}"
-        -backend-config="container_name=${{ env.TF_STORAGE_CONTAINER_NAME }}"
-        -backend-config="subscription_id=${{ secrets.SUBSCRIPTION_ID }}"
-        -backend-config="tenant_id=${{ secrets.TENANT_ID }}"
-        -backend-config="key=${{ env.TF_STORAGE_BLOB_NAME }}"
+        terraform init -input=false -backend-config=environments/backend.config
 
     - name: Terraform Plan
       run: terraform plan -input=false -out=tfplan -var-file="environments/variables.tfvars"
@@ -123,51 +148,22 @@ jobs:
     defaults:
       run:
         working-directory: ./terraform
-    env:
-      TF_RESOURCE_GROUP: common
-      TF_STORAGE_ACCOUNT_NAME: arkia
-      TF_STORAGE_CONTAINER_NAME: tfinfra
-      TF_STORAGE_BLOB_NAME: fotos.terraform.tfstate
-      ARM_CLIENT_ID: ${{ secrets.SP_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
-      ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
     steps:
-    - uses: actions/checkout@v4
+      - name: Az CLI login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AKC_TENANT_ID }}
+          subscription-id: ${{ secrets.AKC_SUBSCRIPTION_ID }}
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 1.9.8
-
-    - name: Terraform Init
-      run: >
-        terraform init -input=false
-        -backend-config="resource_group_name=${{ env.TF_RESOURCE_GROUP }}"
-        -backend-config="storage_account_name=${{ env.TF_STORAGE_ACCOUNT_NAME }}"
-        -backend-config="container_name=${{ env.TF_STORAGE_CONTAINER_NAME }}"
-        -backend-config="subscription_id=${{ secrets.SUBSCRIPTION_ID }}"
-        -backend-config="tenant_id=${{ secrets.TENANT_ID }}"
-        -backend-config="key=${{ env.TF_STORAGE_BLOB_NAME }}"
-
-    - name: Get Web App Name from Terraform Output
-      id: get_web_app_name
-      run: echo "WEB_APP_NAME=$(terraform output -raw web_app_name)" >> $GITHUB_ENV
-
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: app-binaries
-        path: ./publish
-
-    - name: Azure Login
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.WEB_APP_NAME }}
-        slot-name: production
-        package: ./publish
+      - name: Update Container App
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            containerAppId=$(az containerapp list --output tsv --query "[?tags.project=='fotos'].id")
+            echo "Container App ID: $containerAppId"
+            az containerapp update \
+            --ids $containerAppId \
+            --image ${{ env.ACR_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+        

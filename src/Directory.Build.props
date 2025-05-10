@@ -4,14 +4,15 @@
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-		<AnalysisMode>All</AnalysisMode>
+		<AnalysisMode>Recommended</AnalysisMode>
 		<AnalysisLevel>latest</AnalysisLevel>
-		<!--<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>-->
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+		<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 		<RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);CS1591;CA1716</NoWarn>
+		<IncludeSymbols>true</IncludeSymbols>
+		<NoWarn>$(NoWarn);CS1591;CA1716;CA1515</NoWarn>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Authors>Louis GERARD</Authors>
 		<Company>Arkia Consulting</Company>
@@ -19,6 +20,8 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>
 		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
 	</PropertyGroup>
 
 	<ItemGroup>

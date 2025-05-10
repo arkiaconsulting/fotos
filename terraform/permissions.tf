@@ -6,7 +6,7 @@ resource "azurerm_user_assigned_identity" "main" {
 }
 
 resource "azurerm_role_assignment" "identity_storage_blob_data_owner" {
-  scope                = azurerm_storage_account.photos.id
+  scope                = azurerm_storage_account.fotos.id
   role_definition_name = "Storage Blob Data Owner"
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
@@ -68,4 +68,17 @@ resource "azurerm_role_assignment" "identity_key_vault_secrets_user" {
   scope                = data.azurerm_key_vault.common.id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.main.principal_id
+}
+
+# User assigned identity dedicated to the container app
+resource "azurerm_user_assigned_identity" "container_app" {
+  name                = "fotos-container_app"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = local.location
+}
+
+resource "azurerm_role_assignment" "container_app" {
+  scope                = data.azurerm_container_registry.common.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.container_app.principal_id
 }
