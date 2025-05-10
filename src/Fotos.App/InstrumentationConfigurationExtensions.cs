@@ -18,12 +18,12 @@ internal static class InstrumentationConfigurationExtensions
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(r => r
                 .AddService(
-                serviceName: builder.Configuration["Instrumentation:ServiceName"]!,
+                serviceName: InstrumentationConfig.ServiceName!,
                 serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
                 serviceInstanceId: Environment.MachineName)
             ).WithTracing(traceBuilder =>
             {
-                traceBuilder.AddSource(InstrumentationConfig.ActivitySourceName)
+                traceBuilder.AddSource(InstrumentationConfig.ServiceName)
                         .SetSampler<AlwaysOnSampler>()
                         .AddAspNetCoreInstrumentation(options => options.RecordException = true)
                         .AddHttpClientInstrumentation();
