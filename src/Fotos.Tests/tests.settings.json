@@ -4,19 +4,19 @@
     "PhotosContainer": "fotostests"
   },
   "ServiceBus": {
-    "fullyQualifiedNamespace": "arkiabus.servicebus.windows.net",
+    "fullyQualifiedNamespace": "msg0akc0asb0cmn.servicebus.windows.net",
     "MainTopic": "tests-fotos-main",
     "ProduceThumbnailSubscription": "produce-thumbnail",
     "RemovePhotoBinariesSubscription": "remove-photo-binaries"
   },
-  "CosmosDb": {
-    "AccountEndpoint": "https://localhost:8081",
+  "Cosmos": {
+    "Endpoint": "https://localhost:8081",
     "AccountKey": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
     "DatabaseId": "fotos",
-    "ContainerId": "photos-test",
-    "FoldersContainerId": "folders-test",
-    "AlbumsContainerId": "albums-test",
-    "SessionDataContainerId": "session-data-test",
-    "UsersContainerId": "users-test"
+    "PhotosContainerId": "photos",
+    "FoldersContainerId": "folders",
+    "AlbumsContainerId": "albums",
+    "SessionDataContainerId": "session-data",
+    "UsersContainerId": "users"
   }
 }

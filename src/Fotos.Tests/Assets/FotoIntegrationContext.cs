@@ -42,8 +42,8 @@ public sealed class FotoIntegrationContext
             var configuration = _host.Services.GetRequiredService<IConfiguration>();
 
             return _host.Services.GetRequiredService<CosmosClient>()
-                .GetDatabase(configuration["CosmosDb:DatabaseId"])
-                .GetContainer(configuration["CosmosDb:ContainerId"]);
+                .GetDatabase(configuration["Cosmos:DatabaseId"])
+                .GetContainer(configuration["Cosmos:PhotosContainerId"]);
         }
     }
 
@@ -65,8 +65,8 @@ public sealed class FotoIntegrationContext
             var configuration = _host.Services.GetRequiredService<IConfiguration>();
 
             return _host.Services.GetRequiredService<CosmosClient>()
-                .GetDatabase(configuration["CosmosDb:DatabaseId"])
-                .GetContainer(configuration["CosmosDb:SessionDataContainerId"]);
+                .GetDatabase(configuration["Cosmos:DatabaseId"])
+                .GetContainer(configuration["Cosmos:SessionDataContainerId"]);
         }
     }
 
@@ -77,8 +77,8 @@ public sealed class FotoIntegrationContext
             var configuration = _host.Services.GetRequiredService<IConfiguration>();
 
             return _host.Services.GetRequiredService<CosmosClient>()
-                .GetDatabase(configuration["CosmosDb:DatabaseId"])
-                .GetContainer(configuration["CosmosDb:UsersContainerId"]);
+                .GetDatabase(configuration["Cosmos:DatabaseId"])
+                .GetContainer(configuration["Cosmos:UsersContainerId"]);
         }
     }
 

@@ -114,8 +114,8 @@ internal static class AdaptersConfigurationExtensions
 
         services.AddSingleton(sp =>
         {
-            var endpoint = configuration["CosmosDb:AccountEndpoint"];
-            var key = configuration["CosmosDb:AccountKey"];
+            var endpoint = configuration["Cosmos:Endpoint"];
+            var key = configuration["Cosmos:AccountKey"];
             var clientBuilder = string.IsNullOrWhiteSpace(key)
                 ? new CosmosClientBuilder(endpoint, sp.GetRequiredService<TokenCredential>())
                 : new CosmosClientBuilder(endpoint, key);
