@@ -40,8 +40,9 @@ internal sealed class AddUserBusiness
         activity?.AddEvent(new("create new user"));
 
         var rootFolderId = Guid.NewGuid();
+        var parentFolderId = Guid.Empty;
         await _addUserToStore(new FotoUser(userId, Name.Create(givenName), rootFolderId));
 
-        await _addFolderToStore(new Folder(Guid.NewGuid(), rootFolderId, Name.Create("Root")));
+        await _addFolderToStore(new Folder(rootFolderId, parentFolderId, Name.Create("Root")));
     }
 }

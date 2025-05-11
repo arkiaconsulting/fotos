@@ -10,11 +10,13 @@ internal static class InstrumentationConfigurationExtensions
 {
     public static void AddFotosInstrumentation(this WebApplicationBuilder builder)
     {
+        AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
+
         var useOtlpExporter = builder.Configuration.GetValue<bool>("Instrumentation:UseOtlpExporter");
         var azureMonitorConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
         var otlpEndpoint = new Uri("http://localhost:4317");
         builder.Services.AddSingleton<InstrumentationConfig>();
-        //builder.Logging.ClearProviders();
+
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(r => r
                 .AddService(
@@ -24,8 +26,13 @@ internal static class InstrumentationConfigurationExtensions
             ).WithTracing(traceBuilder =>
             {
                 traceBuilder.AddSource(InstrumentationConfig.ServiceName)
+                        .AddSource("Azure.*")
                         .SetSampler<AlwaysOnSampler>()
-                        .AddAspNetCoreInstrumentation(options => options.RecordException = true)
+                        .AddAspNetCoreInstrumentation(options =>
+                        {
+                            options.RecordException = true;
+                            options.EnableAspNetCoreSignalRSupport = true;
+                        })
                         .AddHttpClientInstrumentation();
                 if (useOtlpExporter)
                 {
@@ -56,7 +63,7 @@ internal static class InstrumentationConfigurationExtensions
                 {
                     loggingBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
                 }
-            });
+            }, options => options.IncludeScopes = true);
 
         if (!(useOtlpExporter || string.IsNullOrWhiteSpace(azureMonitorConnectionString)))
         {

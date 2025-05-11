@@ -8,6 +8,7 @@ using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
 using Fotos.App.Domain;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -47,16 +48,9 @@ public sealed class FotoIntegrationContext
         }
     }
 
-    internal BlobContainerClient PhotosContainer
-    {
-        get
-        {
-            var storage = _host.Services.GetRequiredService<BlobServiceClient>();
-            var containerName = _host.Services.GetRequiredService<IConfiguration>()["MainStorage:PhotosContainer"];
-
-            return storage.GetBlobContainerClient(containerName);
-        }
-    }
+    internal BlobContainerClient PhotosContainer =>
+        _host.Services.GetRequiredService<IAzureClientFactory<BlobContainerClient>>()
+        .CreateClient("Photos");
 
     internal Container SessionData
     {

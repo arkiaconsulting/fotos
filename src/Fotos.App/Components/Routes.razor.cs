@@ -3,11 +3,10 @@ public partial class Routes
 {
     private bool _isLoading = true;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            await Task.Delay(1000);
             _isLoading = false;
 
             StateHasChanged();

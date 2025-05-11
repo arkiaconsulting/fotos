@@ -15,7 +15,8 @@ internal class RealTimeMessageService : IAsyncDisposable
     {
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(navigationManager.ToAbsoluteUri("/photoshub"))
-        .Build();
+            .WithAutomaticReconnect()
+            .Build();
 
         _hubConnection.On<PhotoId>("ThumbnailReady", id => OnThumbnailReady?.Invoke(this, id));
         _hubConnection.On<PhotoId>("MetadataReady", id => OnMetadataReady?.Invoke(this, id));

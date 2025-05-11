@@ -33,7 +33,7 @@ public sealed class AzurePhotoStorageTests : IClassFixture<FotoIntegrationContex
 
         var uri = await _context.GetOriginalUri(photoId);
 
-        uri.AbsoluteUri.Should().StartWith($"http://127.0.0.1:10000/devstoreaccount1/fotostests/{photoId.Id}.original");
+        uri.AbsoluteUri.Should().StartWith($"https://127.0.0.1:10000/devstoreaccount1/fotostests/{photoId.Id}.original");
     }
 
     [Theory(DisplayName = "When reading an original photo should return it as stream"), AutoData]
@@ -84,7 +84,7 @@ public sealed class AzurePhotoStorageTests : IClassFixture<FotoIntegrationContex
 
         var uri = await _context.GetThumbnailUri(photoId);
 
-        uri.AbsoluteUri.Should().StartWith($"http://127.0.0.1:10000/devstoreaccount1/fotostests/{photoId.Id}.thumbnail");
+        uri.AbsoluteUri.Should().StartWith($"https://127.0.0.1:10000/devstoreaccount1/fotostests/{photoId.Id}.thumbnail");
     }
 
     [Theory(DisplayName = "When removing a photo from the main storage should effectively remove it"), AutoData]

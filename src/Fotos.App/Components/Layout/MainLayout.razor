@@ -26,10 +26,11 @@
                                 <MudChip T="string" Icon="@Icons.Material.Filled.AccountCircle">@context.User.FindFirst(ClaimTypes.GivenName)?.Value</MudChip>
                             </ActivatorContent>
                             <ChildContent>
-                                <form id="logout" method="post" action="/account/logout?returnUrl=/">
+                                <form id="logout" method="post" action="/account/logout">                                    
                                     <MudButton ButtonType="ButtonType.Submit">
                                         <MudMenuItem Icon="@Icons.Material.Filled.Logout">
                                             <input type="hidden" name="returnUrl" value="/account/signin" />
+                                            <AntiforgeryToken />
                                             Logout
                                         </MudMenuItem>
                                     </MudButton>

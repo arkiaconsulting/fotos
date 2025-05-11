@@ -35,25 +35,23 @@ internal static class AdaptersConfigurationExtensions
 
         services.AddAzureClients(builder =>
         {
-            var serviceUriOrConnectionString = configuration[$"{Constants.BlobServiceClientName}:blobServiceUri"];
+            var serviceUriOrConnectionString = configuration[$"MainStorage:blobServiceUri"]
+            ?? throw new InvalidOperationException("MainStorage:blobServiceUri is not configured.");
 
-            if (Uri.TryCreate(serviceUriOrConnectionString, UriKind.Absolute, out var serviceUri))
-            {
-                builder.AddBlobServiceClient(serviceUri).WithName(Constants.BlobServiceClientName)
-                .WithCredential(sp => sp.GetRequiredService<TokenCredential>());
-            }
-            else
-            {
-                builder.AddBlobServiceClient(serviceUriOrConnectionString).WithName(Constants.BlobServiceClientName);
-            }
+            builder.AddBlobServiceClient(new Uri(serviceUriOrConnectionString))
+            .WithCredential(sp => sp.GetRequiredService<TokenCredential>());
+
+            builder.AddClient<BlobContainerClient, BlobClientOptions>(
+                (_, _, sp) =>
+                {
+                    var containerName = sp.GetRequiredService<IConfiguration>()["MainStorage:PhotosContainer"];
+
+                    return sp.GetRequiredService<BlobServiceClient>().GetBlobContainerClient(containerName);
+
+                }).WithName(Constants.PhotosBlobContainer);
         });
 
-        services.AddSingleton(sp =>
-        {
-            var factory = sp.GetRequiredService<IAzureClientFactory<BlobServiceClient>>();
-
-            return factory.CreateClient(Constants.BlobServiceClientName);
-        });
+        services.AddSingleton<SasUriGenerator>();
 
         return services;
     }
@@ -66,18 +64,19 @@ internal static class AdaptersConfigurationExtensions
 
         services.AddAzureClients(builder =>
         {
-            var fqdn = configuration[$"{Constants.ServiceBusClientName}:fullyQualifiedNamespace"];
+            var fqdn = configuration["ServiceBus:fullyQualifiedNamespace"];
 
             builder.AddServiceBusClientWithNamespace(fqdn)
-            .WithName(Constants.ServiceBusClientName)
             .WithCredential(sp => sp.GetRequiredService<TokenCredential>());
-        });
-        services.AddSingleton(sp =>
-        {
-            var factory = sp.GetRequiredService<IAzureClientFactory<ServiceBusClient>>();
 
-            return factory.CreateClient(Constants.ServiceBusClientName);
+            builder.AddClient<ServiceBusSender, ServiceBusSenderOptions>(
+                (_, _, provider) =>
+                {
+                    return provider.GetRequiredService<ServiceBusClient>()
+                    .CreateSender(configuration["ServiceBus:MainTopic"]);
+                });
         });
+
         return services;
     }
 

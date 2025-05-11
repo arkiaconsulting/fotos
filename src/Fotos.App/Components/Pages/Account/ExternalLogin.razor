@@ -1,0 +1,20 @@
+﻿@page "/account/externallogin"
+
+@code {
+
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+    [SupplyParameterFromQuery] public string? ReturnUrl { get; set; } = string.Empty;
+
+    private AuthenticationState _authState = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if(_authState.User.Identity?.IsAuthenticated == true)
+        {
+            NavigationManager.NavigateTo(ReturnUrl ?? "/");
+        }
+    }
+}

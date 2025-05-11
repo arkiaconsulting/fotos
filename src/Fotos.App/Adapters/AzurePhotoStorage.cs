@@ -3,37 +3,32 @@ using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using Fotos.App.Domain;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Azure;
 using System.Diagnostics;
 
 namespace Fotos.App.Adapters;
 
 internal sealed class AzurePhotoStorage
 {
-    private readonly BlobServiceClient _blobServiceClient;
-    private readonly IMemoryCache _cache;
-    private readonly string? _mainContainer;
+    private readonly BlobContainerClient _container;
     private readonly ActivitySource _activitySource;
-    private const string CacheKey = "UserDelegationKey";
+    private readonly SasUriGenerator _sasUriGenerator;
 
     public AzurePhotoStorage(
-        BlobServiceClient blobServiceClient,
-        IConfiguration configuration,
-        IMemoryCache cache,
+        IAzureClientFactory<BlobContainerClient> azureClientFactory,
+        SasUriGenerator sasUriGenerator,
         InstrumentationConfig instrumentation)
     {
-        _blobServiceClient = blobServiceClient;
-        _cache = cache;
-        _mainContainer = configuration[$"{Constants.BlobServiceClientName}:PhotosContainer"];
+        _container = azureClientFactory.CreateClient(Constants.PhotosBlobContainer);
         _activitySource = instrumentation.ActivitySource;
+        _sasUriGenerator = sasUriGenerator;
     }
 
     public async Task AddOriginalPhoto(PhotoId photoId, Stream photo, string contentType)
     {
         using var activity = _activitySource.StartActivity("store photo original in storage");
 
-        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
-        var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
+        var blobClient = _container.GetBlobClient(ComputeOriginalName(photoId));
 
         var options = new BlobUploadOptions
         {
@@ -76,8 +71,7 @@ internal sealed class AzurePhotoStorage
     {
         using var activity = _activitySource.StartActivity("read photo original from storage");
 
-        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
-        var blobClient = container.GetBlobClient(ComputeOriginalName(photoId));
+        var blobClient = _container.GetBlobClient(ComputeOriginalName(photoId));
         var blobDownloadInfo = await blobClient.DownloadContentAsync();
 
         activity?.AddEvent(new ActivityEvent("photo original read", tags: [new("blobName", blobClient.Name), new("size", blobDownloadInfo.Value.Details.ContentLength)]));
@@ -89,8 +83,7 @@ internal sealed class AzurePhotoStorage
     {
         using var activity = _activitySource.StartActivity("store photo thumbnail in storage");
 
-        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
-        var blobClient = container.GetBlobClient(ComputeThumbnailName(photoId));
+        var blobClient = _container.GetBlobClient(ComputeThumbnailName(photoId));
 
         var options = new BlobUploadOptions
         {
@@ -127,15 +120,15 @@ internal sealed class AzurePhotoStorage
 
     private async Task RemoveBlob(string blobName)
     {
-        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
-        var blobClient = container.GetBlobClient(blobName);
+        var blobClient = _container.GetBlobClient(blobName);
         await blobClient.DeleteIfExistsAsync();
     }
 
     private async Task<Uri> GetAuthorizedUri(string blobName)
     {
-        var container = _blobServiceClient.GetBlobContainerClient(_mainContainer);
-        var blobClient = container.GetBlobClient(blobName);
+        await Task.Yield();
+
+        var blobClient = _container.GetBlobClient(blobName);
         var sasBuilder = new BlobSasBuilder()
         {
             BlobContainerName = blobClient.GetParentBlobContainerClient().Name,
@@ -145,23 +138,7 @@ internal sealed class AzurePhotoStorage
         };
         sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
-        if (!blobClient.CanGenerateSasUri)
-        {
-            var expiryTime = DateTimeOffset.UtcNow.AddMinutes(5);
-            var userDelegationKey = await _cache.GetOrCreateAsync(CacheKey, async entry =>
-            {
-                entry.AbsoluteExpiration = expiryTime.AddSeconds(-30);
-
-                return await _blobServiceClient.GetUserDelegationKeyAsync(null, expiryTime, CancellationToken.None);
-            });
-
-            return new BlobUriBuilder(blobClient.Uri)
-            {
-                Sas = sasBuilder.ToSasQueryParameters(userDelegationKey!.Value, _blobServiceClient.AccountName),
-            }.ToUri();
-        }
-
-        return blobClient.GenerateSasUri(sasBuilder);
+        return await _sasUriGenerator.GenerateSasUri(blobClient, sasBuilder);
     }
 
     private static string ComputeOriginalName(PhotoId photoId) => $"{photoId.Id}.original";

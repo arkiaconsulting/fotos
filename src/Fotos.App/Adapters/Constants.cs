@@ -4,8 +4,7 @@ namespace Fotos.App.Adapters;
 
 internal static class Constants
 {
-    public const string BlobServiceClientName = "MainStorage";
-    public const string ServiceBusClientName = "ServiceBus";
+    public const string PhotosBlobContainer = "Photos";
 
     public static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web);
     public const int ThumbnailMaxWidth = 200;

@@ -1,5 +1,4 @@
 ﻿using Fotos.App.Application.User;
-using Fotos.App.Authentication;
 using Fotos.App.Domain;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -16,7 +15,7 @@ internal static class AccountEndpoints
         var group = endpoints.MapGroup("/account")
             .ExcludeFromDescription();
 
-        group.MapPost("/login", (HttpContext context, [FromForm] string provider, [FromQuery] string? returnUrl) =>
+        group.MapPost("/login", (HttpContext context, [FromForm] string provider, [FromForm] string? returnUrl) =>
         {
             returnUrl = Helpers.ComputeSafeReturnUrl(context.Request.PathBase, returnUrl);
 
@@ -26,45 +25,48 @@ internal static class AccountEndpoints
             }
 
             return Helpers.Challenge(provider, GoogleDefaults.AuthenticationScheme, returnUrl);
-        }).AllowAnonymous()
-        .DisableAntiforgery();
+        }).AllowAnonymous();
 
-        group.MapGet("/login-callback", async (HttpContext context, [FromServices] FindUserInStore findUser, [FromServices] AccessTokenService accessTokenService) =>
+        group.MapGet("/login-callback", async Task<IResult> (HttpContext context, [FromServices] FindUserInStore findUser) =>
         {
-            if (context.User.Identity?.IsAuthenticated == false || context?.User.Identity is null)
+            var externalAuthResult = await context.AuthenticateAsync(Authentication.Constants.ExternalAuthenticationScheme);
+
+            if (externalAuthResult.Principal?.Identity?.IsAuthenticated == false || context?.User.Identity is null)
             {
-                return (IResult)TypedResults.Redirect("/account/signin");
+                return TypedResults.Redirect("/account/signin");
             }
 
-            var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var externalPrincipal = externalAuthResult.Principal!;
+            var userId = externalPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId is null)
             {
                 return TypedResults.BadRequest($"The claim '{ClaimTypes.NameIdentifier}' was not found");
             }
 
-            var result = await context.AuthenticateAsync();
-            var returnUrl = result.Properties?.Items["returnUrl"];
+            var returnUrl = externalAuthResult.Properties?.RedirectUri;
             returnUrl = Helpers.ComputeSafeReturnUrl(context.Request.PathBase, returnUrl);
-            var provider = context.User.Identity.AuthenticationType!;
+            var provider = externalAuthResult.Principal!.Identity!.AuthenticationType;
 
-            var user = await findUser(FotoUserId.Create(provider, userId));
-
-            if (user is null)
-            {
-                return TypedResults.Redirect("/account/register");
-            }
+            var user = await findUser(FotoUserId.Create(provider!, userId));
 
             var authenticationProperties = new AuthenticationProperties
             {
-                RedirectUri = returnUrl,
-                IsPersistent = true
+                RedirectUri = $"/account/externallogin?returnurl={returnUrl}",
             };
 
-            var token = accessTokenService.GenerateAccessToken(user.Value.Id.Value, user.Value.GivenName.Value);
-            authenticationProperties.StoreFotosApiToken(token);
+            var principal = new ClaimsPrincipal(
+                new ClaimsIdentity(externalPrincipal.Claims, provider));
 
-            return TypedResults.SignIn(result.Principal!, authenticationProperties, CookieAuthenticationDefaults.AuthenticationScheme);
-        }).RequireAuthorization();
+            if (user is null)
+            {
+                await context.SignInAsync(principal, authenticationProperties);
+
+                return TypedResults.Redirect("/account/register");
+            }
+
+            return TypedResults.SignIn(principal, authenticationProperties);
+        })
+        .AllowAnonymous();
 
         group.MapPost("/logout", (HttpContext context, [FromForm] string? returnUrl) =>
         {
@@ -75,9 +77,8 @@ internal static class AccountEndpoints
                 RedirectUri = returnUrl
             };
 
-            return TypedResults.SignOut(authenticationProperties, [CookieAuthenticationDefaults.AuthenticationScheme]);
-        }).RequireAuthorization()
-        .DisableAntiforgery();
+            return TypedResults.SignOut(authenticationProperties, [CookieAuthenticationDefaults.AuthenticationScheme, Authentication.Constants.ExternalAuthenticationScheme]);
+        }).RequireAuthorization();
 
         return endpoints;
     }

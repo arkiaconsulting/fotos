@@ -1,6 +1,6 @@
 {
   "MainStorage": {
-    "blobServiceUri": "UseDevelopmentStorage=true",
+    "blobServiceUri": "https://127.0.0.1:10000/devstoreaccount1",
     "PhotosContainer": "fotostests"
   },
   "ServiceBus": {
