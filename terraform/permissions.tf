@@ -70,6 +70,12 @@ resource "azurerm_role_assignment" "identity_key_vault_secrets_user" {
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
 
+resource "azurerm_role_assignment" "app_config_reader" {
+  scope                = data.azurerm_app_configuration.common.id
+  role_definition_name = "App Configuration Data Reader"
+  principal_id         = azurerm_user_assigned_identity.main.principal_id
+}
+
 # User assigned identity dedicated to the container app
 resource "azurerm_user_assigned_identity" "container_app" {
   name                = "fotos-container_app"
@@ -82,3 +88,4 @@ resource "azurerm_role_assignment" "container_app" {
   role_definition_name = "AcrPull"
   principal_id         = azurerm_user_assigned_identity.container_app.principal_id
 }
+

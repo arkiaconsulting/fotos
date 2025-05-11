@@ -1,5 +1,4 @@
 ﻿using Azure.Core;
-using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Fotos.App.Application.Folders;
@@ -15,8 +14,6 @@ internal static class AdaptersConfigurationExtensions
 {
     public static IServiceCollection AddPhotosAdapters(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
-
         services.AddFotosAzureStorage(configuration);
         services.AddFotosServiceBus(configuration);
         services.AddFotosImageProcessing();

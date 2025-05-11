@@ -18,7 +18,7 @@ internal static class InstrumentationConfigurationExtensions
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(r => r
                 .AddService(
-                serviceName: InstrumentationConfig.ServiceName!,
+                serviceName: InstrumentationConfig.ServiceName,
                 serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
                 serviceInstanceId: Environment.MachineName)
             ).WithTracing(traceBuilder =>

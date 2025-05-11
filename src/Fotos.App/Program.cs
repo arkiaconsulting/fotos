@@ -1,3 +1,5 @@
+using Azure.Core;
+using Azure.Identity;
 using Fotos.App;
 using Fotos.App.Adapters;
 using Fotos.App.Api.Account;
@@ -9,10 +11,16 @@ using Fotos.App.Authentication;
 using Fotos.App.Hubs;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using MudBlazor;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+TokenCredential credential = builder.Environment.IsProduction()
+    ? new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId(Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")))
+    : new DefaultAzureCredential();
+builder.Services.AddSingleton(_ => credential);
 
 builder.Host.ConfigureWebJobs(builder => builder.AddServiceBus());
 
@@ -58,9 +66,21 @@ builder.Services.AddScoped<SessionData>(sp => sp.GetRequiredService<CustomCircui
 // Instrumentation
 builder.AddFotosInstrumentation();
 
+builder.Services.AddAzureAppConfiguration();
+builder.Configuration.AddAzureAppConfiguration(config =>
+{
+    var endpoint = new Uri(Environment.GetEnvironmentVariable("APP_CONFIG_ENDPOINT")
+    ?? "http://notset");
+    config.Connect(endpoint, credential)
+    .Select(KeyFilter.Any, "common")
+    .Select(KeyFilter.Any, "fotos")
+    .ConfigureStartupOptions(options => options.Timeout = TimeSpan.FromSeconds(5));
+}, true);
+
 var app = builder.Build();
 
 app.UseResponseCompression();
+app.UseAzureAppConfiguration();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

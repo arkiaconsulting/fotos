@@ -8,8 +8,8 @@ public sealed class InstrumentationConfig : IDisposable
     public ActivitySource ActivitySource { get; }
     public Counter<long> PhotoUploadCounter { get; }
 
-    internal const string ServiceName = "App.Fotos";
-    internal const string MeterName = "App.Fotos";
+    internal const string ServiceName = "Fotos";
+    internal const string MeterName = "Fotos";
     private readonly Meter _meter;
 
     public InstrumentationConfig()
