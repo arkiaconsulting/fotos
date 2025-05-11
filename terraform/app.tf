@@ -30,6 +30,11 @@ resource "azurerm_container_app" "fotos" {
         name  = "APP_CONFIG_ENDPOINT"
         value = data.azurerm_app_configuration.common.endpoint
       }
+
+      env {
+        name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
+        value = data.azurerm_application_insights.common.connection_string
+      }
     }
   }
 

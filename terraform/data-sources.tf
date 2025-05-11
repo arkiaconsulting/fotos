@@ -89,3 +89,16 @@ data "azurerm_container_registry" "common" {
   name                = data.azurerm_resources.acr.resources[0].name
   resource_group_name = data.azurerm_resources.acr.resources[0].resource_group_name
 }
+
+data "azurerm_resources" "app_insights" {
+  type = "Microsoft.Insights/components"
+
+  required_tags = {
+    level = "common"
+  }
+}
+
+data "azurerm_application_insights" "common" {
+  name                = data.azurerm_resources.app_insights.resources[0].name
+  resource_group_name = data.azurerm_resources.app_insights.resources[0].resource_group_name
+}
