@@ -65,7 +65,7 @@ public partial class Home
             await RefreshFoldersAndAlbums();
 
             _loaded = true;
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
     }
 

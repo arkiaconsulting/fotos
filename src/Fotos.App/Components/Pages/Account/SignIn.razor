@@ -14,6 +14,7 @@
     <div class="d-flex justify-center">
         <form id="google-login" class="ma-4" method="post" action="/account/login?returnurl=@ReturnUrl.ToString()">
             <input type="hidden" name="provider" value="google" />
+            <AntiforgeryToken />
             <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Custom.Brands.Google" Variant="Variant.Outlined" Size="Size.Large">Google</MudButton>
         </form>
     </div>

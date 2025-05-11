@@ -1,5 +1,6 @@
 {
   "MainStorage": {
+    //"blobServiceUri": "https://fotos95qa2z.blob.core.windows.net/",
     "blobServiceUri": "UseDevelopmentStorage=true",
     "PhotosContainer": "fotostests"
   },

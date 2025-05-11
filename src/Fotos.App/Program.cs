@@ -25,6 +25,16 @@ builder.Services.AddSingleton(_ => credential);
 
 builder.Host.ConfigureWebJobs(builder => builder.AddServiceBus());
 
+builder.Configuration.AddAzureAppConfiguration(config =>
+{
+    var endpoint = new Uri(Environment.GetEnvironmentVariable("APP_CONFIG_ENDPOINT")
+    ?? "http://notset");
+    config.Connect(endpoint, credential)
+    .ConfigureKeyVault(options => options.SetCredential(credential))
+    .Select(KeyFilter.Any, "common")
+    .Select(KeyFilter.Any, "fotos");
+}, false);
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -67,18 +77,6 @@ builder.Services.AddScoped<SessionData>(sp => sp.GetRequiredService<CustomCircui
 // Instrumentation
 builder.AddFotosInstrumentation();
 
-builder.Services.AddAzureAppConfiguration();
-builder.Configuration.AddAzureAppConfiguration(config =>
-{
-    var endpoint = new Uri(Environment.GetEnvironmentVariable("APP_CONFIG_ENDPOINT")
-    ?? "http://notset");
-    config.Connect(endpoint, credential)
-    .ConfigureKeyVault(options => options.SetCredential(credential))
-    .Select(KeyFilter.Any, "common")
-    .Select(KeyFilter.Any, "fotos")
-    .ConfigureStartupOptions(options => options.Timeout = TimeSpan.FromSeconds(5));
-}, false);
-
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
@@ -90,7 +88,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 var app = builder.Build();
 
 app.UseResponseCompression();
-app.UseAzureAppConfiguration();
 
 app.UseForwardedHeaders();
 
@@ -106,8 +103,6 @@ else
     app.UseSwagger(options => options.RouteTemplate = "{documentName}/openapi.json");
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/fotos/openapi.json", "Fotos Client Api"));
 }
-
-app.UseHttpsRedirection();
 
 app.MapAccountEndpoints();
 

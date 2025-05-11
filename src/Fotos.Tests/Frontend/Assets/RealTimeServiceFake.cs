@@ -6,7 +6,8 @@ namespace Fotos.Tests.Frontend.Assets;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1812", Justification = "<Pending>")]
 internal sealed class RealTimeServiceFake : RealTimeMessageService
 {
-    public RealTimeServiceFake(NavigationManager navigationManager) : base(navigationManager)
+    public RealTimeServiceFake(NavigationManager navigationManager)
+        : base(navigationManager)
     {
     }
 

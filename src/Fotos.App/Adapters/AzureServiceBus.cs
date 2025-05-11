@@ -8,17 +8,14 @@ namespace Fotos.App.Adapters;
 
 internal sealed class AzureServiceBus
 {
-    private readonly ServiceBusClient _serviceBusClient;
     private readonly ServiceBusSender _mainTopicSender;
     private readonly ActivitySource _activitySource;
 
     public AzureServiceBus(
-        ServiceBusClient serviceBusClient,
-        IConfiguration configuration,
+        ServiceBusSender mainTopicSender,
         InstrumentationConfig instrumentation)
     {
-        _serviceBusClient = serviceBusClient;
-        _mainTopicSender = _serviceBusClient.CreateSender(configuration["ServiceBus:MainTopic"]);
+        _mainTopicSender = mainTopicSender;
         _activitySource = instrumentation.ActivitySource;
     }
 

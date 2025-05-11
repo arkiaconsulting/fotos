@@ -1,11 +1,10 @@
 ﻿@page "/account/register"
 
 @using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication.Google
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
-
-@attribute [Authorize]
 
 <PageTitle>Register</PageTitle>
 
