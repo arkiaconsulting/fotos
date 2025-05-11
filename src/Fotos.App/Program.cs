@@ -10,6 +10,7 @@ using Fotos.App.Application.User;
 using Fotos.App.Authentication;
 using Fotos.App.Hubs;
 using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using MudBlazor;
@@ -72,15 +73,26 @@ builder.Configuration.AddAzureAppConfiguration(config =>
     var endpoint = new Uri(Environment.GetEnvironmentVariable("APP_CONFIG_ENDPOINT")
     ?? "http://notset");
     config.Connect(endpoint, credential)
+    .ConfigureKeyVault(options => options.SetCredential(credential))
     .Select(KeyFilter.Any, "common")
     .Select(KeyFilter.Any, "fotos")
     .ConfigureStartupOptions(options => options.Timeout = TimeSpan.FromSeconds(5));
-}, true);
+}, false);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
+        | ForwardedHeaders.XForwardedProto
+        | ForwardedHeaders.XForwardedHost;
+
+});
 
 var app = builder.Build();
 
 app.UseResponseCompression();
 app.UseAzureAppConfiguration();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

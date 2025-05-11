@@ -53,13 +53,13 @@ resource "azurerm_cosmosdb_sql_role_assignment" "users_contributor" {
 
 
 resource "azurerm_role_assignment" "identity_servicebus_data_sender" {
-  scope                = data.azurerm_servicebus_namespace.common.id
+  scope                = azurerm_servicebus_topic.fotos.id
   role_definition_name = "Azure Service Bus Data Sender"
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
 
 resource "azurerm_role_assignment" "identity_servicebus_data_receiver" {
-  scope                = data.azurerm_servicebus_namespace.common.id
+  scope                = azurerm_servicebus_topic.fotos.id
   role_definition_name = "Azure Service Bus Data Receiver"
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
@@ -76,16 +76,9 @@ resource "azurerm_role_assignment" "app_config_reader" {
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
 
-# User assigned identity dedicated to the container app
-resource "azurerm_user_assigned_identity" "container_app" {
-  name                = "fotos-container_app"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = local.location
-}
-
-resource "azurerm_role_assignment" "container_app" {
+resource "azurerm_role_assignment" "acr_pull" {
   scope                = data.azurerm_container_registry.common.id
   role_definition_name = "AcrPull"
-  principal_id         = azurerm_user_assigned_identity.container_app.principal_id
+  principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
 

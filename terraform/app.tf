@@ -7,7 +7,7 @@ resource "azurerm_container_app" "fotos" {
   revision_mode                = "Single"
 
   registry {
-    identity = azurerm_user_assigned_identity.container_app.id
+    identity = azurerm_user_assigned_identity.main.id
     server   = data.azurerm_container_registry.common.login_server
   }
 
@@ -35,16 +35,21 @@ resource "azurerm_container_app" "fotos" {
         name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
         value = data.azurerm_application_insights.common.connection_string
       }
+
+      env {
+        name  = "ASPNETCORE_FORWARDEDHEADERS_ENABLED"
+        value = "true"
+      }
     }
   }
 
   identity {
     type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.container_app.id, azurerm_user_assigned_identity.main.id]
+    identity_ids = [azurerm_user_assigned_identity.main.id]
   }
 
   ingress {
-    target_port      = 80
+    target_port      = 8080
     external_enabled = true
 
     traffic_weight {
