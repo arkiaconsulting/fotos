@@ -1,6 +1,5 @@
 using Azure.Core;
 using Azure.Identity;
-using Fotos.App;
 using Fotos.App.Adapters.Blazor;
 using Fotos.App.Adapters.DataStore;
 using Fotos.App.Adapters.Imaging;
@@ -13,6 +12,7 @@ using Fotos.App.Application.Folders;
 using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
 using Fotos.App.Authentication;
+using Fotos.App.Observability;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using MudBlazor;

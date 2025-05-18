@@ -2,7 +2,6 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using Fotos.App;
 using Fotos.App.Adapters.DataStore;
 using Fotos.App.Adapters.Imaging;
 using Fotos.App.Adapters.Messaging;
@@ -79,7 +78,6 @@ public sealed class FotoIntegrationContext
     {
         services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
         services.AddMemoryCache();
-        services.AddSingleton<InstrumentationConfig>();
 
         services.AddAzureStorage(context.Configuration);
         services.AddServiceBus(context.Configuration);

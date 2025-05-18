@@ -4,7 +4,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Fotos.App;
+namespace Fotos.App.Observability;
 
 internal static class InstrumentationConfigurationExtensions
 {
@@ -15,13 +15,13 @@ internal static class InstrumentationConfigurationExtensions
     {
         AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
 
-        builder.Services.AddSingleton<InstrumentationConfig>();
-
         builder.Services.AddOpenTelemetry()
             .WithTracing(traceBuilder => traceBuilder
-                .AddSource(InstrumentationConfig.AppActivitySourceName)
+                .AddSource(DiagnosticConfig.AppActivitySourceName)
                 .AddSource("Azure.*")
-                .SetSampler(new TraceIdRatioBasedSampler(.2))
+                .AddProcessor<ServiceBusFilteringProcessor>()
+                .AddProcessor<BlazorHubFilteringProcessor>()
+                .SetSampler(new TraceIdRatioBasedSampler(1))
                 .AddAspNetCoreInstrumentation(options =>
                 {
                     options.RecordException = true;
@@ -31,7 +31,7 @@ internal static class InstrumentationConfigurationExtensions
                 .SetErrorStatusOnException()
                 .UseGrafana(ConfigureGrafana))
             .WithMetrics(metricsBuilder => metricsBuilder
-                .AddMeter(InstrumentationConfig.AppMeterName)
+                .AddMeter(DiagnosticConfig.AppActivitySourceName)
                 .SetExemplarFilter(ExemplarFilterType.TraceBased)
                 .AddHttpClientInstrumentation()
                 .UseGrafana(ConfigureGrafana))

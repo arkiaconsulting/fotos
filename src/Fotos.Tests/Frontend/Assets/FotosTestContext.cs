@@ -1,5 +1,4 @@
 ﻿using Bunit.TestDoubles;
-using Fotos.App;
 using Fotos.App.Adapters.RealTimeMessaging;
 using Fotos.App.Application.Albums;
 using Fotos.App.Application.Folders;
@@ -50,8 +49,6 @@ internal sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
-        Services.AddSingleton<InstrumentationConfig>();
-
         Services.AddAccountBusiness()
             .AddFolderBusiness()
             .AddAlbumBusiness()

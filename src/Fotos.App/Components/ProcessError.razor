@@ -10,6 +10,11 @@
 
     public void LogError(Exception ex)
     {
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("Error happened", System.Diagnostics.ActivityKind.Client);
+
+        activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, ex.Message);
+        activity?.AddException(ex);
+
         Logger.LogError(ex, "ProcessError.LogError: {Type} Message: {Message}",
             ex.GetType(), ex.Message);
 

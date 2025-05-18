@@ -12,6 +12,8 @@ public partial class AlbumItem
 
     private async Task AlbumClicked()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("AlbumItem: Album clicked");
+
         await OnAlbumChanged.InvokeAsync(Album);
     }
 }

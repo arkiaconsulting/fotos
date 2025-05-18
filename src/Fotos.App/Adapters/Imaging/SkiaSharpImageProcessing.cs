@@ -6,13 +6,9 @@ namespace Fotos.App.Adapters.Imaging;
 
 internal sealed class SkiaSharpImageProcessing
 {
-    private readonly ActivitySource _activitySource;
-
-    public SkiaSharpImageProcessing(InstrumentationConfig instrumentation) => _activitySource = instrumentation.AppActivitySource;
-
-    public Task<Stream> CreateThumbnail(PhotoBinary photo)
+    public static Task<Stream> CreateThumbnail(PhotoBinary photo)
     {
-        using var activity = _activitySource.StartActivity("creating thumbnail", ActivityKind.Internal);
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("creating thumbnail", ActivityKind.Internal);
         activity?.SetTag("mimeType", photo.MimeType);
         activity?.SetTag("size", photo.Content.Length);
 

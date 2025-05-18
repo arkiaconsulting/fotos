@@ -49,10 +49,13 @@ public partial class Home
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
         {
-            if (firstRender)
+            using var activity = DiagnosticConfig.StartUserActivity("Home: Initialize");
+
+            try
             {
+
                 if (SessionData.FolderStack.Count == 0)
                 {
                     // We're at root
@@ -71,10 +74,12 @@ public partial class Home
                 _loaded = true;
                 await InvokeAsync(StateHasChanged);
             }
-        }
-        catch (Exception ex)
-        {
-            ProcessError?.LogError(ex);
+            catch (Exception ex)
+            {
+                activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot initialize Home page");
+                activity?.AddException(ex);
+                ProcessError?.LogError(ex);
+            }
         }
     }
 
@@ -117,6 +122,8 @@ public partial class Home
 
     private async Task CreateNewFolder()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Home: Create new folder");
+
         try
         {
             await CreateFolder.Process(CurrentFolder.Id, _newFolder);
@@ -132,6 +139,8 @@ public partial class Home
 
     private async Task GotToParentFolder()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Home: Go to parent folder");
+
         _ = SessionData.FolderStack.Pop();
 
         try
@@ -146,6 +155,8 @@ public partial class Home
 
     private async Task RemoveThisFolder(FolderModel folder)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Home: Remove folder");
+
         try
         {
             await RemoveFolder.Process(folder.ParentId, folder.Id);
@@ -160,6 +171,8 @@ public partial class Home
 
     private async Task CreateNewAlbum()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Home: Create new album");
+
         try
         {
             await CreateAlbum.Process(CurrentFolder.Id, _newAlbumName);
@@ -174,6 +187,8 @@ public partial class Home
 
     private async Task GoToFolder(FolderModel folder)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Home: Go to folder");
+
         SessionData.FolderStack.Push(folder);
 
         try
@@ -188,11 +203,15 @@ public partial class Home
 
     private void GoToAlbum(Guid albumId)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Home: Go to album");
+
         NavigationManager.NavigateTo($"album/{CurrentFolder.ParentId}/{CurrentFolder.Id}/{albumId}");
     }
 
     private async Task OpenCurrentFolderSettings()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Home: Open folder settings");
+
         var parameters = new DialogParameters<FolderSettingsDialog> { { x => x.Folder, CurrentFolder } };
         var dialog = await DialogService.ShowAsync<FolderSettingsDialog>(default, parameters);
         _ = await dialog.Result;

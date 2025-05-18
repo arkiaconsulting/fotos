@@ -9,19 +9,16 @@ namespace Fotos.App.Adapters.Messaging;
 internal sealed class AzureServiceBus
 {
     private readonly ServiceBusSender _mainTopicSender;
-    private readonly ActivitySource _activitySource;
 
     public AzureServiceBus(
-        ServiceBusSender mainTopicSender,
-        InstrumentationConfig instrumentation)
+        ServiceBusSender mainTopicSender)
     {
         _mainTopicSender = mainTopicSender;
-        _activitySource = instrumentation.AppActivitySource;
     }
 
     public async Task OnNewPhotoUploaded(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("publishing photo uploaded", ActivityKind.Producer);
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("publishing photo uploaded", ActivityKind.Producer);
         activity?.SetTag("photoId", photoId.Id);
         activity?.SetTag("messageName", "PhotoUploaded");
 
@@ -49,7 +46,7 @@ internal sealed class AzureServiceBus
 
     public async Task OnPhotoRemoved(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("publishing photo removed", ActivityKind.Producer);
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("publishing photo removed", ActivityKind.Producer);
         activity?.SetTag("photoId", photoId.Id);
         activity?.SetTag("messageName", "PhotoRemoved");
 
@@ -77,7 +74,7 @@ internal sealed class AzureServiceBus
 
     public async Task OnThumbnailReady(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("publishing thumbnail ready", ActivityKind.Producer);
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("publishing thumbnail ready", ActivityKind.Producer);
         activity?.SetTag("photoId", photoId.Id);
         activity?.SetTag("messageName", "ThumbnailReady");
 

@@ -29,6 +29,8 @@ public partial class Register
 
     private async Task RegisterUser()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Register new user");
+
         try
         {
             await AddUser.Process(FotoUserId.Create(_provider, _providerUserId), _givenName);
@@ -37,6 +39,8 @@ public partial class Register
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Unable to register new user");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
     }

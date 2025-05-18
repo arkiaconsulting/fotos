@@ -38,10 +38,14 @@ public sealed partial class AnAlbum
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+
+        if (firstRender)
         {
-            if (firstRender)
+            using var activity = DiagnosticConfig.StartUserActivity("AnAlbum: Initialize");
+
+            try
             {
+
                 RealTimeMessageService.OnThumbnailReady += OnThumbnailReady;
                 RealTimeMessageService.OnMetadataReady += OnMetadataReady;
                 await RealTimeMessageService.StartAsync();
@@ -51,37 +55,50 @@ public sealed partial class AnAlbum
 
                 StateHasChanged();
             }
-        }
-        catch (Exception ex)
-        {
-            ProcessError?.LogError(ex);
+            catch (Exception ex)
+            {
+                activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot initialize AnAlbum page");
+                activity?.AddException(ex);
+                ProcessError?.LogError(ex);
+            }
         }
     }
 
     private void OnThumbnailReady(object? sender, PhotoId id)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("AnAlbum: On new thumbnail ready");
+
         InvokeAsync(() => _thumbnailsComponent.OnNewThumbnail(id.FolderId, id.AlbumId, id.Id));
     }
 
     private void OnMetadataReady(object? sender, PhotoId id)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("AnAlbum: On metadata ready");
+
         InvokeAsync(() => _thumbnailsComponent.OnMetadataReady(id.FolderId, id.AlbumId, id.Id));
     }
 
     private async Task UploadPhotos(IReadOnlyList<IBrowserFile> files)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("AnAlbum: upload multiple photos");
+
         try
         {
             await Task.WhenAll(files.Select(UploadSinglePhoto));
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot upload photos");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
     }
 
     private async Task UploadSinglePhoto(IBrowserFile file)
     {
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("AnAlbum: upload single photo");
+        activity?.SetTag("file.name", file.Name);
+
         if (file.Size > Constants.MaxPhotoSize)
         {
             Snackbar.Add(new MarkupString("<div id='alert'><span>The file is too large.</span></div>"), Severity.Error);
@@ -117,6 +134,8 @@ public sealed partial class AnAlbum
 
     private void GoParentFolder()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("AnAlbum: Go to parent folder");
+
         NavigationManager.NavigateTo("/");
     }
 
@@ -133,6 +152,8 @@ public sealed partial class AnAlbum
 
     private void ThumbnailsLoaded()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("AnAlbum: Thumbnails loaded");
+
         _loaded = true;
 
         StateHasChanged();
@@ -140,6 +161,8 @@ public sealed partial class AnAlbum
 
     private void PhotoRemoved()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("AnAlbum: Photo removed");
+
         StateHasChanged();
     }
 }

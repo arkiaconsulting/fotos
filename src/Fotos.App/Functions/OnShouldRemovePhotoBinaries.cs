@@ -1,6 +1,7 @@
 ﻿using Fotos.App.Application.Photos;
 using Fotos.App.Domain;
 using Microsoft.Azure.WebJobs;
+using System.Diagnostics;
 
 namespace Fotos.App.Functions;
 
@@ -19,9 +20,16 @@ public sealed class OnShouldRemovePhotoBinaries
 
     [FunctionName("OnShouldRemovePhotoBinaries")]
     public async Task Handle(
-        [ServiceBusTrigger("%ServiceBus:MainTopic%", "%ServiceBus:RemovePhotoBinariesSubscription%", AutoCompleteMessages = true, Connection = "ServiceBus")] PhotoId photoId)
+        [ServiceBusTrigger("%ServiceBus:MainTopic%", "%ServiceBus:RemovePhotoBinariesSubscription%", Connection = "ServiceBus")] PhotoId photoId)
     {
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity(
+            ActivityKind.Consumer,
+            tags: [new("photo.id", photoId.ToString())],
+            name: "OnShouldRemovePhotoBinaries");
+
         await _removePhotoOriginal(photoId);
         await _removePhotoThumbnail(photoId);
+
+        activity?.AddEvent(new("Photo binaries removed successfully"));
     }
 }

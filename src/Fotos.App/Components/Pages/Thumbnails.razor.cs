@@ -66,10 +66,14 @@ public partial class Thumbnails
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
         {
-            if (firstRender)
+            using var activity = DiagnosticConfig.StartUserActivity("Thumbnails: Initialize");
+
+            try
             {
+
+
                 _thumbnails = [.. (await ListAlbumPhotos.Process(new(FolderId, AlbumId))).Select(p => new PhotoModel(FolderId, AlbumId, p.Id.Id, p.Title, p.Metadata ?? new()))];
                 await SetThumbnailUris();
 
@@ -77,10 +81,12 @@ public partial class Thumbnails
 
                 StateHasChanged();
             }
-        }
-        catch (Exception ex)
-        {
-            ProcessError?.LogError(ex);
+            catch (Exception ex)
+            {
+                activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot initialize Thumbnails page");
+                activity?.AddException(ex);
+                ProcessError?.LogError(ex);
+            }
         }
     }
 
@@ -93,6 +99,8 @@ public partial class Thumbnails
 
     private async Task RemoveAPhoto(PhotoModel photo)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Thumbnails: Remove Photo");
+
         try
         {
             await RemovePhoto.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
@@ -105,17 +113,19 @@ public partial class Thumbnails
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot remove photo");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
     }
 
     private async Task ViewPhoto(PhotoModel photo)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Thumbnails: View Photo");
+
         try
         {
-            var originalUri = await GetOriginalPhotoUri.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
-
-            photo.OriginalUri = originalUri;
+            photo.OriginalUri = await GetOriginalPhotoUri.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
             _photo = photo;
             _isPhotoDisplayed = true;
             _showDetails = false;
@@ -124,12 +134,16 @@ public partial class Thumbnails
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot view photo");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
     }
 
     private void DismissPhoto()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Thumbnails: Dismiss Photo");
+
         _isPhotoDisplayed = false;
     }
 
@@ -150,12 +164,16 @@ public partial class Thumbnails
 
     private void ShowDetails(PhotoModel photo)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Thumbnails: Show Details");
+
         _photo = photo;
         _showDetails = true;
     }
 
     private async Task PhotoRenamed(string newValue)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Thumbnails: Rename Photo");
+
         if (_photo is null || newValue == _photo!.Title)
         {
             return;
@@ -169,17 +187,23 @@ public partial class Thumbnails
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot rename photo");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
     }
 
     private void CloseDetails()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Thumbnails: Close Details");
+
         _showDetails = false;
     }
 
     public async Task OnNewThumbnail(Guid folderId, Guid albumId, Guid id)
     {
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("Thumbnails: New Thumbnail event");
+
         var photo = _thumbnails.FirstOrDefault(p => p.FolderId == folderId && p.AlbumId == albumId && p.Id == id);
         if (photo is null)
         {
@@ -193,12 +217,16 @@ public partial class Thumbnails
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot get thumbnail URI");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
     }
 
     public async Task OnMetadataReady(Guid folderId, Guid albumId, Guid id)
     {
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("Thumbnails: Metadata Ready event");
+
         var photo = _thumbnails.FirstOrDefault(p => p.FolderId == folderId && p.AlbumId == albumId && p.Id == id);
         if (photo is null)
         {
@@ -214,12 +242,16 @@ public partial class Thumbnails
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Cannot get photo metadata");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
     }
 
     private void FilterChanged(string newValue)
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Thumbnails: Filter Changed event");
+
         if (string.IsNullOrWhiteSpace(newValue))
         {
             _filter = null;

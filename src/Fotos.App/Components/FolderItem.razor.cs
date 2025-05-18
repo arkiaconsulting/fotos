@@ -26,11 +26,15 @@ public partial class FolderItem
 
     private async Task FolderClicked()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Folder clicked");
+
         await OnFolderChanged.InvokeAsync(Folder);
     }
 
     private async Task RemoveThisFolder()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Remove folder");
+
         try
         {
             var childFoldersCount = (await ListChildFolders.Process(Folder.Id)).Count();
@@ -44,6 +48,8 @@ public partial class FolderItem
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Unable to list child folders");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
 
@@ -52,6 +58,8 @@ public partial class FolderItem
 
     private async Task OpenSettings()
     {
+        using var activity = DiagnosticConfig.StartUserActivity("Open folder settings");
+
         var parameters = new DialogParameters<FolderSettingsDialog> { { x => x.Folder, Folder } };
         var dialog = await DialogService.ShowAsync<FolderSettingsDialog>(default, parameters);
         _ = await dialog.Result;

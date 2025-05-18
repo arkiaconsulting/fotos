@@ -35,6 +35,8 @@ public partial class FolderSettingsDialog
 
     private async Task SaveChanges()
     {
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("Save folder settings", System.Diagnostics.ActivityKind.Client);
+
         MudDialog.Close(DialogResult.Ok(Folder));
 
         try
@@ -47,12 +49,16 @@ public partial class FolderSettingsDialog
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "Unable to save folder settings");
+            activity?.AddException(ex);
             ProcessError?.LogError(ex);
         }
     }
 
     private void CancelChanges()
     {
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("Discard folder settings", System.Diagnostics.ActivityKind.Client);
+
         Folder.Name = _previousFolderName;
         _previousFolderName = string.Empty;
 

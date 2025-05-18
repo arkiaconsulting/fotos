@@ -7,9 +7,9 @@ internal static class ConfigurationExtensions
     public static IServiceCollection AddImageProcessing(this IServiceCollection services)
     {
         services.AddSingleton<SkiaSharpImageProcessing>();
-        services.AddScoped<CreateThumbnail>(sp => sp.GetRequiredService<SkiaSharpImageProcessing>().CreateThumbnail);
+        services.AddScoped<CreateThumbnail>(_ => SkiaSharpImageProcessing.CreateThumbnail);
         services.AddSingleton<ExifMetadataService>();
-        services.AddScoped<ExtractExifMetadata>(sp => sp.GetRequiredService<ExifMetadataService>().Extract);
+        services.AddScoped<ExtractExifMetadata>(_ => ExifMetadataService.Extract);
 
         return services;
     }

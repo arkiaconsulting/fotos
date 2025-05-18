@@ -3,7 +3,6 @@ using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Exif.Makernotes;
 using MetadataExtractor.Formats.Jpeg;
-using System.Diagnostics;
 using System.Globalization;
 using System.Net.Mime;
 
@@ -11,13 +10,9 @@ namespace Fotos.App.Adapters.Imaging;
 
 internal sealed class ExifMetadataService
 {
-    private readonly ActivitySource _activitySource;
-
-    public ExifMetadataService(InstrumentationConfig instrumentation) => _activitySource = instrumentation.AppActivitySource;
-
-    public Task<ExifMetadata> Extract(Stream photo, string mimeType)
+    public static Task<ExifMetadata> Extract(Stream photo, string mimeType)
     {
-        using var activity = _activitySource?.StartActivity("extract EXIF metadata");
+        using var activity = DiagnosticConfig.AppActivitySource?.StartActivity("extract EXIF metadata");
         activity?.SetTag("mimeType", mimeType);
         activity?.SetTag("size", photo.Length);
 

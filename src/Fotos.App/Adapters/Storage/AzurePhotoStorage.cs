@@ -12,22 +12,19 @@ namespace Fotos.App.Adapters.Storage;
 internal sealed class AzurePhotoStorage
 {
     private readonly BlobContainerClient _container;
-    private readonly ActivitySource _activitySource;
     private readonly SasUriGenerator _sasUriGenerator;
 
     public AzurePhotoStorage(
         IAzureClientFactory<BlobContainerClient> azureClientFactory,
-        SasUriGenerator sasUriGenerator,
-        InstrumentationConfig instrumentation)
+        SasUriGenerator sasUriGenerator)
     {
         _container = azureClientFactory.CreateClient(Constants.PhotosBlobContainer);
-        _activitySource = instrumentation.AppActivitySource;
         _sasUriGenerator = sasUriGenerator;
     }
 
     public async Task AddOriginalPhoto(PhotoId photoId, Stream photo, string contentType)
     {
-        using var activity = _activitySource.StartActivity("store photo original in storage");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("store photo original in storage");
 
         var blobClient = _container.GetBlobClient(ComputeOriginalName(photoId));
 
@@ -56,7 +53,7 @@ internal sealed class AzurePhotoStorage
 
     public async Task<Uri> GetOriginalUri(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("get original photo uri from storage");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("get original photo uri from storage");
 
         var blobName = ComputeOriginalName(photoId);
 
@@ -79,7 +76,7 @@ internal sealed class AzurePhotoStorage
 
     public async Task<Uri> GetThumbnailUri(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("get thumbnail photo uri from storage");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("get thumbnail photo uri from storage");
 
         var blobName = ComputeThumbnailName(photoId);
         try
@@ -101,7 +98,7 @@ internal sealed class AzurePhotoStorage
 
     public async Task<PhotoBinary> ReadOriginalPhoto(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("read photo original from storage");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("read photo original from storage");
 
         var blobClient = _container.GetBlobClient(ComputeOriginalName(photoId));
         try
@@ -123,7 +120,7 @@ internal sealed class AzurePhotoStorage
 
     public async Task AddPhotoToThumbnailStorage(PhotoId photoId, PhotoBinary photo)
     {
-        using var activity = _activitySource.StartActivity("store photo thumbnail in storage");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("store photo thumbnail in storage");
 
         var blobClient = _container.GetBlobClient(ComputeThumbnailName(photoId));
 
@@ -152,7 +149,7 @@ internal sealed class AzurePhotoStorage
 
     public async Task RemovePhotoOriginal(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("remove photo original from storage");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("remove photo original from storage");
 
         var blobName = ComputeOriginalName(photoId);
         try
@@ -172,7 +169,7 @@ internal sealed class AzurePhotoStorage
 
     public async Task RemovePhotoThumbnail(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("remove photo thumbnail from storage");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("remove photo thumbnail from storage");
 
         var blobName = ComputeThumbnailName(photoId);
         try

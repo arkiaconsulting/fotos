@@ -13,21 +13,19 @@ internal sealed class AzureCosmosDb
     private readonly Container _albumContainer;
     private readonly Container _sessionDataContainer;
     private readonly Container _userContainer;
-    private readonly ActivitySource _activitySource;
 
-    public AzureCosmosDb(IAzureClientFactory<Container> clientFactory, InstrumentationConfig instrumentation)
+    public AzureCosmosDb(IAzureClientFactory<Container> clientFactory)
     {
         _photoContainer = clientFactory.CreateClient(Constants.PhotosClientName);
         _folderContainer = clientFactory.CreateClient(Constants.FoldersClientName);
         _albumContainer = clientFactory.CreateClient(Constants.AlbumsClientName);
         _sessionDataContainer = clientFactory.CreateClient(Constants.SessionDataClientName);
         _userContainer = clientFactory.CreateClient(Constants.UsersClientName);
-
-        _activitySource = instrumentation.AppActivitySource;
     }
+
     public async Task SavePhoto(Photo photo)
     {
-        using var activity = _activitySource.StartActivity("store photo data in database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("store photo data in database");
 
         var cosmosPhoto = new CosmosPhoto(photo.Id.Id, photo.Id.FolderId, photo.Id.AlbumId, photo.Title, photo.Metadata);
 
@@ -48,7 +46,7 @@ internal sealed class AzureCosmosDb
 
     public async Task<IReadOnlyCollection<Photo>> ListPhotos(AlbumId albumId)
     {
-        using var activity = _activitySource.StartActivity("retrieving photos from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving photos from database");
 
         var query = new QueryDefinition("SELECT * FROM c WHERE c.folderId = @folderId AND c.albumId = @albumId")
             .WithParameter("@folderId", albumId.FolderId)
@@ -81,7 +79,7 @@ internal sealed class AzureCosmosDb
 
     public async Task RemovePhoto(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("removing photo from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("removing photo from database");
 
         try
         {
@@ -100,7 +98,7 @@ internal sealed class AzureCosmosDb
 
     public async Task<Photo> GetPhoto(PhotoId photoId)
     {
-        using var activity = _activitySource.StartActivity("retrieving photo from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving photo from database");
 
         try
         {
@@ -121,7 +119,7 @@ internal sealed class AzureCosmosDb
 
     public async Task StoreFolder(Folder folder)
     {
-        using var activity = _activitySource.StartActivity("store folder in database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("store folder in database");
 
         var cosmosFolder = new CosmosFolder(folder.Id, folder.ParentId, folder.Name.Value);
 
@@ -142,7 +140,7 @@ internal sealed class AzureCosmosDb
 
     public async Task<IReadOnlyCollection<Folder>> GetFolders(Guid parentId)
     {
-        using var activity = _activitySource.StartActivity("retrieving folders from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving folders from database");
 
         var query = new QueryDefinition("SELECT * FROM c WHERE c.parentId = @parentId")
             .WithParameter("@parentId", parentId);
@@ -173,7 +171,7 @@ internal sealed class AzureCosmosDb
 
     public async Task<Folder> GetFolder(Guid parentId, Guid folderId)
     {
-        using var activity = _activitySource.StartActivity("retrieving folder from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving folder from database");
 
         try
         {
@@ -194,7 +192,7 @@ internal sealed class AzureCosmosDb
 
     public async Task RemoveFolder(Guid parentId, Guid folderId)
     {
-        using var activity = _activitySource.StartActivity("removing folder from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("removing folder from database");
 
         try
         {
@@ -213,7 +211,7 @@ internal sealed class AzureCosmosDb
 
     public async Task UpsertFolder(Guid parentId, Guid folderId, Name name)
     {
-        using var activity = _activitySource.StartActivity("upsert folder in database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("upsert folder in database");
 
         var folder = new CosmosFolder(folderId, parentId, name.Value);
 
@@ -234,7 +232,7 @@ internal sealed class AzureCosmosDb
 
     public async Task<IReadOnlyCollection<Album>> GetAlbums(Guid folderId)
     {
-        using var activity = _activitySource.StartActivity("retrieving albums from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving albums from database");
 
         var query = new QueryDefinition("SELECT * FROM c WHERE c.folderId = @folderId")
             .WithParameter("@folderId", folderId);
@@ -265,7 +263,7 @@ internal sealed class AzureCosmosDb
 
     public async Task StoreAlbum(Album album)
     {
-        using var activity = _activitySource.StartActivity("store album in database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("store album in database");
 
         var cosmosAlbum = new CosmosAlbum(album.Id, album.FolderId, album.Name.Value);
 
@@ -286,7 +284,7 @@ internal sealed class AzureCosmosDb
 
     public async Task<Album> GetAlbum(AlbumId albumId)
     {
-        using var activity = _activitySource.StartActivity("retrieving album from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving album from database");
 
         try
         {
@@ -307,7 +305,7 @@ internal sealed class AzureCosmosDb
 
     public async Task StoreSessionData(Guid userId, SessionData sessionData)
     {
-        using var activity = _activitySource.StartActivity("store session data in database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("store session data in database");
 
         var cosmosSessionData = new CosmosSessionData(userId, [.. sessionData.FolderStack.Select(x => new CosmosFolder(x.Id, x.ParentId, x.Name)).Reverse()]);
 
@@ -328,7 +326,7 @@ internal sealed class AzureCosmosDb
 
     public async Task<SessionData?> GetSessionData(Guid userId)
     {
-        using var activity = _activitySource.StartActivity("retrieving session data from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving session data from database");
 
         try
         {
@@ -355,7 +353,7 @@ internal sealed class AzureCosmosDb
 
     public async Task<FotoUser?> FindUser(FotoUserId userId)
     {
-        using var activity = _activitySource.StartActivity("retrieving user from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving user from database");
 
         try
         {
@@ -382,7 +380,7 @@ internal sealed class AzureCosmosDb
 
     public async Task StoreUser(FotoUser user)
     {
-        using var activity = _activitySource.StartActivity("add user to database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("add user to database");
 
         var cosmosUser = new CosmosUser(user.Id.Value, user.GivenName.Value, user.RootFolderId);
 
@@ -401,20 +399,9 @@ internal sealed class AzureCosmosDb
         }
     }
 
-    #region Private
-
-    private static PartitionKey ToPartitionKey(PhotoId photoId) => new PartitionKeyBuilder()
-        .Add(photoId.FolderId.ToString())
-        .Add(photoId.AlbumId.ToString())
-        .Build();
-
-    private static PartitionKey ToPartitionKey(AlbumId albumId) => new PartitionKeyBuilder()
-            .Add(albumId.FolderId.ToString())
-            .Add(albumId.Id.ToString())
-            .Build();
-    internal async Task<int> GetAlbumPhotoCount(Guid folderId, Guid albumId)
+    public async Task<int> GetAlbumPhotoCount(Guid folderId, Guid albumId)
     {
-        using var activity = _activitySource.StartActivity("retrieving album photo count from database");
+        using var activity = DiagnosticConfig.AppActivitySource.StartActivity("retrieving album photo count from database");
 
         var query = new QueryDefinition("SELECT VALUE COUNT(1) FROM c WHERE c.folderId = @folderId AND c.albumId = @albumId")
             .WithParameter("@folderId", folderId)
@@ -432,6 +419,18 @@ internal sealed class AzureCosmosDb
 
         return count;
     }
+
+    #region Private
+
+    private static PartitionKey ToPartitionKey(PhotoId photoId) => new PartitionKeyBuilder()
+        .Add(photoId.FolderId.ToString())
+        .Add(photoId.AlbumId.ToString())
+        .Build();
+
+    private static PartitionKey ToPartitionKey(AlbumId albumId) => new PartitionKeyBuilder()
+            .Add(albumId.FolderId.ToString())
+            .Add(albumId.Id.ToString())
+            .Build();
 
     private sealed record CosmosPhoto(Guid Id, Guid FolderId, Guid AlbumId, string Title, ExifMetadata? Metadata)
     {
