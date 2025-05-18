@@ -11,6 +11,9 @@ using System.Buffers;
 namespace Fotos.App.Components.Pages.Restricted;
 public sealed partial class AnAlbum
 {
+    [CascadingParameter]
+    public ProcessError? ProcessError { get; set; }
+
     [Parameter]
     public Guid AlbumId { get; set; }
 
@@ -35,16 +38,23 @@ public sealed partial class AnAlbum
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
-            RealTimeMessageService.OnThumbnailReady += OnThumbnailReady;
-            RealTimeMessageService.OnMetadataReady += OnMetadataReady;
-            await RealTimeMessageService.StartAsync();
+            if (firstRender)
+            {
+                RealTimeMessageService.OnThumbnailReady += OnThumbnailReady;
+                RealTimeMessageService.OnMetadataReady += OnMetadataReady;
+                await RealTimeMessageService.StartAsync();
 
-            var album = await GetAlbum.Process(new(FolderId, AlbumId));
-            _album = new AlbumModel { Id = album.Album.Id, FolderId = album.Album.FolderId, Name = album.Album.Name.Value, PhotoCount = album.PhotoCount };
+                var album = await GetAlbum.Process(new(FolderId, AlbumId));
+                _album = new AlbumModel { Id = album.Album.Id, FolderId = album.Album.FolderId, Name = album.Album.Name.Value, PhotoCount = album.PhotoCount };
 
-            StateHasChanged();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
         }
     }
 
@@ -60,7 +70,14 @@ public sealed partial class AnAlbum
 
     private async Task UploadPhotos(IReadOnlyList<IBrowserFile> files)
     {
-        await Task.WhenAll(files.Select(UploadSinglePhoto));
+        try
+        {
+            await Task.WhenAll(files.Select(UploadSinglePhoto));
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task UploadSinglePhoto(IBrowserFile file)
@@ -90,6 +107,7 @@ public sealed partial class AnAlbum
             totalBytesRead += bytesRead;
             await ms.WriteAsync(buffer.AsMemory(0, bytesRead));
         }
+        ms.Position = 0;
 
         var id = await AddPhoto.Process(FolderId, AlbumId, ms, file.ContentType, file.Name);
 

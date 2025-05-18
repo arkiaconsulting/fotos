@@ -33,7 +33,8 @@ internal static class InstrumentationConfigurationExtensions
                             options.RecordException = true;
                             options.EnableAspNetCoreSignalRSupport = true;
                         })
-                        .AddHttpClientInstrumentation();
+                        .AddHttpClientInstrumentation()
+                        .SetErrorStatusOnException();
                 if (useOtlpExporter)
                 {
                     traceBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);

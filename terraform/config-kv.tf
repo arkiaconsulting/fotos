@@ -154,12 +154,17 @@ resource "azurerm_app_configuration_key" "access_token_signing_key" {
   tags = local.tags
 }
 
+resource "azurerm_app_configuration_key" "detailed_errors" {
+  configuration_store_id = data.azurerm_app_configuration.common.id
+  key                    = "DetailedErrors"
+  value                  = "false"
+  label                  = "fotos"
 
+  tags = local.tags
 
-
-
-
-
-
-
-
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}

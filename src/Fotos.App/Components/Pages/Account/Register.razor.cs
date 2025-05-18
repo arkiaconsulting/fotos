@@ -7,6 +7,9 @@ using System.Security.Claims;
 namespace Fotos.App.Components.Pages.Account;
 public partial class Register
 {
+    [CascadingParameter]
+    public ProcessError? ProcessError { get; set; }
+
     [Inject]
     internal AddUserBusiness AddUser { get; set; } = default!;
 
@@ -26,8 +29,15 @@ public partial class Register
 
     private async Task RegisterUser()
     {
-        await AddUser.Process(FotoUserId.Create(_provider, _providerUserId), _givenName);
+        try
+        {
+            await AddUser.Process(FotoUserId.Create(_provider, _providerUserId), _givenName);
 
-        NavigationManager.NavigateTo("/account/login-callback", true);
+            NavigationManager.NavigateTo("/account/login-callback", true);
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 }

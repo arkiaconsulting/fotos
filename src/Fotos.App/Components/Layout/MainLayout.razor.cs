@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 
 namespace Fotos.App.Components.Layout;
 public partial class MainLayout
 {
-    private ErrorBoundary? _errorBoundary;
     private bool _isDarkMode;
     private MudThemeProvider _mudThemeProvider = default!;
     private readonly MudTheme _fotosTheme = new()

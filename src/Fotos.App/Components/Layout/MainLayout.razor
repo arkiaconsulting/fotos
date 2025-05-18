@@ -11,52 +11,36 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<CustomErrorBoundary @ref="_errorBoundary">
-    <ChildContent>
-        <MudLayout>
-            <MudAppBar>
-                <MudIconButton Icon="@Icons.Material.Filled.Home" Size="Size.Large" Href="/" />
-                <MudText Typo="Typo.h3">Fotos</MudText>
-                <MudSpacer />
-                <MudSwitch @bind-Value="_isDarkMode" Class="ma-4" T="bool" Label="Dark Mode" />
-                <AuthorizeView>
-                    <Authorized>
-                        <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
-                            <ActivatorContent>
-                                <MudChip T="string" Icon="@Icons.Material.Filled.AccountCircle">@context.User.FindFirst(ClaimTypes.GivenName)?.Value</MudChip>
-                            </ActivatorContent>
-                            <ChildContent>
-                                <form id="logout" method="post" action="/account/logout">                                    
-                                    <MudButton ButtonType="ButtonType.Submit">
-                                        <MudMenuItem Icon="@Icons.Material.Filled.Logout">
-                                            <input type="hidden" name="returnUrl" value="/account/signin" />
-                                            <AntiforgeryToken />
-                                            Logout
-                                        </MudMenuItem>
-                                    </MudButton>
-                                </form>
-                            </ChildContent>
-                        </MudMenu>
-                    </Authorized>
-                </AuthorizeView>
-            </MudAppBar>
-            <MudMainContent>
-                <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-                    @Body
-                </MudContainer>
-            </MudMainContent>
-        </MudLayout>
-    </ChildContent>
-    <ErrorContent>
-        <div class="alert alert-danger" role="alert">
-            <p class="fs-3 fw-bold">😈 A rotten gremlin got us. Sorry!</p>
-            <p>@context.Message</p>
-            @if (HostEnvironment.IsDevelopment()) {
-                <p>@context.StackTrace</p>
-            }
-            <button class="btn btn-info" @onclick="_ => _errorBoundary?.Recover()">
-                Clear
-            </button>
-        </div>
-    </ErrorContent>
-</CustomErrorBoundary>
+<MudLayout>
+    <MudAppBar>
+        <MudIconButton Icon="@Icons.Material.Filled.Home" Size="Size.Large" Href="/" />
+        <MudText Typo="Typo.h3">Fotos</MudText>
+        <MudSpacer />
+        <MudSwitch @bind-Value="_isDarkMode" Class="ma-4" T="bool" Label="Dark Mode" />
+        <AuthorizeView>
+            <Authorized>
+                <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
+                    <ActivatorContent>
+                        <MudChip T="string" Icon="@Icons.Material.Filled.AccountCircle">@context.User.FindFirst(ClaimTypes.GivenName)?.Value</MudChip>
+                    </ActivatorContent>
+                    <ChildContent>
+                        <form id="logout" method="post" action="/account/logout">
+                            <MudButton ButtonType="ButtonType.Submit">
+                                <MudMenuItem Icon="@Icons.Material.Filled.Logout">
+                                    <input type="hidden" name="returnUrl" value="/account/signin" />
+                                    <AntiforgeryToken />
+                                    Logout
+                                </MudMenuItem>
+                            </MudButton>
+                        </form>
+                    </ChildContent>
+                </MudMenu>
+            </Authorized>
+        </AuthorizeView>
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>

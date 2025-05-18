@@ -10,13 +10,11 @@ internal sealed class SkiaSharpImageProcessing
 
     public SkiaSharpImageProcessing(InstrumentationConfig instrumentation) => _activitySource = instrumentation.ActivitySource;
 
-    public async Task<Stream> CreateThumbnail(PhotoBinary photo)
+    public Task<Stream> CreateThumbnail(PhotoBinary photo)
     {
         using var activity = _activitySource.StartActivity("creating thumbnail", ActivityKind.Internal);
         activity?.SetTag("mimeType", photo.MimeType);
         activity?.SetTag("size", photo.Content.Length);
-
-        await Task.CompletedTask;
 
         using var originalStream = new SKManagedStream(photo.Content);
         using var originalImage = SKImage.FromEncodedData(originalStream);
@@ -57,6 +55,6 @@ internal sealed class SkiaSharpImageProcessing
         activity?.SetTag("thumbnailSize", thumbnailStream.Length);
         activity?.AddEvent(new ActivityEvent("thumbnail created"));
 
-        return thumbnailStream;
+        return Task.FromResult<Stream>(thumbnailStream);
     }
 }

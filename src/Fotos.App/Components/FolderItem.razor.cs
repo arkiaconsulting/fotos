@@ -7,6 +7,9 @@ using MudBlazor;
 namespace Fotos.App.Components;
 public partial class FolderItem
 {
+    [CascadingParameter]
+    public ProcessError? ProcessError { get; set; }
+
     [Parameter]
     public FolderModel Folder { get; set; } = default!;
 
@@ -28,13 +31,20 @@ public partial class FolderItem
 
     private async Task RemoveThisFolder()
     {
-        var childFoldersCount = (await ListChildFolders.Process(Folder.Id)).Count();
-
-        if (childFoldersCount > 0)
+        try
         {
-            Snackbar.Add("This folder contains child folders. Please remove them first.", Severity.Error);
+            var childFoldersCount = (await ListChildFolders.Process(Folder.Id)).Count();
 
-            return;
+            if (childFoldersCount > 0)
+            {
+                Snackbar.Add("This folder contains child folders. Please remove them first.", Severity.Error);
+
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
         }
 
         await OnFolderRemoved.InvokeAsync(Folder);

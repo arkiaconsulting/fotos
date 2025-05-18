@@ -6,6 +6,9 @@ using MudBlazor;
 namespace Fotos.App.Components.Pages;
 public partial class Thumbnails
 {
+    [CascadingParameter]
+    public ProcessError? ProcessError { get; set; }
+
     [Parameter]
     public Guid FolderId { get; set; }
 
@@ -63,14 +66,21 @@ public partial class Thumbnails
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
-            _thumbnails = [.. (await ListAlbumPhotos.Process(new(FolderId, AlbumId))).Select(p => new PhotoModel(FolderId, AlbumId, p.Id.Id, p.Title, p.Metadata ?? new()))];
-            await SetThumbnailUris();
+            if (firstRender)
+            {
+                _thumbnails = [.. (await ListAlbumPhotos.Process(new(FolderId, AlbumId))).Select(p => new PhotoModel(FolderId, AlbumId, p.Id.Id, p.Title, p.Metadata ?? new()))];
+                await SetThumbnailUris();
 
-            await OnLoaded.InvokeAsync(null);
+                await OnLoaded.InvokeAsync(null);
 
-            StateHasChanged();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
         }
     }
 
@@ -83,25 +93,39 @@ public partial class Thumbnails
 
     private async Task RemoveAPhoto(PhotoModel photo)
     {
-        await RemovePhoto.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
-        _thumbnails.Remove(photo);
-        CloseDetails();
+        try
+        {
+            await RemovePhoto.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
+            _thumbnails.Remove(photo);
+            CloseDetails();
 
-        StateHasChanged();
+            StateHasChanged();
 
-        await OnPhotoRemoved.InvokeAsync(null);
+            await OnPhotoRemoved.InvokeAsync(null);
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task ViewPhoto(PhotoModel photo)
     {
-        var originalUri = await GetOriginalPhotoUri.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
+        try
+        {
+            var originalUri = await GetOriginalPhotoUri.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
 
-        photo.OriginalUri = originalUri;
-        _photo = photo;
-        _isPhotoDisplayed = true;
-        _showDetails = false;
+            photo.OriginalUri = originalUri;
+            _photo = photo;
+            _isPhotoDisplayed = true;
+            _showDetails = false;
 
-        StateHasChanged();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private void DismissPhoto()
@@ -111,9 +135,16 @@ public partial class Thumbnails
 
     private async Task SetThumbnailUris()
     {
-        foreach (var photo in _thumbnails)
+        try
         {
-            photo.ThumbnailUri = await GetPhotoThumbnailUri.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
+            foreach (var photo in _thumbnails)
+            {
+                photo.ThumbnailUri = await GetPhotoThumbnailUri.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
+            }
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
         }
     }
 
@@ -132,7 +163,14 @@ public partial class Thumbnails
 
         _photo.Title = newValue;
 
-        await UpdatePhoto.Process(new(_photo.FolderId, _photo.AlbumId, _photo.Id), newValue);
+        try
+        {
+            await UpdatePhoto.Process(new(_photo.FolderId, _photo.AlbumId, _photo.Id), newValue);
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private void CloseDetails()
@@ -148,8 +186,15 @@ public partial class Thumbnails
             return;
         }
 
-        photo.ThumbnailUri = await GetPhotoThumbnailUri.Process(new(folderId, albumId, id));
-        StateHasChanged();
+        try
+        {
+            photo.ThumbnailUri = await GetPhotoThumbnailUri.Process(new(folderId, albumId, id));
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     public async Task OnMetadataReady(Guid folderId, Guid albumId, Guid id)
@@ -160,10 +205,17 @@ public partial class Thumbnails
             return;
         }
 
-        var actualPhoto = await GetPhoto.Process(new(folderId, albumId, id));
+        try
+        {
+            var actualPhoto = await GetPhoto.Process(new(folderId, albumId, id));
 
-        photo.Metadata = actualPhoto.Metadata ?? new();
-        StateHasChanged();
+            photo.Metadata = actualPhoto.Metadata ?? new();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private void FilterChanged(string newValue)
@@ -171,7 +223,6 @@ public partial class Thumbnails
         if (string.IsNullOrWhiteSpace(newValue))
         {
             _filter = null;
-            return;
         }
     }
 }

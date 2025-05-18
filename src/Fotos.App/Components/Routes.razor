@@ -4,12 +4,14 @@
     <MudOverlay Visible DarkBackground />
 }
 else {
-    <Router AppAssembly="typeof(Program).Assembly">
-        <Found Context="routeData">
-            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
-                <Authorizing>Authorizing...</Authorizing>
-            </AuthorizeRouteView>
-            <FocusOnNavigate RouteData="routeData" Selector="h1" />
-        </Found>
-    </Router>
+    <ProcessError>
+        <Router AppAssembly="typeof(Program).Assembly">
+            <Found Context="routeData">
+                <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                    <Authorizing>Authorizing...</Authorizing>
+                </AuthorizeRouteView>
+                <FocusOnNavigate RouteData="routeData" Selector="h1" />
+            </Found>
+        </Router>
+    </ProcessError>
 }

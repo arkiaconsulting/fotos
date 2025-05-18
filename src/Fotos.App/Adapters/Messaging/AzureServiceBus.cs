@@ -32,9 +32,19 @@ internal sealed class AzureServiceBus
             Body = new BinaryData(JsonSerializer.Serialize(photoId, options: Constants.JsonSerializerOptions)),
         };
 
-        await _mainTopicSender.SendMessageAsync(message);
+        try
+        {
+            await _mainTopicSender.SendMessageAsync(message);
 
-        activity?.AddEvent(new ActivityEvent("photo uploaded message published"));
+            activity?.AddEvent(new ActivityEvent("photo uploaded message published"));
+        }
+        catch (ServiceBusException ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Unable to publish PhotoUploaded");
+            activity?.AddException(ex);
+
+            throw;
+        }
     }
 
     public async Task OnPhotoRemoved(PhotoId photoId)
@@ -50,9 +60,19 @@ internal sealed class AzureServiceBus
             Body = new BinaryData(JsonSerializer.Serialize(photoId, options: Constants.JsonSerializerOptions)),
         };
 
-        await _mainTopicSender.SendMessageAsync(message);
+        try
+        {
+            await _mainTopicSender.SendMessageAsync(message);
 
-        activity?.AddEvent(new ActivityEvent("photo removed message published"));
+            activity?.AddEvent(new ActivityEvent("photo removed message published"));
+        }
+        catch (ServiceBusException ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Unable to publish PhotoRemoved");
+            activity?.AddException(ex);
+
+            throw;
+        }
     }
 
     public async Task OnThumbnailReady(PhotoId photoId)
@@ -68,8 +88,18 @@ internal sealed class AzureServiceBus
             Body = new BinaryData(JsonSerializer.Serialize(photoId, options: Constants.JsonSerializerOptions)),
         };
 
-        await _mainTopicSender.SendMessageAsync(message);
+        try
+        {
+            await _mainTopicSender.SendMessageAsync(message);
 
-        activity?.AddEvent(new ActivityEvent("thumbnail ready message published"));
+            activity?.AddEvent(new ActivityEvent("thumbnail ready message published"));
+        }
+        catch (ServiceBusException ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, "Unable to publish ThumbnailReady");
+            activity?.AddException(ex);
+
+            throw;
+        }
     }
 }

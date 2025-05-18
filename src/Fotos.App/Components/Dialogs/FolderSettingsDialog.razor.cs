@@ -7,6 +7,9 @@ namespace Fotos.App.Components.Dialogs;
 public partial class FolderSettingsDialog
 {
     [CascadingParameter]
+    public ProcessError? ProcessError { get; set; }
+
+    [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter]
@@ -34,11 +37,18 @@ public partial class FolderSettingsDialog
     {
         MudDialog.Close(DialogResult.Ok(Folder));
 
-        if (_previousFolderName != Folder.Name)
+        try
         {
-            await UpdateFolder.Process(Folder.ParentId, Folder.Id, Folder.Name);
+            if (_previousFolderName != Folder.Name)
+            {
+                await UpdateFolder.Process(Folder.ParentId, Folder.Id, Folder.Name);
+            }
+            _previousFolderName = string.Empty;
         }
-        _previousFolderName = string.Empty;
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private void CancelChanges()

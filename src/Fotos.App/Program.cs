@@ -38,8 +38,10 @@ builder.Configuration.AddAzureAppConfiguration(config =>
 }, false);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services.AddRazorComponents(options =>
+{
+    options.DetailedErrors = builder.Configuration.GetValue("DetailedErrors", false);
+}).AddInteractiveServerComponents();
 builder.Services.AddMudServices(options =>
 {
     options.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;

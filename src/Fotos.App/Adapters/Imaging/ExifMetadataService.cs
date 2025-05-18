@@ -15,13 +15,11 @@ internal sealed class ExifMetadataService
 
     public ExifMetadataService(InstrumentationConfig instrumentation) => _activitySource = instrumentation.ActivitySource;
 
-    public async Task<ExifMetadata> Extract(Stream photo, string mimeType)
+    public Task<ExifMetadata> Extract(Stream photo, string mimeType)
     {
         using var activity = _activitySource?.StartActivity("extract EXIF metadata");
         activity?.SetTag("mimeType", mimeType);
         activity?.SetTag("size", photo.Length);
-
-        await Task.CompletedTask;
 
         var metadata = mimeType switch
         {
@@ -32,8 +30,10 @@ internal sealed class ExifMetadataService
 
         activity?.AddEvent(new("EXIF metadata extracted"));
 
-        return metadata;
+        return Task.FromResult(metadata);
     }
+
+    #region Private
 
     private static ExifMetadata ExtractExifFromJpeg(Stream photo)
     {
@@ -84,4 +84,6 @@ internal sealed class ExifMetadataService
     }
 
     private static ExifMetadata ExtractExifFromPng(Stream _) => new();
+
+    #endregion
 }

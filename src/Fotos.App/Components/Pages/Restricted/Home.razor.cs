@@ -1,4 +1,3 @@
-using Fotos.App.Adapters;
 using Fotos.App.Application.Albums;
 using Fotos.App.Application.Folders;
 using Fotos.App.Application.User;
@@ -12,6 +11,9 @@ using System.Security.Claims;
 namespace Fotos.App.Components.Pages.Restricted;
 public partial class Home
 {
+    [CascadingParameter]
+    public ProcessError? ProcessError { get; set; }
+
     [CascadingParameter]
     public HttpContext HttpContext { get; set; } = default!;
 
@@ -47,77 +49,141 @@ public partial class Home
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
-            if (SessionData.FolderStack.Count == 0)
+            if (firstRender)
             {
-                // We're at root
-                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                var userProviderId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var provider = authState.User.Identity?.AuthenticationType;
+                if (SessionData.FolderStack.Count == 0)
+                {
+                    // We're at root
+                    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                    var userProviderId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var provider = authState.User.Identity?.AuthenticationType;
 
-                var fotoUser = await FindUser.Process(provider!, userProviderId!);
+                    var fotoUser = await FindUser.Process(provider!, userProviderId!);
 
-                var folder = await GetFolder.Process(Guid.Empty, fotoUser!.Value.RootFolderId);
-                SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name.Value });
+                    var folder = await GetFolder.Process(Guid.Empty, fotoUser!.Value.RootFolderId);
+                    SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name.Value });
+                }
+
+                await RefreshFoldersAndAlbums();
+
+                _loaded = true;
+                await InvokeAsync(StateHasChanged);
             }
-
-            await RefreshFoldersAndAlbums();
-
-            _loaded = true;
-            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
         }
     }
 
     private async Task RefreshFolders()
     {
-        _childFolders = [.. (await ListChildFolders.Process(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name.Value })];
+        try
+        {
+            _childFolders = [.. (await ListChildFolders.Process(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name.Value })];
+
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task RefreshAlbums()
     {
-        _childAlbums = [.. (await ListFolderAlbums.Process(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Album.Id, FolderId = dto.Album.FolderId, Name = dto.Album.Name.Value, PhotoCount = dto.PhotoCount })];
+        try
+        {
+            _childAlbums = [.. (await ListFolderAlbums.Process(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Album.Id, FolderId = dto.Album.FolderId, Name = dto.Album.Name.Value, PhotoCount = dto.PhotoCount })];
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task RefreshFoldersAndAlbums()
     {
-        await Task.WhenAll(RefreshFolders(), RefreshAlbums());
+        try
+        {
+            await Task.WhenAll(RefreshFolders(), RefreshAlbums());
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task CreateNewFolder()
     {
-        await CreateFolder.Process(CurrentFolder.Id, _newFolder);
+        try
+        {
+            await CreateFolder.Process(CurrentFolder.Id, _newFolder);
 
-        await RefreshFolders();
-        _newFolder = string.Empty;
+            await RefreshFolders();
+            _newFolder = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task GotToParentFolder()
     {
         _ = SessionData.FolderStack.Pop();
 
-        await RefreshFoldersAndAlbums();
+        try
+        {
+            await RefreshFoldersAndAlbums();
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task RemoveThisFolder(FolderModel folder)
     {
-        await RemoveFolder.Process(folder.ParentId, folder.Id);
+        try
+        {
+            await RemoveFolder.Process(folder.ParentId, folder.Id);
 
-        _childFolders.Remove(folder);
+            _childFolders.Remove(folder);
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task CreateNewAlbum()
     {
-        await CreateAlbum.Process(CurrentFolder.Id, _newAlbumName);
-        await RefreshAlbums();
-        _newAlbumName = string.Empty;
+        try
+        {
+            await CreateAlbum.Process(CurrentFolder.Id, _newAlbumName);
+            await RefreshAlbums();
+            _newAlbumName = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private async Task GoToFolder(FolderModel folder)
     {
         SessionData.FolderStack.Push(folder);
 
-        await RefreshFoldersAndAlbums();
+        try
+        {
+            await RefreshFoldersAndAlbums();
+        }
+        catch (Exception ex)
+        {
+            ProcessError?.LogError(ex);
+        }
     }
 
     private void GoToAlbum(Guid albumId)
