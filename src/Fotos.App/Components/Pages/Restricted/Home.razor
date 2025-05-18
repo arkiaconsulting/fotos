@@ -1,11 +1,12 @@
 ﻿@page "/"
 
-@using Fotos.App.Adapters
-@using Fotos.App.Domain
-@using Fotos.App.Components.Dialogs
 @using System.Collections.ObjectModel
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using System.Security.Claims
+@using Fotos.App.Adapters
+@using Fotos.App.Application.User
+@using Fotos.App.Components.Dialogs
+@using Fotos.App.Domain
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager

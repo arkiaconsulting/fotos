@@ -1,6 +1,6 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
-using Fotos.App.Adapters;
+using Fotos.App.Application.User;
 using Fotos.App.Components.Models;
 using Fotos.App.Domain;
 using Fotos.Tests.Assets;

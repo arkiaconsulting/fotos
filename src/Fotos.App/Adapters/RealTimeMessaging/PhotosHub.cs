@@ -1,7 +1,7 @@
 ﻿using Fotos.App.Domain;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Fotos.App.Hubs;
+namespace Fotos.App.Adapters.RealTimeMessaging;
 
 public sealed class PhotosHub : Hub
 {

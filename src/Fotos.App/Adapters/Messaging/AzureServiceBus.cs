@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Net.Mime;
 using System.Text.Json;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Adapters.Messaging;
 
 internal sealed class AzureServiceBus
 {

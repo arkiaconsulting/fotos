@@ -1,4 +1,4 @@
-﻿using Fotos.App.Adapters;
+﻿using Fotos.App.Application.User;
 using Fotos.App.Domain;
 
 namespace Fotos.App.Application.Photos;

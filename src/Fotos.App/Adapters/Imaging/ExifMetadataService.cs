@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net.Mime;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Adapters.Imaging;
 
 internal sealed class ExifMetadataService
 {

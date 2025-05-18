@@ -1,17 +1,19 @@
 using Azure.Core;
 using Azure.Identity;
 using Fotos.App;
-using Fotos.App.Adapters;
+using Fotos.App.Adapters.Blazor;
+using Fotos.App.Adapters.DataStore;
+using Fotos.App.Adapters.Imaging;
+using Fotos.App.Adapters.Messaging;
+using Fotos.App.Adapters.RealTimeMessaging;
+using Fotos.App.Adapters.Storage;
 using Fotos.App.Api.Account;
 using Fotos.App.Application.Albums;
 using Fotos.App.Application.Folders;
 using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
 using Fotos.App.Authentication;
-using Fotos.App.Hubs;
-using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using MudBlazor;
 using MudBlazor.Services;
@@ -60,19 +62,15 @@ builder.Services.AddFolderBusiness();
 builder.Services.AddPhotoBusiness();
 builder.Services.AddAlbumBusiness();
 builder.Services.AddAccountBusiness();
+builder.Services.AddScoped<SessionDataStorage>();
 
 // Adapters
-builder.Services.AddPhotosAdapters(builder.Configuration);
-builder.Services.AddSignalR();
-builder.Services.AddResponseCompression(options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]));
-builder.Services.AddTransient<RealTimeMessageService>();
-
-// Blazor features
-builder.Services.AddSingleton<List<SessionData>>(_ => []);
-builder.Services.AddScoped<SessionDataStorage>();
-builder.Services.AddScoped<CustomCircuitHandler>();
-builder.Services.AddScoped<CircuitHandler>(sp => sp.GetRequiredService<CustomCircuitHandler>());
-builder.Services.AddScoped<SessionData>(sp => sp.GetRequiredService<CustomCircuitHandler>().SessionData);
+builder.Services.AddCosmos(builder.Configuration);
+builder.Services.AddAzureStorage(builder.Configuration);
+builder.Services.AddServiceBus(builder.Configuration);
+builder.Services.AddImageProcessing();
+builder.Services.AddSignalRFotosHub();
+builder.Services.AddCustomCircuitHandler();
 
 // Instrumentation
 builder.AddFotosInstrumentation();

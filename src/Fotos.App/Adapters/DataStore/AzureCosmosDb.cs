@@ -1,8 +1,10 @@
-﻿using Fotos.App.Domain;
+﻿using Fotos.App.Application.User;
+using Fotos.App.Domain;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Azure;
 using System.Diagnostics;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Adapters.DataStore;
 
 internal sealed class AzureCosmosDb
 {
@@ -13,18 +15,14 @@ internal sealed class AzureCosmosDb
     private readonly Container _userContainer;
     private readonly ActivitySource _activitySource;
 
-    public AzureCosmosDb(CosmosClient client, IConfiguration configuration, InstrumentationConfig instrumentation)
+    public AzureCosmosDb(IAzureClientFactory<Container> clientFactory, InstrumentationConfig instrumentation)
     {
-        _photoContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
-            .GetContainer(configuration["Cosmos:PhotosContainerId"]);
-        _folderContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
-            .GetContainer(configuration["Cosmos:FoldersContainerId"]);
-        _albumContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
-            .GetContainer(configuration["Cosmos:AlbumsContainerId"]);
-        _sessionDataContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
-            .GetContainer(configuration["Cosmos:SessionDataContainerId"]);
-        _userContainer = client.GetDatabase(configuration["Cosmos:DatabaseId"])
-            .GetContainer(configuration["Cosmos:UsersContainerId"]);
+        _photoContainer = clientFactory.CreateClient(Constants.PhotosClientName);
+        _folderContainer = clientFactory.CreateClient(Constants.FoldersClientName);
+        _albumContainer = clientFactory.CreateClient(Constants.AlbumsClientName);
+        _sessionDataContainer = clientFactory.CreateClient(Constants.SessionDataClientName);
+        _userContainer = clientFactory.CreateClient(Constants.UsersClientName);
+
         _activitySource = instrumentation.ActivitySource;
     }
     public async Task SavePhoto(Photo photo)

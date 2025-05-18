@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Components.Server.Circuits;
+﻿using Fotos.App.Application.User;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Adapters.Blazor;
 
 internal sealed class CustomCircuitHandler : CircuitHandler
 {

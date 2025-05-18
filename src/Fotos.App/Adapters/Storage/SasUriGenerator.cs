@@ -2,7 +2,7 @@
 using Azure.Storage.Sas;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Adapters.Storage;
 
 internal sealed class SasUriGenerator
 {

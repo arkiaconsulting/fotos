@@ -1,6 +1,6 @@
 ﻿using Fotos.App.Components.Models;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Application.User;
 
 internal sealed record SessionData(Stack<FolderModel> FolderStack)
 {

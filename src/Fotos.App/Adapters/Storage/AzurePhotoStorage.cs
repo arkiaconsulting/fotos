@@ -6,7 +6,7 @@ using Fotos.App.Domain;
 using Microsoft.Extensions.Azure;
 using System.Diagnostics;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Adapters.Storage;
 
 internal sealed class AzurePhotoStorage
 {

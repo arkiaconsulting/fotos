@@ -1,4 +1,4 @@
-﻿using Fotos.App.Adapters;
+﻿using Fotos.App.Application.User;
 
 namespace Fotos.Tests.Frontend.Assets;
 

@@ -1,8 +1,8 @@
+using Fotos.App.Adapters.RealTimeMessaging;
 using Fotos.App.Application.Albums;
 using Fotos.App.Application.Photos;
 using Fotos.App.Components.Models;
 using Fotos.App.Domain;
-using Fotos.App.Hubs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;

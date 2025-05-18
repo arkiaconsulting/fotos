@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace Fotos.App.Hubs;
+namespace Fotos.App.Adapters.RealTimeMessaging;
 
 internal class RealTimeMessageService : IAsyncDisposable
 {

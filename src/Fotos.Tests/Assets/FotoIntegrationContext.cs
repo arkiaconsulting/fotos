@@ -3,7 +3,10 @@ using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Fotos.App;
-using Fotos.App.Adapters;
+using Fotos.App.Adapters.DataStore;
+using Fotos.App.Adapters.Imaging;
+using Fotos.App.Adapters.Messaging;
+using Fotos.App.Adapters.Storage;
 using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
 using Fotos.App.Domain;
@@ -36,45 +39,21 @@ public sealed class FotoIntegrationContext
     internal GetSessionDataFromStore GetSessionData => _host.Services.GetRequiredService<GetSessionDataFromStore>();
     internal AddUserToStore AddUserToStore => _host.Services.GetRequiredService<AddUserToStore>();
     internal GetAlbumPhotoCountFromStore GetAlbumPhotoCount => _host.Services.GetRequiredService<GetAlbumPhotoCountFromStore>();
-    internal Container PhotosData
-    {
-        get
-        {
-            var configuration = _host.Services.GetRequiredService<IConfiguration>();
-
-            return _host.Services.GetRequiredService<CosmosClient>()
-                .GetDatabase(configuration["Cosmos:DatabaseId"])
-                .GetContainer(configuration["Cosmos:PhotosContainerId"]);
-        }
-    }
+    internal Container PhotosData =>
+        _host.Services.GetRequiredService<IAzureClientFactory<Container>>()
+        .CreateClient("Photos");
 
     internal BlobContainerClient PhotosContainer =>
         _host.Services.GetRequiredService<IAzureClientFactory<BlobContainerClient>>()
         .CreateClient("Photos");
 
-    internal Container SessionData
-    {
-        get
-        {
-            var configuration = _host.Services.GetRequiredService<IConfiguration>();
+    internal Container SessionData =>
+        _host.Services.GetRequiredService<IAzureClientFactory<Container>>()
+        .CreateClient("SessionData");
 
-            return _host.Services.GetRequiredService<CosmosClient>()
-                .GetDatabase(configuration["Cosmos:DatabaseId"])
-                .GetContainer(configuration["Cosmos:SessionDataContainerId"]);
-        }
-    }
-
-    internal Container UsersData
-    {
-        get
-        {
-            var configuration = _host.Services.GetRequiredService<IConfiguration>();
-
-            return _host.Services.GetRequiredService<CosmosClient>()
-                .GetDatabase(configuration["Cosmos:DatabaseId"])
-                .GetContainer(configuration["Cosmos:UsersContainerId"]);
-        }
-    }
+    internal Container UsersData =>
+        _host.Services.GetRequiredService<IAzureClientFactory<Container>>()
+        .CreateClient("Users");
 
     internal OnNewPhotoUploaded OnNewPhotoUploaded => _host.Services.GetRequiredService<OnNewPhotoUploaded>();
     internal OnPhotoRemoved OnPhotoRemoved => _host.Services.GetRequiredService<OnPhotoRemoved>();
@@ -102,9 +81,19 @@ public sealed class FotoIntegrationContext
         services.AddMemoryCache();
         services.AddSingleton<InstrumentationConfig>();
 
-        services.AddFotosAzureStorage(context.Configuration);
-        services.AddFotosServiceBus(context.Configuration);
-        services.AddFotosImageProcessing();
-        services.AddFotosCosmosDb(context.Configuration);
+        services.AddAzureStorage(context.Configuration);
+        services.AddServiceBus(context.Configuration);
+        services.AddImageProcessing();
+        services.AddCosmos(context.Configuration);
+
+        services.AddSingleton(sp =>
+        {
+            var credential = sp.GetRequiredService<TokenCredential>();
+            var configuration = sp.GetRequiredService<IConfiguration>();
+
+            return new ServiceBusClient(
+                configuration["ServiceBus:fullyQualifiedNamespace"],
+                credential, new());
+        });
     }
 }

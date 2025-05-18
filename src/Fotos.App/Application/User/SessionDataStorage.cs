@@ -1,6 +1,6 @@
 ﻿using Fotos.App.Application.Photos;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Application.User;
 
 internal class SessionDataStorage
 {

@@ -2,7 +2,7 @@
 using SkiaSharp;
 using System.Diagnostics;
 
-namespace Fotos.App.Adapters;
+namespace Fotos.App.Adapters.Imaging;
 
 internal sealed class SkiaSharpImageProcessing
 {

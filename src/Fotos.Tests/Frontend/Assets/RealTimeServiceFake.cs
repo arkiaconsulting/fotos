@@ -1,4 +1,4 @@
-﻿using Fotos.App.Hubs;
+﻿using Fotos.App.Adapters.RealTimeMessaging;
 using Microsoft.AspNetCore.Components;
 
 namespace Fotos.Tests.Frontend.Assets;

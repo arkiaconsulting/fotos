@@ -1,12 +1,11 @@
 ﻿using Bunit.TestDoubles;
 using Fotos.App;
-using Fotos.App.Adapters;
+using Fotos.App.Adapters.RealTimeMessaging;
 using Fotos.App.Application.Albums;
 using Fotos.App.Application.Folders;
 using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
 using Fotos.App.Domain;
-using Fotos.App.Hubs;
 using Fotos.Tests.Assets.InMemory.DataStore;
 using Fotos.Tests.Assets.InMemory.Messaging;
 using Fotos.Tests.Assets.InMemory.Storage;

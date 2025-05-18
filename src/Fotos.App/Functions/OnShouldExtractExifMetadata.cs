@@ -1,6 +1,6 @@
-﻿using Fotos.App.Application.Photos;
+﻿using Fotos.App.Adapters.RealTimeMessaging;
+using Fotos.App.Application.Photos;
 using Fotos.App.Domain;
-using Fotos.App.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.WebJobs;
 

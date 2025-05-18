@@ -1,5 +1,5 @@
-﻿using Fotos.App.Domain;
-using Fotos.App.Hubs;
+﻿using Fotos.App.Adapters.RealTimeMessaging;
+using Fotos.App.Domain;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.ObjectModel;
 
