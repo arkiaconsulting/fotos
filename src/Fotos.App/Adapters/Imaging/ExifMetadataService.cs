@@ -13,7 +13,7 @@ internal sealed class ExifMetadataService
 {
     private readonly ActivitySource _activitySource;
 
-    public ExifMetadataService(InstrumentationConfig instrumentation) => _activitySource = instrumentation.ActivitySource;
+    public ExifMetadataService(InstrumentationConfig instrumentation) => _activitySource = instrumentation.AppActivitySource;
 
     public Task<ExifMetadata> Extract(Stream photo, string mimeType)
     {

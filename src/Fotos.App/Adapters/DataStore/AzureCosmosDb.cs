@@ -23,7 +23,7 @@ internal sealed class AzureCosmosDb
         _sessionDataContainer = clientFactory.CreateClient(Constants.SessionDataClientName);
         _userContainer = clientFactory.CreateClient(Constants.UsersClientName);
 
-        _activitySource = instrumentation.ActivitySource;
+        _activitySource = instrumentation.AppActivitySource;
     }
     public async Task SavePhoto(Photo photo)
     {

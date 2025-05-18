@@ -8,7 +8,7 @@ internal sealed class SkiaSharpImageProcessing
 {
     private readonly ActivitySource _activitySource;
 
-    public SkiaSharpImageProcessing(InstrumentationConfig instrumentation) => _activitySource = instrumentation.ActivitySource;
+    public SkiaSharpImageProcessing(InstrumentationConfig instrumentation) => _activitySource = instrumentation.AppActivitySource;
 
     public Task<Stream> CreateThumbnail(PhotoBinary photo)
     {

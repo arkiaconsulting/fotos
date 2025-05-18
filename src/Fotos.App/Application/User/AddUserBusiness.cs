@@ -24,7 +24,7 @@ internal sealed class AddUserBusiness
 
     public async Task Process(FotoUserId userId, string givenName)
     {
-        using var activity = _instrumentation.ActivitySource.StartActivity("BUSINESS: add user", System.Diagnostics.ActivityKind.Internal);
+        using var activity = _instrumentation.AppActivitySource.StartActivity("BUSINESS: add user", System.Diagnostics.ActivityKind.Internal);
 
         var existingUser = await _findUserInStore(userId);
 

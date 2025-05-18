@@ -16,7 +16,7 @@ internal sealed class AzureServiceBus
         InstrumentationConfig instrumentation)
     {
         _mainTopicSender = mainTopicSender;
-        _activitySource = instrumentation.ActivitySource;
+        _activitySource = instrumentation.AppActivitySource;
     }
 
     public async Task OnNewPhotoUploaded(PhotoId photoId)

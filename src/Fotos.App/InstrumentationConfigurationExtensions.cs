@@ -1,4 +1,4 @@
-﻿using Azure.Monitor.OpenTelemetry.Exporter;
+﻿using Grafana.OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -8,67 +8,54 @@ namespace Fotos.App;
 
 internal static class InstrumentationConfigurationExtensions
 {
+    private const string ServiceName = "Fotos";
+    private const string ServiceNamespace = "Akc";
+
     public static void AddFotosInstrumentation(this WebApplicationBuilder builder)
     {
         AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
 
-        var useOtlpExporter = builder.Configuration.GetValue<bool>("Instrumentation:UseOtlpExporter");
-        var azureMonitorConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
-        var otlpEndpoint = new Uri("http://localhost:4317");
         builder.Services.AddSingleton<InstrumentationConfig>();
 
         builder.Services.AddOpenTelemetry()
-            .ConfigureResource(r => r
-                .AddService(
-                serviceName: InstrumentationConfig.ServiceName,
-                serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
-                serviceInstanceId: Environment.MachineName)
-            ).WithTracing(traceBuilder =>
+            .WithTracing(traceBuilder => traceBuilder
+                .AddSource(InstrumentationConfig.AppActivitySourceName)
+                .AddSource("Azure.*")
+                .SetSampler(new TraceIdRatioBasedSampler(.2))
+                .AddAspNetCoreInstrumentation(options =>
+                {
+                    options.RecordException = true;
+                    options.EnableAspNetCoreSignalRSupport = true;
+                })
+                .AddHttpClientInstrumentation()
+                .SetErrorStatusOnException()
+                .UseGrafana(ConfigureGrafana))
+            .WithMetrics(metricsBuilder => metricsBuilder
+                .AddMeter(InstrumentationConfig.AppMeterName)
+                .SetExemplarFilter(ExemplarFilterType.TraceBased)
+                .AddHttpClientInstrumentation()
+                .UseGrafana(ConfigureGrafana))
+            .WithLogging(loggingBuilder => loggingBuilder.ConfigureResource(ConfigureResourceForLogging),
+            options =>
             {
-                traceBuilder.AddSource(InstrumentationConfig.ServiceName)
-                        .AddSource("Azure.*")
-                        .SetSampler<AlwaysOnSampler>()
-                        .AddAspNetCoreInstrumentation(options =>
-                        {
-                            options.RecordException = true;
-                            options.EnableAspNetCoreSignalRSupport = true;
-                        })
-                        .AddHttpClientInstrumentation()
-                        .SetErrorStatusOnException();
-                if (useOtlpExporter)
-                {
-                    traceBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
-                }
-                else if (!string.IsNullOrWhiteSpace(azureMonitorConnectionString))
-                {
-                    traceBuilder.AddAzureMonitorTraceExporter(options => options.ConnectionString = azureMonitorConnectionString);
-                }
-            })
-            .WithMetrics(metricsBuilder =>
-            {
-                metricsBuilder.AddMeter(InstrumentationConfig.MeterName)
-                        .SetExemplarFilter(ExemplarFilterType.TraceBased)
-                        .AddAspNetCoreInstrumentation()
-                        .AddHttpClientInstrumentation();
-                if (useOtlpExporter)
-                {
-                    metricsBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
-                }
-                else if (!string.IsNullOrWhiteSpace(azureMonitorConnectionString))
-                {
-                    metricsBuilder.AddAzureMonitorMetricExporter(options => options.ConnectionString = azureMonitorConnectionString);
-                }
-            }).WithLogging(loggingBuilder =>
-            {
-                if (useOtlpExporter)
-                {
-                    loggingBuilder.AddOtlpExporter(options => options.Endpoint = otlpEndpoint);
-                }
-            }, options => options.IncludeScopes = true);
+                options.IncludeScopes = true;
+                options.IncludeFormattedMessage = true;
+                options.UseGrafana(ConfigureGrafana);
+            });
+    }
 
-        if (!(useOtlpExporter || string.IsNullOrWhiteSpace(azureMonitorConnectionString)))
+    private static void ConfigureResourceForLogging(ResourceBuilder builder)
+    {
+        builder.AddService(ServiceName)
+        .AddAttributes(new Dictionary<string, object>
         {
-            builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.AddAzureMonitorLogExporter(options => options.ConnectionString = azureMonitorConnectionString));
-        }
+            { "service.namespace", ServiceNamespace },
+        });
+    }
+
+    private static void ConfigureGrafana(GrafanaOpenTelemetrySettings settings)
+    {
+        settings.ServiceName = ServiceName;
+        settings.ResourceAttributes.Add("service.namespace", ServiceNamespace);
     }
 }

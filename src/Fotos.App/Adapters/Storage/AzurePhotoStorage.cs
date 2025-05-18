@@ -21,7 +21,7 @@ internal sealed class AzurePhotoStorage
         InstrumentationConfig instrumentation)
     {
         _container = azureClientFactory.CreateClient(Constants.PhotosBlobContainer);
-        _activitySource = instrumentation.ActivitySource;
+        _activitySource = instrumentation.AppActivitySource;
         _sasUriGenerator = sasUriGenerator;
     }
 
