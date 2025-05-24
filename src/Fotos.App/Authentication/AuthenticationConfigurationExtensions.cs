@@ -26,13 +26,13 @@ internal static class AuthenticationConfigurationExtensions
 
             options.Events = new()
             {
-                OnRedirectToAuthorizationEndpoint = context =>
-                {
-                    context.RedirectUri += "&prompt=select_account";
-                    context.Response.Redirect(context.RedirectUri);
+                //OnRedirectToAuthorizationEndpoint = context =>
+                //{
+                //    context.RedirectUri += "&prompt=select_account";
+                //    context.Response.Redirect(context.RedirectUri);
 
-                    return Task.CompletedTask;
-                },
+                //    return Task.CompletedTask;
+                //},
                 OnTicketReceived = async context =>
                 {
                     var nameIdentifier = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
