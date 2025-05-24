@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
 namespace Fotos.App.Components.Pages.Account;
+
 public partial class Register
 {
     [CascadingParameter]
     public ProcessError? ProcessError { get; set; }
 
     [Inject]
-    internal AddUserBusiness AddUser { get; set; } = default!;
+    internal ISender Sender { get; set; } = default!;
 
     private string _givenName = string.Empty;
     private string _provider = string.Empty;
@@ -33,7 +34,9 @@ public partial class Register
 
         try
         {
-            await AddUser.Process(FotoUserId.Create(_provider, _providerUserId), _givenName);
+            var command = new AddUserCommand(FotoUserId.Create(_provider, _providerUserId), _givenName);
+
+            var result = await Sender.Send(command);
 
             NavigationManager.NavigateTo("/account/login-callback", true);
         }

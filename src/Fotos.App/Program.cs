@@ -7,9 +7,6 @@ using Fotos.App.Adapters.Messaging;
 using Fotos.App.Adapters.RealTimeMessaging;
 using Fotos.App.Adapters.Storage;
 using Fotos.App.Api.Account;
-using Fotos.App.Application.Albums;
-using Fotos.App.Application.Folders;
-using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
 using Fotos.App.Authentication;
 using Fotos.App.Observability;
@@ -60,9 +57,6 @@ builder.Services.AddMemoryCache();
 builder.Services.AddFotosAuthentication(builder.Configuration);
 
 // Business
-builder.Services.AddFolderBusiness();
-builder.Services.AddPhotoBusiness();
-builder.Services.AddAlbumBusiness();
 builder.Services.AddAccountBusiness();
 builder.Services.AddScoped<SessionDataStorage>();
 

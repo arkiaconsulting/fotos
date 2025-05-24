@@ -21,22 +21,7 @@ public partial class Home
     internal FindUserBusiness FindUser { get; set; } = default!;
 
     [Inject]
-    internal GetFolderBusiness GetFolder { get; set; } = default!;
-
-    [Inject]
-    internal RemoveFolderBusiness RemoveFolder { get; set; } = default!;
-
-    [Inject]
-    internal ListChildFoldersBusiness ListChildFolders { get; set; } = default!;
-
-    [Inject]
-    internal CreateFolderBusiness CreateFolder { get; set; } = default!;
-
-    [Inject]
-    internal CreateAlbumBusiness CreateAlbum { get; set; } = default!;
-
-    [Inject]
-    internal ListFolderAlbumsBusiness ListFolderAlbums { get; set; } = default!;
+    internal ISender Sender { get; set; } = default!;
 
     public FolderModel CurrentFolder => SessionData.FolderStack.Peek();
 
@@ -65,7 +50,9 @@ public partial class Home
 
                     var fotoUser = await FindUser.Process(provider!, userProviderId!);
 
-                    var folder = await GetFolder.Process(Guid.Empty, fotoUser!.Value.RootFolderId);
+                    var result = await Sender.Send(new GetFolderQuery(Guid.Empty, fotoUser!.Value.RootFolderId), CancellationToken.None);
+                    var folder = result.Value;
+
                     SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name.Value });
                 }
 
@@ -87,7 +74,9 @@ public partial class Home
     {
         try
         {
-            _childFolders = [.. (await ListChildFolders.Process(CurrentFolder.Id)).Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name.Value })];
+            var result = await Sender.Send(new ListChildFoldersQuery(CurrentFolder.Id), CancellationToken.None);
+
+            _childFolders = [.. result.Value.Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name.Value })];
 
         }
         catch (Exception ex)
@@ -100,7 +89,10 @@ public partial class Home
     {
         try
         {
-            _childAlbums = [.. (await ListFolderAlbums.Process(CurrentFolder.Id)).Select(dto => new AlbumModel { Id = dto.Album.Id, FolderId = dto.Album.FolderId, Name = dto.Album.Name.Value, PhotoCount = dto.PhotoCount })];
+            var query = new ListFolderAlbumsQuery(CurrentFolder.Id);
+            var result = await Sender.Send(query, CancellationToken.None);
+
+            _childAlbums = [.. result.Value.Select(dto => new AlbumModel { Id = dto.Album.Id, FolderId = dto.Album.FolderId, Name = dto.Album.Name.Value, PhotoCount = dto.PhotoCount })];
         }
         catch (Exception ex)
         {
@@ -126,7 +118,9 @@ public partial class Home
 
         try
         {
-            await CreateFolder.Process(CurrentFolder.Id, _newFolder);
+            var command = new CreateFolderCommand(CurrentFolder.Id, _newFolder);
+
+            var result = await Sender.Send(command);
 
             await RefreshFolders();
             _newFolder = string.Empty;
@@ -137,7 +131,7 @@ public partial class Home
         }
     }
 
-    private async Task GotToParentFolder()
+    private async Task GoToParentFolder()
     {
         using var activity = DiagnosticConfig.StartUserActivity("Home: Go to parent folder");
 
@@ -159,7 +153,9 @@ public partial class Home
 
         try
         {
-            await RemoveFolder.Process(folder.ParentId, folder.Id);
+            var command = new RemoveFolderCommand(folder.ParentId, folder.Id);
+
+            var result = await Sender.Send(command);
 
             _childFolders.Remove(folder);
         }
@@ -175,7 +171,9 @@ public partial class Home
 
         try
         {
-            await CreateAlbum.Process(CurrentFolder.Id, _newAlbumName);
+            var command = new CreateAlbumCommand(CurrentFolder.Id, _newAlbumName);
+            var result = await Sender.Send(command);
+
             await RefreshAlbums();
             _newAlbumName = string.Empty;
         }

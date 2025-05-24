@@ -16,7 +16,7 @@ public partial class FolderSettingsDialog
     public FolderModel Folder { get; set; } = default!;
 
     [Inject]
-    internal UpdateFolderBusiness UpdateFolder { get; set; } = default!;
+    internal ISender Sender { get; set; } = default!;
 
     private string _previousFolderName = string.Empty;
     private readonly DialogOptions _settingsOptions = new()
@@ -43,7 +43,9 @@ public partial class FolderSettingsDialog
         {
             if (_previousFolderName != Folder.Name)
             {
-                await UpdateFolder.Process(Folder.ParentId, Folder.Id, Folder.Name);
+                var command = new RenameFolderCommand(Folder.ParentId, Folder.Id, Folder.Name);
+
+                var result = await Sender.Send(command);
             }
             _previousFolderName = string.Empty;
         }

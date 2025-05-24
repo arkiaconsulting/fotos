@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace Fotos.App.Api.Account;
 

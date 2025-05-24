@@ -24,10 +24,7 @@ public sealed partial class AnAlbum
     public Guid ParentId { get; set; }
 
     [Inject]
-    internal GetAlbumBusiness GetAlbum { get; set; } = default!;
-
-    [Inject]
-    internal AddPhotosBusiness AddPhoto { get; set; } = default!;
+    internal ISender Sender { get; set; } = default!;
 
     private AlbumModel _album = default!;
     private Thumbnails _thumbnailsComponent = new();
@@ -50,7 +47,9 @@ public sealed partial class AnAlbum
                 RealTimeMessageService.OnMetadataReady += OnMetadataReady;
                 await RealTimeMessageService.StartAsync();
 
-                var album = await GetAlbum.Process(new(FolderId, AlbumId));
+                var result = await Sender.Send(new GetAlbumQuery(new(FolderId, AlbumId)), CancellationToken.None);
+                var album = result.Value;
+
                 _album = new AlbumModel { Id = album.Album.Id, FolderId = album.Album.FolderId, Name = album.Album.Name.Value, PhotoCount = album.PhotoCount };
 
                 StateHasChanged();
@@ -126,9 +125,11 @@ public sealed partial class AnAlbum
         }
         ms.Position = 0;
 
-        var id = await AddPhoto.Process(FolderId, AlbumId, ms, file.ContentType, file.Name);
+        var command = new AddPhotoCommand(FolderId, AlbumId, ms, file.ContentType, file.Name);
 
-        var photo = new PhotoModel(FolderId, AlbumId, id, file.Name, new());
+        var result = await Sender.Send(command, CancellationToken.None);
+
+        var photo = new PhotoModel(FolderId, AlbumId, Guid.NewGuid(), file.Name, new());
         _thumbnailsComponent.AddPhoto(photo);
     }
 

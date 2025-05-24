@@ -22,22 +22,7 @@ public partial class Thumbnails
     public EventCallback OnPhotoRemoved { get; set; }
 
     [Inject]
-    internal ListAlbumPhotosBusiness ListAlbumPhotos { get; set; } = default!;
-
-    [Inject]
-    internal RemovePhotoBusiness RemovePhoto { get; set; } = default!;
-
-    [Inject]
-    internal GetOriginalPhotoUriBusiness GetOriginalPhotoUri { get; set; } = default!;
-
-    [Inject]
-    internal GetPhotoThumbnailUriBusiness GetPhotoThumbnailUri { get; set; } = default!;
-
-    [Inject]
-    internal GetPhotoBusiness GetPhoto { get; set; } = default!;
-
-    [Inject]
-    internal UpdatePhotoBusiness UpdatePhoto { get; set; } = default!;
+    internal ISender Sender { get; set; } = default!;
 
     public int Count => _thumbnails.Count;
 
@@ -72,9 +57,9 @@ public partial class Thumbnails
 
             try
             {
+                var result = await Sender.Send(new ListAlbumPhotosQuery(new(FolderId, AlbumId)));
 
-
-                _thumbnails = [.. (await ListAlbumPhotos.Process(new(FolderId, AlbumId))).Select(p => new PhotoModel(FolderId, AlbumId, p.Id.Id, p.Title, p.Metadata ?? new()))];
+                _thumbnails = [.. result.Value.Select(p => new PhotoModel(FolderId, AlbumId, p.Id.Id, p.Title, p.Metadata ?? new()))];
                 await SetThumbnailUris();
 
                 await OnLoaded.InvokeAsync(null);
@@ -103,7 +88,10 @@ public partial class Thumbnails
 
         try
         {
-            await RemovePhoto.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
+            var command = new RemovePhotoCommand(new(photo.FolderId, photo.AlbumId, photo.Id));
+
+            await Sender.Send(command);
+
             _thumbnails.Remove(photo);
             CloseDetails();
 
@@ -125,7 +113,9 @@ public partial class Thumbnails
 
         try
         {
-            photo.OriginalUri = await GetOriginalPhotoUri.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
+            var result = await Sender.Send(new GetOriginalPhotoUriQuery(new(photo.FolderId, photo.AlbumId, photo.Id)));
+
+            photo.OriginalUri = result.Value;
             _photo = photo;
             _isPhotoDisplayed = true;
             _showDetails = false;
@@ -153,7 +143,9 @@ public partial class Thumbnails
         {
             foreach (var photo in _thumbnails)
             {
-                photo.ThumbnailUri = await GetPhotoThumbnailUri.Process(new(photo.FolderId, photo.AlbumId, photo.Id));
+                var result = await Sender.Send(new GetPhotoThumbnailUriQuery(new(photo.FolderId, photo.AlbumId, photo.Id)));
+
+                photo.ThumbnailUri = result.Value;
             }
         }
         catch (Exception ex)
@@ -183,7 +175,9 @@ public partial class Thumbnails
 
         try
         {
-            await UpdatePhoto.Process(new(_photo.FolderId, _photo.AlbumId, _photo.Id), newValue);
+            var command = new RenamePhotoCommand(new(_photo.FolderId, _photo.AlbumId, _photo.Id), newValue);
+
+            var result = await Sender.Send(command);
         }
         catch (Exception ex)
         {
@@ -212,7 +206,9 @@ public partial class Thumbnails
 
         try
         {
-            photo.ThumbnailUri = await GetPhotoThumbnailUri.Process(new(folderId, albumId, id));
+            var result = await Sender.Send(new GetPhotoThumbnailUriQuery(new(folderId, albumId, id)));
+
+            photo.ThumbnailUri = result.Value;
             StateHasChanged();
         }
         catch (Exception ex)
@@ -235,7 +231,8 @@ public partial class Thumbnails
 
         try
         {
-            var actualPhoto = await GetPhoto.Process(new(folderId, albumId, id));
+            var result = await Sender.Send(new GetPhotoQuery(new(folderId, albumId, id)));
+            var actualPhoto = result.Value;
 
             photo.Metadata = actualPhoto.Metadata ?? new();
             StateHasChanged();

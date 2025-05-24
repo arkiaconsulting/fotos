@@ -20,7 +20,7 @@ public partial class FolderItem
     public EventCallback<FolderModel> OnFolderRemoved { get; set; }
 
     [Inject]
-    internal ListChildFoldersBusiness ListChildFolders { get; set; } = default!;
+    internal ISender Sender { get; set; } = default!;
 
     private bool _isOverlayVisible;
 
@@ -37,7 +37,8 @@ public partial class FolderItem
 
         try
         {
-            var childFoldersCount = (await ListChildFolders.Process(Folder.Id)).Count();
+            var result = await Sender.Send(new ListChildFoldersQuery(Folder.Id));
+            var childFoldersCount = result.Value.Count;
 
             if (childFoldersCount > 0)
             {

@@ -1,8 +1,6 @@
 ﻿using Bunit.TestDoubles;
 using Fotos.App.Adapters.RealTimeMessaging;
-using Fotos.App.Application.Albums;
-using Fotos.App.Application.Folders;
-using Fotos.App.Application.Photos;
+using Fotos.App.Application;
 using Fotos.App.Application.User;
 using Fotos.App.Domain;
 using Fotos.Tests.Assets.InMemory.DataStore;
@@ -49,10 +47,12 @@ internal sealed class FotosTestContext : TestContext
 
     private void ConfigureServices()
     {
-        Services.AddAccountBusiness()
-            .AddFolderBusiness()
-            .AddAlbumBusiness()
-            .AddPhotoBusiness();
+        //Services.AddAccountBusiness()
+        //    .AddFolderBusiness()
+        //    .AddAlbumBusiness()
+        //    .AddPhotoBusiness();
+
+        Services.AddApplication();
 
         Folders.Add(Folder.Create(RootFolderId, Guid.Empty, "Root"));
         Services.AddInMemoryFolderDataStore(Folders);

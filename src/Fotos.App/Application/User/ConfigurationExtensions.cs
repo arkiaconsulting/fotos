@@ -4,7 +4,7 @@ internal static class ConfigurationExtensions
 {
     public static IServiceCollection AddAccountBusiness(this IServiceCollection services)
     {
-        services.AddScoped<AddUserBusiness>()
+        services
             .AddScoped<FindUserBusiness>();
 
         return services;
