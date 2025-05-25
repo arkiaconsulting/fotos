@@ -1,4 +1,4 @@
-﻿using Fotos.App.Domain;
+﻿using Fotos.Core;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Fotos.App.Adapters.RealTimeMessaging;

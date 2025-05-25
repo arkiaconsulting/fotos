@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Fotos.App.Domain;
+using Fotos.Application;
+using Fotos.Core;
 using System.Diagnostics;
 using System.Net.Mime;
 using System.Text.Json;

@@ -1,8 +1,9 @@
-using Fotos.App.Application.Albums;
-using Fotos.App.Application.Folders;
-using Fotos.App.Application.User;
 using Fotos.App.Components.Dialogs;
 using Fotos.App.Components.Models;
+using Fotos.Application;
+using Fotos.Application.Albums;
+using Fotos.Application.Folders;
+using Fotos.Application.User;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
@@ -20,7 +21,7 @@ public partial class Home
     [Inject]
     internal ISender Sender { get; set; } = default!;
 
-    public FolderModel CurrentFolder => SessionData.FolderStack.Peek();
+    public FolderModel CurrentFolder => FolderModel.From(SessionData.FolderStack.Peek());
 
     private List<FolderModel> _childFolders = [];
     private List<AlbumModel> _childAlbums = [];
@@ -37,7 +38,6 @@ public partial class Home
 
             try
             {
-
                 if (SessionData.FolderStack.Count == 0)
                 {
                     // We're at root
@@ -49,9 +49,8 @@ public partial class Home
                     var fotoUser = userResult.Value;
 
                     var result = await Sender.Send(new GetFolderQuery(Guid.Empty, fotoUser!.Value.RootFolderId), CancellationToken.None);
-                    var folder = result.Value;
 
-                    SessionData.FolderStack.Push(new FolderModel { Id = folder.Id, ParentId = folder.ParentId, Name = folder.Name.Value });
+                    SessionData.FolderStack.Push(result.Value);
                 }
 
                 await RefreshFoldersAndAlbums();
@@ -75,7 +74,6 @@ public partial class Home
             var result = await Sender.Send(new ListChildFoldersQuery(CurrentFolder.Id), CancellationToken.None);
 
             _childFolders = [.. result.Value.Select(dto => new FolderModel { Id = dto.Id, ParentId = dto.ParentId, Name = dto.Name.Value })];
-
         }
         catch (Exception ex)
         {
@@ -87,8 +85,7 @@ public partial class Home
     {
         try
         {
-            var query = new ListFolderAlbumsQuery(CurrentFolder.Id);
-            var result = await Sender.Send(query, CancellationToken.None);
+            var result = await Sender.Send(new ListFolderAlbumsQuery(CurrentFolder.Id), CancellationToken.None);
 
             _childAlbums = [.. result.Value.Select(dto => new AlbumModel { Id = dto.Album.Id, FolderId = dto.Album.FolderId, Name = dto.Album.Name.Value, PhotoCount = dto.PhotoCount })];
         }
@@ -185,7 +182,7 @@ public partial class Home
     {
         using var activity = DiagnosticConfig.StartUserActivity("Home: Go to folder");
 
-        SessionData.FolderStack.Push(folder);
+        SessionData.FolderStack.Push(folder.Map());
 
         try
         {

@@ -1,6 +1,6 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
-using Fotos.App.Domain;
+using Fotos.Core;
 using Fotos.Tests.Assets;
 using System.Net.Mime;
 using System.Text.Json;

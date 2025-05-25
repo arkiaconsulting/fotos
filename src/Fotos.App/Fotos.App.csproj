@@ -13,7 +13,6 @@
 		<PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" />
 		<PackageReference Include="MudBlazor" />
 		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" />
-		<PackageReference Include="Microsoft.Azure.Cosmos" />
 		<PackageReference Include="MetadataExtractor" />
 		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
@@ -36,11 +35,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Akc.Framework.Mediator\Akc.Framework.Mediator.csproj" />
+	  <ProjectReference Include="..\Fotos.Adapters\Fotos.Adapters.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Using Include="Akc.Framework.Mediator" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Adapters\DataStore\" />
 	</ItemGroup>
 
 </Project>

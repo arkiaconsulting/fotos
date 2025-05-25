@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using Fotos.App.Application.Photos;
+using Fotos.Application.Photos;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
@@ -7,7 +7,7 @@ namespace Fotos.App.Adapters.Storage;
 
 internal static class ConfigurationExtensions
 {
-    public static IServiceCollection AddAzureStorage(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAzureStorage(this IServiceCollection services)
     {
         services.AddSingleton<AzurePhotoStorage>()
         .AddScoped<AddPhotoToMainStorage>(sp => sp.GetRequiredService<AzurePhotoStorage>().AddOriginalPhoto)
@@ -38,7 +38,6 @@ internal static class ConfigurationExtensions
                     var options = sp.GetRequiredService<IOptions<StorageOptions>>().Value;
 
                     return sp.GetRequiredService<BlobServiceClient>().GetBlobContainerClient(options.PhotosContainer);
-
                 }).WithName(Constants.PhotosBlobContainer);
         });
 

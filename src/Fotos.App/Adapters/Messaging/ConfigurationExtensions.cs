@@ -1,5 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Fotos.App.Application.Photos;
+using Fotos.Application.Photos;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 
@@ -7,7 +7,7 @@ namespace Fotos.App.Adapters.Messaging;
 
 internal static class ConfigurationExtensions
 {
-    public static IServiceCollection AddServiceBus(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddServiceBus(this IServiceCollection services)
     {
         services.AddSingleton<AzureServiceBus>()
         .AddScoped<OnNewPhotoUploaded>(sp => sp.GetRequiredService<AzureServiceBus>().OnNewPhotoUploaded)

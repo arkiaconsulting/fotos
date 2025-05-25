@@ -3,7 +3,8 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
-using Fotos.App.Domain;
+using Fotos.Application;
+using Fotos.Core;
 using Microsoft.Extensions.Azure;
 using System.Diagnostics;
 

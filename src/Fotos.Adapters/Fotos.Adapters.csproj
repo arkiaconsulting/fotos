@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<ItemGroup>
+		<PackageReference Include="Azure.Storage.Blobs" />
+		<PackageReference Include="MetadataExtractor" />
+		<PackageReference Include="Microsoft.Extensions.Azure" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+		<PackageReference Include="SkiaSharp" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
+		<PackageReference Include="Microsoft.Azure.Cosmos" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Fotos.Application\Fotos.Application.csproj" />
+	</ItemGroup>
+</Project>

@@ -1,5 +1,5 @@
-﻿using Fotos.App.Application.Photos;
-using Fotos.App.Domain;
+﻿using Fotos.Application.Photos;
+using Fotos.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Fotos.Tests.Assets.InMemory.Messaging;

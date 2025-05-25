@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <PackageReference Include="CSharpFunctionalExtensions" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="Scrutor" PrivateAssets="all" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CSharpFunctionalExtensions" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+		<PackageReference Include="Scrutor" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Remove="Fotos.Core" />
+	</ItemGroup>
 </Project>

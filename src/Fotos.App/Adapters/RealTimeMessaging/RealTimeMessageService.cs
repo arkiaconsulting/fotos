@@ -1,4 +1,4 @@
-﻿using Fotos.App.Domain;
+﻿using Fotos.Core;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 

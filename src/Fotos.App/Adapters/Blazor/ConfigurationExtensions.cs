@@ -10,5 +10,4 @@ internal static class ConfigurationExtensions
         .AddScoped<CircuitHandler>(sp => sp.GetRequiredService<CustomCircuitHandler>())
         .AddScoped(sp => sp.GetRequiredService<CustomCircuitHandler>().SessionData)
         .AddSingleton<List<SessionData>>(_ => []);
-
 }

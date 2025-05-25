@@ -1,4 +1,4 @@
-﻿using Fotos.App.Domain;
+﻿using Fotos.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 

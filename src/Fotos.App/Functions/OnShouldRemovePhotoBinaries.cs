@@ -1,5 +1,6 @@
-﻿using Fotos.App.Application.Photos;
-using Fotos.App.Domain;
+﻿using Fotos.Application;
+using Fotos.Application.Photos;
+using Fotos.Core;
 using Microsoft.Azure.WebJobs;
 using System.Diagnostics;
 

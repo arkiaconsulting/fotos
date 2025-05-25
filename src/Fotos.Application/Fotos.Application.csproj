@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Akc.Framework.Mediator\Akc.Framework.Mediator.csproj" />
+	  <ProjectReference Include="..\Fotos.Core\Fotos.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="Akc.Framework.Mediator" />
+	</ItemGroup>
+
+</Project>

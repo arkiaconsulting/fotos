@@ -1,5 +1,6 @@
-using Fotos.App.Application.Photos;
 using Fotos.App.Components.Models;
+using Fotos.Application;
+using Fotos.Application.Photos;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 

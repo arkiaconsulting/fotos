@@ -26,19 +26,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Update="Microsoft.CodeAnalysis.NetAnalyzers">
+		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Update="Roslynator.Analyzers">
+		<PackageReference Include="Roslynator.Analyzers">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Update="Roslynator.CodeAnalysis.Analyzers">
+		<PackageReference Include="Roslynator.CodeAnalysis.Analyzers">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Update="Roslynator.Formatting.Analyzers">
+		<PackageReference Include="Roslynator.Formatting.Analyzers">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -46,5 +46,6 @@
 
 	<ItemGroup>
 		<Using Include="CSharpFunctionalExtensions" />
+		<Using Include="Fotos.Core"/>
 	</ItemGroup>
 </Project>

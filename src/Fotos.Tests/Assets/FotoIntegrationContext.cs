@@ -2,13 +2,14 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
-using Fotos.App.Adapters.DataStore;
+using Fotos.Adapters.DataStore;
 using Fotos.App.Adapters.Imaging;
 using Fotos.App.Adapters.Messaging;
 using Fotos.App.Adapters.Storage;
-using Fotos.App.Application.Photos;
 using Fotos.App.Application.User;
-using Fotos.App.Domain;
+using Fotos.Application.Albums;
+using Fotos.Application.Photos;
+using Fotos.Application.User;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
@@ -79,10 +80,10 @@ public sealed class FotoIntegrationContext
         services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
         services.AddMemoryCache();
 
-        services.AddAzureStorage(context.Configuration);
-        services.AddServiceBus(context.Configuration);
+        services.AddAzureStorage();
+        services.AddServiceBus();
         services.AddImageProcessing();
-        services.AddCosmos(context.Configuration);
+        services.AddCosmos();
 
         services.AddSingleton(sp =>
         {

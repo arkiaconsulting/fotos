@@ -1,4 +1,5 @@
-﻿using Fotos.App.Domain;
+﻿using Fotos.Application;
+using Fotos.Core;
 using SkiaSharp;
 using System.Diagnostics;
 

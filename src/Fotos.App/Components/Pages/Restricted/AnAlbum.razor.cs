@@ -1,8 +1,8 @@
 using Fotos.App.Adapters.RealTimeMessaging;
-using Fotos.App.Application.Albums;
-using Fotos.App.Application.Photos;
 using Fotos.App.Components.Models;
-using Fotos.App.Domain;
+using Fotos.Application;
+using Fotos.Application.Albums;
+using Fotos.Application.Photos;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
@@ -35,19 +35,17 @@ public sealed partial class AnAlbum
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-
         if (firstRender)
         {
             using var activity = DiagnosticConfig.StartUserActivity("AnAlbum: Initialize");
 
             try
             {
-
                 RealTimeMessageService.OnThumbnailReady += OnThumbnailReady;
                 RealTimeMessageService.OnMetadataReady += OnMetadataReady;
                 await RealTimeMessageService.StartAsync();
 
-                var result = await Sender.Send(new GetAlbumQuery(new(FolderId, AlbumId)), CancellationToken.None);
+                var result = await Sender.Send(new GetAlbumQuery(new(FolderId, AlbumId)));
                 var album = result.Value;
 
                 _album = new AlbumModel { Id = album.Album.Id, FolderId = album.Album.FolderId, Name = album.Album.Name.Value, PhotoCount = album.PhotoCount };

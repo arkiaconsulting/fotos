@@ -1,4 +1,4 @@
-﻿using Fotos.App.Application.Photos;
+﻿using Fotos.Application.Photos;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Fotos.Tests.Assets.InMemory.Storage;

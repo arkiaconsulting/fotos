@@ -1,7 +1,7 @@
-﻿using Fotos.App.Application.Folders;
-using Fotos.App.Application.Photos;
-using Fotos.App.Application.User;
-using Fotos.App.Domain;
+﻿using Fotos.Application.Albums;
+using Fotos.Application.Folders;
+using Fotos.Application.Photos;
+using Fotos.Application.User;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Fotos.Tests.Assets.InMemory.DataStore;

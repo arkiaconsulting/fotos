@@ -1,4 +1,5 @@
-﻿using Fotos.App.Domain;
+﻿using Fotos.Application;
+using Fotos.Core;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Exif.Makernotes;

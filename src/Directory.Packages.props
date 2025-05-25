@@ -22,8 +22,10 @@
     <PackageVersion Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.2.0" />
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.51.0" />
     <PackageVersion Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.16.6" />
-    <PackageVersion Include="Microsoft.Extensions.Azure" Version="1.7.6" />
+    <PackageVersion Include="Microsoft.Extensions.Azure" Version="1.8.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Identity.Web" Version="3.3.0" />
     <PackageVersion Include="MudBlazor" Version="8.5.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />

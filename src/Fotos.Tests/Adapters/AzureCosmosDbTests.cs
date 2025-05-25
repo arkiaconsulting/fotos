@@ -1,8 +1,6 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
-using Fotos.App.Application.User;
 using Fotos.App.Components.Models;
-using Fotos.App.Domain;
 using Fotos.Tests.Assets;
 using Microsoft.Azure.Cosmos;
 using System.Net;
@@ -69,8 +67,8 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
     [Theory(DisplayName = "When storing session data should effectively store it"), AutoData]
     internal async Task Test05(SessionData sessionData, FolderModel folder1, FolderModel folder2, Guid userId)
     {
-        sessionData.FolderStack.Push(folder1);
-        sessionData.FolderStack.Push(folder2);
+        sessionData.FolderStack.Push(folder1.Map());
+        sessionData.FolderStack.Push(folder2.Map());
 
         await _context.StoreSessionData(userId, sessionData);
 
@@ -94,8 +92,8 @@ public sealed class AzureCosmosDbTests : IClassFixture<FotoIntegrationContext>
     [Theory(DisplayName = "When fetching stored session data should pass"), AutoData]
     internal async Task Test06(SessionData sessionData, FolderModel folder1, FolderModel folder2, Guid userId)
     {
-        sessionData.FolderStack.Push(folder1);
-        sessionData.FolderStack.Push(folder2);
+        sessionData.FolderStack.Push(folder1.Map());
+        sessionData.FolderStack.Push(folder2.Map());
         await _context.StoreSessionData(userId, sessionData);
 
         var actualSessionData = await _context.GetSessionData(userId);

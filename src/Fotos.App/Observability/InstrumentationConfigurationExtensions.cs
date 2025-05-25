@@ -1,4 +1,5 @@
-﻿using Grafana.OpenTelemetry;
+﻿using Fotos.Application;
+using Grafana.OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -17,7 +18,7 @@ internal static class InstrumentationConfigurationExtensions
 
         builder.Services.AddOpenTelemetry()
             .WithTracing(traceBuilder => traceBuilder
-                .AddSource(DiagnosticConfig.AppActivitySourceName)
+                .AddSource(DiagnosticConfig.AppActivitySource.Name)
                 .AddSource("Azure.*")
                 .AddProcessor<ServiceBusFilteringProcessor>()
                 .AddProcessor<BlazorHubFilteringProcessor>()
@@ -31,7 +32,7 @@ internal static class InstrumentationConfigurationExtensions
                 .SetErrorStatusOnException()
                 .UseGrafana(ConfigureGrafana))
             .WithMetrics(metricsBuilder => metricsBuilder
-                .AddMeter(DiagnosticConfig.AppActivitySourceName)
+                .AddMeter(DiagnosticConfig.AppActivitySource.Name)
                 .SetExemplarFilter(ExemplarFilterType.TraceBased)
                 .AddHttpClientInstrumentation()
                 .UseGrafana(ConfigureGrafana))
