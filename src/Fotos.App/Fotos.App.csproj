@@ -9,13 +9,10 @@
 		<PackageReference Include="Grafana.OpenTelemetry" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
 		<PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Memory" />
 		<PackageReference Include="MudBlazor" />
 		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" />
-		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="Microsoft.Azure.Cosmos" />
 		<PackageReference Include="MetadataExtractor" />
 		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
@@ -24,8 +21,6 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" />
 		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
-		<PackageReference Include="Swashbuckle.AspNetCore" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,7 +40,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Using Include="Akc.Framework.Mediator"/>
+		<Using Include="Akc.Framework.Mediator" />
 	</ItemGroup>
 
 </Project>

@@ -18,9 +18,6 @@ public partial class Home
     public HttpContext HttpContext { get; set; } = default!;
 
     [Inject]
-    internal FindUserBusiness FindUser { get; set; } = default!;
-
-    [Inject]
     internal ISender Sender { get; set; } = default!;
 
     public FolderModel CurrentFolder => SessionData.FolderStack.Peek();
@@ -48,7 +45,8 @@ public partial class Home
                     var userProviderId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
                     var provider = authState.User.Identity?.AuthenticationType;
 
-                    var fotoUser = await FindUser.Process(provider!, userProviderId!);
+                    var userResult = await Sender.Send(new FindUserQuery(provider!, userProviderId!), CancellationToken.None);
+                    var fotoUser = userResult.Value;
 
                     var result = await Sender.Send(new GetFolderQuery(Guid.Empty, fotoUser!.Value.RootFolderId), CancellationToken.None);
                     var folder = result.Value;

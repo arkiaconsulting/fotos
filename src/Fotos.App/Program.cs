@@ -7,7 +7,7 @@ using Fotos.App.Adapters.Messaging;
 using Fotos.App.Adapters.RealTimeMessaging;
 using Fotos.App.Adapters.Storage;
 using Fotos.App.Api.Account;
-using Fotos.App.Application.User;
+using Fotos.App.Application;
 using Fotos.App.Authentication;
 using Fotos.App.Observability;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -44,21 +44,13 @@ builder.Services.AddMudServices(options =>
     options.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
     options.PopoverOptions.ThrowOnDuplicateProvider = false;
 });
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("fotos", new() { Title = "Fotos" });
-    options.IncludeXmlComments(typeof(Program).Assembly.Location.Replace("dll", "xml", StringComparison.OrdinalIgnoreCase));
-    options.NonNullableReferenceTypesAsRequired();
-});
 builder.Services.AddMemoryCache();
 
 // Authentication
 builder.Services.AddFotosAuthentication(builder.Configuration);
 
 // Business
-builder.Services.AddAccountBusiness();
-builder.Services.AddScoped<SessionDataStorage>();
+builder.Services.AddApplication();
 
 // Adapters
 builder.Services.AddCosmos(builder.Configuration);
@@ -91,11 +83,6 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-}
-else
-{
-    app.UseSwagger(options => options.RouteTemplate = "{documentName}/openapi.json");
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/fotos/openapi.json", "Fotos Client Api"));
 }
 
 app.MapAccountEndpoints();

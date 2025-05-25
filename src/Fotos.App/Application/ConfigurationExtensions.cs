@@ -6,8 +6,7 @@ internal static class ConfigurationExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services
-            .AddAccountBusiness();
+        services.AddScoped<SessionDataStorage>();
 
         return services
             .AddMediator()
