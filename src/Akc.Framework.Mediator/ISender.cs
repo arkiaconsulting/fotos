@@ -1,5 +1,8 @@
 ﻿namespace Akc.Framework.Mediator;
 
+/// <summary>
+/// Represents a sender that can send commands and queries to their respective handlers.
+/// </summary>
 public interface ISender
 {
     /// <summary>
@@ -8,8 +11,7 @@ public interface ISender
     /// <param name="command">The command to send.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task<Result> Send<TCommand>(TCommand command, CancellationToken cancellationToken = default)
-        where TCommand : ICommand;
+    Task<Result> Send(ICommand command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sends a command to be handled by the appropriate handler and returns a result.

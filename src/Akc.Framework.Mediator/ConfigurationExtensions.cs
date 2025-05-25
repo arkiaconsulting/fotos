@@ -12,7 +12,9 @@ public static class ConfigurationExtensions
     /// <returns>A <c ref="MediatorBuilder"/> instance.</returns>
     public static MediatorBuilder AddMediator(this IServiceCollection services)
     {
-        services.AddSingleton<ISender, Sender>();
+        services.AddTransient<ISender, Sender>()
+            .AddSingleton<HandlerMethodCache>()
+            .AddSingleton<HandlerTypeCache>();
 
         return new(services);
     }
