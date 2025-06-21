@@ -9,9 +9,6 @@ permissions:
   id-token: write
 
 env:
-  ACR_NAME: ctn0akc0acr0cmn
-  ACR_REGISTRY: ctn0akc0acr0cmn.azurecr.io
-  ACR_REPOSITORY: fotos
   DOCKER_IMAGE_NAME: fotos-web
 
 jobs:
@@ -19,50 +16,57 @@ jobs:
     runs-on: self-hosted
 
     # env:
-      # APP_PROJECT_PATH: src/Fotos.App/Fotos.App.csproj
-      # TESTS_PROJECT_PATH: src/Fotos.Tests/Fotos.Tests.csproj
-      # COSMOS_DB_ENDPOINT: https://arkia.documents.azure.com:443/
-      # COSMOS_DB_KEY: ${{ secrets.ARKIA_COSMOS_DB_ACCOUNT_KEY }}
-      # COSMOS_DB_DATABASE: tests
-      # COSMOS_DB_PHOTOS_CONTAINER: photos-test
-      # COSMOS_DB_SESSION_DATA_CONTAINER: session-data-test
-      # COSMOS_DB_USERS_CONTAINER: users-test
-      # SERVICE_BUS_NAMESPACE_FQDN: arkiabus.servicebus.windows.net
-      # SERVICE_BUS_TOPIC: tests-fotos-main
-      # SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION: produce-thumbnail
-      # SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION: remove-photo-binaries
-      # SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION: unused
-      # AZURE_STORAGE_URI: UseDevelopmentStorage=true
-      # AZURE_STORAGE_CONTAINER: fotostests
+    #   APP_PROJECT_PATH: src/Fotos.App/Fotos.App.csproj
+    #   TESTS_PROJECT_PATH: src/Fotos.Tests/Fotos.Tests.csproj
+    #   COSMOS_DB_ENDPOINT: https://arkia.documents.azure.com:443/
+    #   COSMOS_DB_KEY: ${{ secrets.ARKIA_COSMOS_DB_ACCOUNT_KEY }}
+    #   COSMOS_DB_DATABASE: tests
+    #   COSMOS_DB_PHOTOS_CONTAINER: photos-test
+    #   COSMOS_DB_SESSION_DATA_CONTAINER: session-data-test
+    #   COSMOS_DB_USERS_CONTAINER: users-test
+    #   SERVICE_BUS_NAMESPACE_FQDN: arkiabus.servicebus.windows.net
+    #   SERVICE_BUS_TOPIC: tests-fotos-main
+    #   SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION: produce-thumbnail
+    #   SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION: remove-photo-binaries
+    #   SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION: unused
+    #   AZURE_STORAGE_URI: UseDevelopmentStorage=true
+    #   AZURE_STORAGE_CONTAINER: fotostests
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      with:
-        buildkitd-config-inline: |
-          [registry."registry-lb.harbor-system"]
-            http = true
-            insecure = true        
+    # - name: Set up Docker Buildx
+    #   uses: docker/setup-buildx-action@v3
+    #   with:
+    #     buildkitd-config-inline: |
+    #       [registry."registry-lb.harbor-system"]
+    #         http = true
+    #         insecure = true     
+            
+    # - name: Az CLI login
+    #   uses: azure/login@v2
+    #   with:
+    #     client-id: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AKC_TENANT_ID }}
+    #     subscription-id: ${{ secrets.AKC_SUBSCRIPTION_ID }}
 
-    - name: Az CLI login
-      uses: azure/login@v2
+    - name: Docker Login
+      uses: docker/login-action@v3
       with:
-        client-id: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AKC_TENANT_ID }}
-        subscription-id: ${{ secrets.AKC_SUBSCRIPTION_ID }}
+        username: ${{ vars.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ${{ vars.REGISTRY_HOST }}
 
-    - name: ACR Login
-      run: az acr login --name ${{ env.ACR_NAME }}
+    # - name: Docker Login
+    #   run: docker login --username '${{ vars.REGISTRY_USERNAME }}' --password-stdin '${{ secrets.REGISTRY_PASSWORD }}' ${{ vars.REGISTRY_HOST }} 
 
     - name: Build and Push Image
       uses: docker/build-push-action@v5
       with:
         context: src
         push: true
-        tags: ${{ env.ACR_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
-        platforms: linux/amd64
+        tags: ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+        build-args: --platform linux/amd64        
 
     # - uses: actions/setup-dotnet@v4
     #   with:
@@ -79,6 +83,9 @@ jobs:
 
     # - name: Create storage test container
     #   run: az storage container create -n ${{ env.AZURE_STORAGE_CONTAINER }} --connection-string "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+
+    # - name: Install Azure CLI
+    #   run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
     # - name: Azure Login
     #   uses: azure/login@v2
@@ -132,6 +139,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '22'
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -147,31 +158,31 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -input=false -auto-approve tfplan
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [build, terraform]
-    defaults:
-      run:
-        working-directory: ./terraform
-    steps:
-      - name: Az CLI login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AKC_TENANT_ID }}
-          subscription-id: ${{ secrets.AKC_SUBSCRIPTION_ID }}
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: [build, terraform]
+  #   defaults:
+  #     run:
+  #       working-directory: ./terraform
+  #   steps:
+  #     - name: Az CLI login
+  #       uses: azure/login@v2
+  #       with:
+  #         client-id: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AKC_TENANT_ID }}
+  #         subscription-id: ${{ secrets.AKC_SUBSCRIPTION_ID }}
 
-      - name: Update Container App
-        uses: azure/cli@v2
-        with:
-          azcliversion: latest
-          inlineScript: |
-            containerAppId=$(az containerapp list --output tsv --query "[?tags.project=='fotos'].id")
-            echo "Container App ID: $containerAppId"
-            az containerapp update \
-            --ids $containerAppId \
-            --image ${{ env.ACR_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} \
-            --set-env-vars "OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic ${{ secrets.GRAFANA_ENCODED_API_KEY }}" \
-            "OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-eu-west-2.grafana.net/otlp" \
-            "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf"
+  #     - name: Update Container App
+  #       uses: azure/cli@v2
+  #       with:
+  #         azcliversion: latest
+  #         inlineScript: |
+  #           containerAppId=$(az containerapp list --output tsv --query "[?tags.project=='fotos'].id")
+  #           echo "Container App ID: $containerAppId"
+  #           az containerapp update \
+  #           --ids $containerAppId \
+  #           --image ${{ env.ACR_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} \
+  #           --set-env-vars "OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic ${{ secrets.GRAFANA_ENCODED_API_KEY }}" \
+  #           "OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-eu-west-2.grafana.net/otlp" \
+  #           "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf"
         

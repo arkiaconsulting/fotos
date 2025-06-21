@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Akc.Framework.Mediator</name>
+    </assembly>
+    <members>
+        <member name="M:Akc.Framework.Mediator.ConfigurationExtensions.AddMediator(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers the mediator services in the specified service collection.
+            </summary>
+            <param name="services">The service collection to register the mediator services with.</param>
+            <returns>A <c ref="MediatorBuilder"/> instance.</returns>
+        </member>
+        <member name="M:Akc.Framework.Mediator.ConfigurationExtensions.RegisterMediatorHandlers(Akc.Framework.Mediator.MediatorBuilder,System.Reflection.Assembly)">
+            <summary>
+            Registers the mediator handlers from the specified assembly.
+            </summary>
+            <param name="builder">The service collection to register the handlers with.</param>
+            <param name="assembly">The assembly containing the handler classes.</param>
+            <returns>The updated service collection.</returns>
+        </member>
+        <member name="T:Akc.Framework.Mediator.MediatorBuilder">
+            <summary>
+            A builder class for configuring the mediator services.
+            </summary>
+        </member>
+        <member name="T:Akc.Framework.Mediator.ICommand">
+            <summary>
+            Represents a query that returns a result of type TResult.
+            </summary>
+        </member>
+        <member name="T:Akc.Framework.Mediator.ICommandHandler`1">
+            <summary>
+            Represents a command handler that processes commands of type TCommand.
+            </summary>
+            <typeparam name="TCommand"></typeparam>
+        </member>
+        <member name="M:Akc.Framework.Mediator.ICommandHandler`1.Handle(`0,System.Threading.CancellationToken)">
+            <summary>
+            Handles the command.
+            </summary>
+            <param name="command">The command to handle.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+            <returns>A task representing the asynchronous operation.</returns>
+        </member>
+        <member name="T:Akc.Framework.Mediator.ICommand`1">
+            <summary>
+            Represents a command that returns a result of type TResult.
+            </summary>
+            <typeparam name="TResult"></typeparam>
+        </member>
+        <member name="T:Akc.Framework.Mediator.ICommandHandler`2">
+            <summary>
+            Represents a command handler that processes commands of type TCommand and returns a result of type TResult.
+            </summary>
+            <typeparam name="TCommand"></typeparam>
+            <typeparam name="TResult"></typeparam>
+        </member>
+        <member name="M:Akc.Framework.Mediator.ICommandHandler`2.Handle(`0,System.Threading.CancellationToken)">
+            <summary>
+            Handles the command and returns a result.
+            </summary>
+            <param name="command">The command to handle.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+            <returns>A task representing the asynchronous operation with a result.</returns>
+        </member>
+        <member name="T:Akc.Framework.Mediator.IQuery`1">
+            <summary>
+            Represents a query that returns a result of type TResult.
+            </summary>
+            <typeparam name="TResult"></typeparam>
+        </member>
+        <member name="T:Akc.Framework.Mediator.IQueryHandler`2">
+            <summary>
+            Represents a handler for processing queries of type TQuery and returning a result of type TResult.
+            </summary>
+            <typeparam name="TQuery"></typeparam>
+            <typeparam name="TResult"></typeparam>
+        </member>
+        <member name="T:Akc.Framework.Mediator.ISender">
+            <summary>
+            Represents a sender that can send commands and queries to their respective handlers.
+            </summary>
+        </member>
+        <member name="M:Akc.Framework.Mediator.ISender.Send(Akc.Framework.Mediator.ICommand,System.Threading.CancellationToken)">
+            <summary>
+            Sends a command to be handled by the appropriate handler.
+            </summary>
+            <param name="command">The command to send.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+            <returns>A task representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:Akc.Framework.Mediator.ISender.Send``1(Akc.Framework.Mediator.ICommand{``0},System.Threading.CancellationToken)">
+            <summary>
+            Sends a command to be handled by the appropriate handler and returns a result.
+            </summary>
+            <param name="command">The command to send.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+            <returns>A task representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:Akc.Framework.Mediator.ISender.Send``1(Akc.Framework.Mediator.IQuery{``0},System.Threading.CancellationToken)">
+            <summary>
+            Sends a query to be handled by the appropriate handler and returns a result.
+            </summary>
+            <param name="query">The query to send.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+            <returns>A task representing the asynchronous operation with a result.</returns>
+        </member>
+    </members>
+</doc>

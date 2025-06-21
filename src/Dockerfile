@@ -1,23 +1,29 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build-env
-ARG TARGETARCH
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build-env
 WORKDIR /source
 
 # Copy project file and restore as distinct layers
-COPY --link Fotos.App/*.csproj .
+COPY --link Akc.Framework.Mediator/*.csproj ./Akc.Framework.Mediator/
+COPY --link Fotos.App/*.csproj ./Fotos.App/
+COPY --link Fotos.Adapters/*.csproj ./Fotos.Adapters/
+COPY --link Fotos.Application/*.csproj ./Fotos.Application/
+COPY --link Fotos.Core/*.csproj ./Fotos.Core/
 COPY --link *.props .
-RUN dotnet restore -a $TARGETARCH
+RUN dotnet restore ./Fotos.App/Fotos.App.csproj
 
 # Copy source code
-COPY --link ./Fotos.App .
+COPY ./Fotos.App ./Fotos.App
+COPY ./Fotos.Adapters ./Fotos.Adapters
+COPY ./Fotos.Application ./Fotos.Application
+COPY ./Fotos.Core ./Fotos.Core
+COPY ./Akc.Framework.Mediator ./Akc.Framework.Mediator
 
 # Build aplication
-RUN dotnet build --no-restore -a $TARGETARCH -c Release -o /build
+RUN dotnet build ./Fotos.App/Fotos.App.csproj --no-restore -c Release -o /build
 
 FROM build-env AS publish-env
-ARG TARGETARCH
 
 # Publish aplication
-RUN dotnet publish --no-build --no-restore  -c Release -a $TARGETARCH -o /publish /p:OutDir=/build /p:UseAppHost=false
+RUN dotnet publish ./Fotos.App/Fotos.App.csproj --no-build --no-restore  -c Release -o /publish /p:OutDir=/build /p:UseAppHost=false
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
