@@ -1,23 +1,21 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build-env
-ARG TARGETARCH
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build-env
 WORKDIR /source
 
 # Copy project file and restore as distinct layers
 COPY --link Fotos.App/*.csproj .
 COPY --link *.props .
-RUN dotnet restore -a $TARGETARCH
+RUN dotnet restore --disable-parallel
 
 # Copy source code
 COPY --link ./Fotos.App .
 
 # Build aplication
-RUN dotnet build --no-restore -a $TARGETARCH -c Release -o /build
+RUN dotnet build --no-restore -c Release -o /build
 
 FROM build-env AS publish-env
-ARG TARGETARCH
 
 # Publish aplication
-RUN dotnet publish --no-build --no-restore  -c Release -a $TARGETARCH -o /publish /p:OutDir=/build /p:UseAppHost=false
+RUN dotnet publish --no-build --no-restore  -c Release -o /publish /p:OutDir=/build /p:UseAppHost=false
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
