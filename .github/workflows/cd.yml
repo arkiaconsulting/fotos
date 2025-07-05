@@ -12,43 +12,43 @@ env:
   DOCKER_IMAGE_NAME: fotos-web
 
 jobs:
-  build:
-    runs-on: self-hosted
-
-    # env:
-    #   APP_PROJECT_PATH: src/Fotos.App/Fotos.App.csproj
-    #   TESTS_PROJECT_PATH: src/Fotos.Tests/Fotos.Tests.csproj
-    #   COSMOS_DB_ENDPOINT: https://arkia.documents.azure.com:443/
-    #   COSMOS_DB_KEY: ${{ secrets.ARKIA_COSMOS_DB_ACCOUNT_KEY }}
-    #   COSMOS_DB_DATABASE: tests
-    #   COSMOS_DB_PHOTOS_CONTAINER: photos-test
-    #   COSMOS_DB_SESSION_DATA_CONTAINER: session-data-test
-    #   COSMOS_DB_USERS_CONTAINER: users-test
-    #   SERVICE_BUS_NAMESPACE_FQDN: arkiabus.servicebus.windows.net
-    #   SERVICE_BUS_TOPIC: tests-fotos-main
-    #   SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION: produce-thumbnail
-    #   SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION: remove-photo-binaries
-    #   SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION: unused
-    #   AZURE_STORAGE_URI: UseDevelopmentStorage=true
-    #   AZURE_STORAGE_CONTAINER: fotostests
-
+  paths-filter:
+    runs-on: ubuntu-latest
+    outputs:
+      isCodeChange: ${{ steps.filter.outputs.codeChange }}
+      isTerraformChange: ${{ steps.filter.outputs.terraformChange }}
+      isWorkflowChange: ${{ steps.filter.outputs.workflowChange }}
     steps:
     - uses: actions/checkout@v4
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          codeChange:
+            - 'src/**'
+          terraformChange:
+            - 'terraform/**'
+          workflowChange:
+            - '.github/workflows/**'
 
-    # - name: Set up Docker Buildx
-    #   uses: docker/setup-buildx-action@v3
-    #   with:
-    #     buildkitd-config-inline: |
-    #       [registry."registry-lb.harbor-system"]
-    #         http = true
-    #         insecure = true     
-            
-    # - name: Az CLI login
-    #   uses: azure/login@v2
-    #   with:
-    #     client-id: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
-    #     tenant-id: ${{ secrets.AKC_TENANT_ID }}
-    #     subscription-id: ${{ secrets.AKC_SUBSCRIPTION_ID }}
+    - name: Is Code Change
+      run: |
+        echo "Code change: ${{ steps.filter.outputs.codeChange }}"
+
+    - name: Is Terraform Change
+      run: |
+        echo "Terraform change: ${{ steps.filter.outputs.terraformChange }}"
+
+    - name: Is Workflow Change
+      run: |
+        echo "Workflow change: ${{ steps.filter.outputs.workflowChange }}"
+
+  build:
+    runs-on: self-hosted
+    needs: paths-filter
+    if: ${{ needs.paths-filter.outputs.isCodeChange == 'true' || needs.paths-filter.outputs.isWorkflowChange == 'true' }}
+    steps:
+    - uses: actions/checkout@v4
 
     - name: Docker Login
       uses: docker/login-action@v3
@@ -57,70 +57,36 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
         registry: ${{ vars.REGISTRY_HOST }}
 
-    # - name: Docker Login
-    #   run: docker login --username '${{ vars.REGISTRY_USERNAME }}' --password-stdin '${{ secrets.REGISTRY_PASSWORD }}' ${{ vars.REGISTRY_HOST }} 
-
     - name: Build and Push Image
       uses: docker/build-push-action@v5
       with:
         context: src
         push: true
         tags: ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
-        build-args: --platform linux/amd64        
+        build-args: --platform linux/amd64
 
-    # - uses: actions/setup-dotnet@v4
-    #   with:
-    #     dotnet-version: 9.x
-        
-    # - name: Restore frontend test dependencies
-    #   run: dotnet restore ${{ env.TESTS_PROJECT_PATH }}
+  tests:
+    runs-on: self-hosted
+    env:
+      TESTS_PROJECT_PATH: src/Fotos.Tests/Fotos.Tests.csproj
+      DOTNET_INSTALL_DIR: ./.dotnet
 
-    # - name: Install Azurite
-    #   run: npm install -g azurite
+    needs: paths-filter
+    if: ${{ needs.paths-filter.outputs.isCodeChange == 'true' || needs.paths-filter.outputs.isWorkflowChange == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    # - name: Start azurite
-    #   run: azurite-blob &
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+          
+      - name: Restore frontend test dependencies
+        run: dotnet build ${{ env.TESTS_PROJECT_PATH }}
 
-    # - name: Create storage test container
-    #   run: az storage container create -n ${{ env.AZURE_STORAGE_CONTAINER }} --connection-string "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
-
-    # - name: Install Azure CLI
-    #   run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-    # - name: Azure Login
-    #   uses: azure/login@v2
-    #   with:
-    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    # - name: Run frontend tests
-    #   run: dotnet test ${{ env.TESTS_PROJECT_PATH }} --no-restore
-    #   env:
-    #     CosmosDb__AccountEndpoint: ${{ env.COSMOS_DB_ENDPOINT }}
-    #     CosmosDb__AccountKey: ${{ env.COSMOS_DB_KEY }}
-    #     CosmosDb__DatabaseId: ${{ env.COSMOS_DB_DATABASE }}
-    #     CosmosDb__ContainerId: ${{ env.COSMOS_DB_PHOTOS_CONTAINER }}
-    #     CosmosDb__SessionDataContainerId: ${{ env.COSMOS_DB_SESSION_DATA_CONTAINER }}
-    #     CosmosDb__UsersContainerId: ${{ env.COSMOS_DB_USERS_CONTAINER }}
-    #     CosmosDb__FoldersContainerId: unused
-    #     CosmosDb__AlbumsContainerId: unused
-    #     ServiceBus__fullyQualifiedNamespace: ${{ env.SERVICE_BUS_NAMESPACE_FQDN }}
-    #     ServiceBus__MainTopic: ${{ env.SERVICE_BUS_TOPIC }}
-    #     ServiceBus__ProduceThumbnailSubscription: ${{ env.SERVICE_BUS_PRODUCE_THUMBNAIL_SUBSCRIPTION }}
-    #     ServiceBus__RemovePhotoBinariesSubscription: ${{ env.SERVICE_BUS_REMOVE_PHOTO_BINARIES_SUBSCRIPTION }}
-    #     ServiceBus__ExtractExifMetadataSubscription: ${{ env.SERVICE_BUS_EXTRACT_METADATA_SUBSCRIPTION }}
-    #     Google__ClientId: any
-    #     Google__ClientSecret: any
-    #     BaseUrl: https://any
-    #     AccessTokenSigningKey: 0000000000000000000000000000000000000000000000000000000000000000000
-
-    # - name: Publish
-    #   run: dotnet publish ${{ env.APP_PROJECT_PATH }} -c Release -o publish
-
-    # - name: Upload build artifacts
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: app-binaries
-    #     path: publish
+      - name: Run frontend tests
+        run: dotnet test ${{ env.TESTS_PROJECT_PATH }} --no-build --no-restore --filter "Category=Unit"
 
   terraform:
     runs-on: self-hosted
@@ -135,7 +101,9 @@ jobs:
       ARM_USE_OIDC: true
       TF_VAR_fotos_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
       TF_VAR_fotos_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-
+    
+    needs: paths-filter
+    if: ${{ needs.paths-filter.outputs.isTerraformChange == 'true' || needs.paths-filter.outputs.isWorkflowChange == 'true' }}
     steps:
     - uses: actions/checkout@v4
 
