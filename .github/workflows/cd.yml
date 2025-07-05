@@ -3,6 +3,10 @@ name: Frontend CI/CD
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'terraform/**'
+      - '.github/workflows/**'
 
 permissions:
   contents: read
