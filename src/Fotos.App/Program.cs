@@ -19,7 +19,7 @@ using MudBlazor.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 TokenCredential credential = builder.Environment.IsProduction()
-    ? new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId(Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")))
+    ? new EnvironmentCredential()
     : new DefaultAzureCredential();
 builder.Services.AddSingleton(_ => credential);
 
