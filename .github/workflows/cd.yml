@@ -101,8 +101,7 @@ jobs:
       ARM_CLIENT_ID: ${{ secrets.DEPLOY_AZURE_CLIENT_ID }}
       ARM_TENANT_ID: ${{ secrets.AKC_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AKC_SUBSCRIPTION_ID }}
-      ARM_USE_AZUREAD: true
-      ARM_USE_OIDC: true
+      ARM_CLIENT_SECRET: ${{ secrets.DEPLOY_AZURE_CLIENT_SECRET }}
       TF_VAR_fotos_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
       TF_VAR_fotos_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
     

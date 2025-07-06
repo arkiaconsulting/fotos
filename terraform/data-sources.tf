@@ -1,4 +1,6 @@
 
+data "azuread_client_config" "current" {}
+
 data "azurerm_resources" "common_cosmos_account" {
   type = "Microsoft.DocumentDB/databaseAccounts"
 
@@ -39,30 +41,6 @@ data "azurerm_key_vault" "common" {
   resource_group_name = data.azurerm_resources.common_key_vault.resources[0].resource_group_name
 }
 
-data "azurerm_key_vault_certificate" "arkia_dev" {
-  name         = "arkia-dev"
-  key_vault_id = data.azurerm_key_vault.common.id
-}
-
-data "azurerm_resources" "app_container_environment" {
-  type = "Microsoft.App/managedEnvironments"
-
-  required_tags = {
-    level = "common"
-  }
-}
-
-data "azurerm_container_app_environment" "common" {
-  name                = data.azurerm_resources.app_container_environment.resources[0].name
-  resource_group_name = data.azurerm_resources.app_container_environment.resources[0].resource_group_name
-}
-
-data "azurerm_container_app_environment_certificate" "arkia_dev" {
-  name                         = "arkia-dev"
-  container_app_environment_id = data.azurerm_container_app_environment.common.id
-}
-
-# Find App Configuration
 data "azurerm_resources" "app_configuration" {
   type = "Microsoft.AppConfiguration/configurationStores"
 
@@ -83,22 +61,4 @@ data "azurerm_resources" "acr" {
   required_tags = {
     level = "common"
   }
-}
-
-data "azurerm_container_registry" "common" {
-  name                = data.azurerm_resources.acr.resources[0].name
-  resource_group_name = data.azurerm_resources.acr.resources[0].resource_group_name
-}
-
-data "azurerm_resources" "app_insights" {
-  type = "Microsoft.Insights/components"
-
-  required_tags = {
-    level = "common"
-  }
-}
-
-data "azurerm_application_insights" "common" {
-  name                = data.azurerm_resources.app_insights.resources[0].name
-  resource_group_name = data.azurerm_resources.app_insights.resources[0].resource_group_name
 }
