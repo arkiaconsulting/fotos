@@ -21,4 +21,10 @@ resource "azurerm_key_vault_secret" "google_client_secret" {
   key_vault_id = data.azurerm_key_vault.common.id
 }
 
+resource "azurerm_key_vault_secret" "service_principal_client_secret" {
+  name         = "fotos-service-principal-client-secret"
+  value        = azuread_service_principal_password.main.value
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+
 

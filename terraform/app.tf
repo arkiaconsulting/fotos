@@ -1,78 +1,78 @@
 # Container App Hello World
-resource "azurerm_container_app" "fotos" {
-  name                         = "fotos"
-  resource_group_name          = azurerm_resource_group.main.name
-  workload_profile_name        = "Consumption"
-  container_app_environment_id = data.azurerm_container_app_environment.common.id
-  revision_mode                = "Single"
+# resource "azurerm_container_app" "fotos" {
+#   name                         = "fotos"
+#   resource_group_name          = azurerm_resource_group.main.name
+#   workload_profile_name        = "Consumption"
+#   container_app_environment_id = data.azurerm_container_app_environment.common.id
+#   revision_mode                = "Single"
 
-  registry {
-    identity = azurerm_user_assigned_identity.main.id
-    server   = data.azurerm_container_registry.common.login_server
-  }
+#   registry {
+#     identity = azurerm_user_assigned_identity.main.id
+#     server   = data.azurerm_container_registry.common.login_server
+#   }
 
-  template {
-    min_replicas = 0
-    max_replicas = 1
+#   template {
+#     min_replicas = 0
+#     max_replicas = 1
 
-    container {
-      name   = "fotos"
-      image  = "mcr.microsoft.com/k8se/quickstart:latest"
-      cpu    = 1
-      memory = "2Gi"
+#     container {
+#       name   = "fotos"
+#       image  = "mcr.microsoft.com/k8se/quickstart:latest"
+#       cpu    = 1
+#       memory = "2Gi"
 
-      env {
-        name  = "AZURE_CLIENT_ID"
-        value = azurerm_user_assigned_identity.main.client_id
-      }
+#       env {
+#         name  = "AZURE_CLIENT_ID"
+#         value = azurerm_user_assigned_identity.main.client_id
+#       }
 
-      env {
-        name  = "APP_CONFIG_ENDPOINT"
-        value = data.azurerm_app_configuration.common.endpoint
-      }
+#       env {
+#         name  = "APP_CONFIG_ENDPOINT"
+#         value = data.azurerm_app_configuration.common.endpoint
+#       }
 
-      env {
-        name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
-        value = data.azurerm_application_insights.common.connection_string
-      }
+#       env {
+#         name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
+#         value = data.azurerm_application_insights.common.connection_string
+#       }
 
-      env {
-        name  = "ASPNETCORE_FORWARDEDHEADERS_ENABLED"
-        value = "true"
-      }
-    }
-  }
+#       env {
+#         name  = "ASPNETCORE_FORWARDEDHEADERS_ENABLED"
+#         value = "true"
+#       }
+#     }
+#   }
 
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.main.id]
-  }
+#   identity {
+#     type         = "UserAssigned"
+#     identity_ids = [azurerm_user_assigned_identity.main.id]
+#   }
 
-  ingress {
-    target_port      = 8080
-    external_enabled = true
+#   ingress {
+#     target_port      = 8080
+#     external_enabled = true
 
-    traffic_weight {
-      latest_revision = true
-      percentage      = 100
-    }
-  }
+#     traffic_weight {
+#       latest_revision = true
+#       percentage      = 100
+#     }
+#   }
 
-  tags = local.tags
+#   tags = local.tags
 
-  lifecycle {
-    ignore_changes = [
-      template[0].container[0].image
-    ]
-  }
-}
+#   lifecycle {
+#     ignore_changes = [
+#       template[0].container[0].image
+#     ]
+#   }
+# }
 
-resource "azurerm_container_app_custom_domain" "fotos" {
-  container_app_id                         = azurerm_container_app.fotos.id
-  name                                     = local.hostname
-  container_app_environment_certificate_id = data.azurerm_container_app_environment_certificate.arkia_dev.id
-  certificate_binding_type                 = "SniEnabled"
-}
+# resource "azurerm_container_app_custom_domain" "fotos" {
+#   container_app_id                         = azurerm_container_app.fotos.id
+#   name                                     = local.hostname
+#   container_app_environment_certificate_id = data.azurerm_container_app_environment_certificate.arkia_dev.id
+#   certificate_binding_type                 = "SniEnabled"
+# }
 
 # resource "azurerm_windows_web_app" "main" {
 #   name                            = local.web_app_name
