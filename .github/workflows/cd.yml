@@ -2,11 +2,12 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'src/**'
-      - 'terraform/**'
-      - '.github/workflows/**'
+      - "src/**"
+      - "terraform/**"
+      - ".github/workflows/**"
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -23,51 +24,51 @@ jobs:
       isTerraformChange: ${{ steps.filter.outputs.terraformChange }}
       isWorkflowChange: ${{ steps.filter.outputs.workflowChange }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          codeChange:
-            - 'src/**'
-          terraformChange:
-            - 'terraform/**'
-          workflowChange:
-            - '.github/workflows/**'
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            codeChange:
+              - 'src/**'
+            terraformChange:
+              - 'terraform/**'
+            workflowChange:
+              - '.github/workflows/**'
 
-    - name: Is Code Change
-      run: |
-        echo "Code change: ${{ steps.filter.outputs.codeChange }}"
+      - name: Is Code Change
+        run: |
+          echo "Code change: ${{ steps.filter.outputs.codeChange }}"
 
-    - name: Is Terraform Change
-      run: |
-        echo "Terraform change: ${{ steps.filter.outputs.terraformChange }}"
+      - name: Is Terraform Change
+        run: |
+          echo "Terraform change: ${{ steps.filter.outputs.terraformChange }}"
 
-    - name: Is Workflow Change
-      run: |
-        echo "Workflow change: ${{ steps.filter.outputs.workflowChange }}"
+      - name: Is Workflow Change
+        run: |
+          echo "Workflow change: ${{ steps.filter.outputs.workflowChange }}"
 
   build:
     runs-on: self-hosted
     needs: paths-filter
     if: ${{ needs.paths-filter.outputs.isCodeChange == 'true' || needs.paths-filter.outputs.isWorkflowChange == 'true' }}
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Docker Login
-      uses: docker/login-action@v3
-      with:
-        username: ${{ vars.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-        registry: ${{ vars.REGISTRY_HOST }}
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          registry: ${{ vars.REGISTRY_HOST }}
 
-    - name: Build and Push Image
-      uses: docker/build-push-action@v5
-      with:
-        context: src
-        push: true
-        tags: ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.run_id }}
-        build-args: --platform linux/amd64
+      - name: Build and Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: src
+          push: true
+          tags: ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.run_id }}
+          build-args: --platform linux/amd64
 
   tests:
     runs-on: self-hosted
@@ -85,7 +86,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x
-          
+
       - name: Restore frontend test dependencies
         run: dotnet build ${{ env.TESTS_PROJECT_PATH }}
 
@@ -104,30 +105,30 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.DEPLOY_AZURE_CLIENT_SECRET }}
       TF_VAR_fotos_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
       TF_VAR_fotos_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-    
+
     needs: paths-filter
     if: ${{ needs.paths-filter.outputs.isTerraformChange == 'true' || needs.paths-filter.outputs.isWorkflowChange == 'true' }}
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '22'
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "22"
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 1.11.4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
 
-    - name: Terraform Init
-      run: >
-        terraform init -input=false -backend-config=environments/backend.config
+      - name: Terraform Init
+        run: >
+          terraform init -input=false -backend-config=environments/backend.config
 
-    - name: Terraform Plan
-      run: terraform plan -input=false -out=tfplan -var-file="environments/variables.tfvars"
+      - name: Terraform Plan
+        run: terraform plan -input=false -out=tfplan -var-file="environments/variables.tfvars"
 
-    - name: Terraform Apply
-      run: terraform apply -input=false -auto-approve tfplan
+      - name: Terraform Apply
+        run: terraform apply -input=false -auto-approve tfplan
 
   # deploy:k
   #   runs-on: ubuntu-latest
@@ -156,4 +157,3 @@ jobs:
   #           --set-env-vars "OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic ${{ secrets.GRAFANA_ENCODED_API_KEY }}" \
   #           "OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-eu-west-2.grafana.net/otlp" \
   #           "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf"
-        
