@@ -7,8 +7,10 @@ COPY --link Fotos.App/*.csproj ./Fotos.App/
 COPY --link Fotos.Adapters/*.csproj ./Fotos.Adapters/
 COPY --link Fotos.Application/*.csproj ./Fotos.Application/
 COPY --link Fotos.Core/*.csproj ./Fotos.Core/
+COPY --link Fotos.Tests/*.csproj ./Fotos.Tests/
 COPY --link *.props .
-RUN dotnet restore ./Fotos.App/Fotos.App.csproj
+COPY --link *.sln .
+RUN dotnet restore Fotos.sln
 
 # Copy source code
 COPY ./Fotos.App ./Fotos.App
