@@ -2,7 +2,6 @@
 using Grafana.OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace Fotos.App.Observability;
@@ -16,7 +15,7 @@ internal static class InstrumentationConfigurationExtensions
     {
         AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
 
-        builder.Services.AddOpenTelemetry()
+        var otel = builder.Services.AddOpenTelemetry()
             .WithTracing(traceBuilder => traceBuilder
                 .AddSource(DiagnosticConfig.AppActivitySource.Name)
                 .AddSource("Azure.*")
@@ -30,33 +29,32 @@ internal static class InstrumentationConfigurationExtensions
                 })
                 .AddHttpClientInstrumentation()
                 .SetErrorStatusOnException()
-                .UseGrafana(ConfigureGrafana))
+                .UseGrafana(settings => ConfigureGrafana(settings, builder.Configuration)))
             .WithMetrics(metricsBuilder => metricsBuilder
                 .AddMeter(DiagnosticConfig.AppActivitySource.Name)
                 .SetExemplarFilter(ExemplarFilterType.TraceBased)
                 .AddHttpClientInstrumentation()
-                .UseGrafana(ConfigureGrafana))
-            .WithLogging(loggingBuilder => loggingBuilder.ConfigureResource(ConfigureResourceForLogging),
+                .UseGrafana(settings => ConfigureGrafana(settings, builder.Configuration)))
+            .WithLogging(loggingBuilder => { },
             options =>
             {
                 options.IncludeScopes = true;
                 options.IncludeFormattedMessage = true;
-                options.UseGrafana(ConfigureGrafana);
+                options.UseGrafana(settings => ConfigureGrafana(settings, builder.Configuration));
             });
     }
 
-    private static void ConfigureResourceForLogging(ResourceBuilder builder)
+    private static void ConfigureGrafana(GrafanaOpenTelemetrySettings settings, IConfiguration configuration)
     {
-        builder.AddService(ServiceName)
-        .AddAttributes(new Dictionary<string, object>
+        // extract deployment.environment value from the environment variable OTEL_RESOURCE_ATTRIBUTES=deployment.environment.name=production
+        var resourceAttributes = configuration.GetValue("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment=unknown");
+        foreach (var attribute in resourceAttributes.Split(','))
         {
-            { "service.namespace", ServiceNamespace },
-        });
-    }
-
-    private static void ConfigureGrafana(GrafanaOpenTelemetrySettings settings)
-    {
-        settings.ServiceName = ServiceName;
-        settings.ResourceAttributes.Add("service.namespace", ServiceNamespace);
+            var keyValue = attribute.Split('=');
+            if (keyValue.Length == 2 && keyValue[0] == "deployment.environment")
+            {
+                settings.DeploymentEnvironment = keyValue[1];
+            }
+        }
     }
 }

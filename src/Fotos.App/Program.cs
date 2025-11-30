@@ -13,8 +13,10 @@ using Fotos.App.Observability;
 using Fotos.Application;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
+using Microsoft.Extensions.Options;
 using MudBlazor;
 using MudBlazor.Services;
+using OpenTelemetry.Exporter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +75,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 var app = builder.Build();
 
+var options = app.Services.GetRequiredService<IOptions<OtlpExporterOptions>>().Value;
+
 app.UseForwardedHeaders();
 app.UseResponseCompression();
 
@@ -93,7 +97,6 @@ app.MapRazorComponents<Fotos.App.Components.App>()
     .AddInteractiveServerRenderMode();
 
 app.MapHub<PhotosHub>("/photoshub");
-
 await app.RunAsync();
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
